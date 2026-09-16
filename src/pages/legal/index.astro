@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Legal', url: '/legal/' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs)];
+
+const docs = [
+  { title: 'Privacy Policy', href: '/legal/privacy/', desc: 'What data we collect, how consent works, and your rights.', icon: '🔒', color: 'bg-cyan-accent' },
+  { title: 'Terms of Service', href: '/legal/terms/', desc: 'The rules for using Calctube and its calculators.', icon: '📜', color: 'bg-lime-accent' },
+  { title: 'Cookie Policy', href: '/legal/cookies/', desc: 'Which cookies we use, why, and how to control them.', icon: '🍪', color: 'bg-yellow-accent' },
+];
+---
+
+<BaseLayout title="Legal: Privacy, Terms & Cookies" description="Calctube's legal documents: privacy policy, terms of service, and cookie policy." noindex={true}>
+  <section class="container-wide pt-10 pb-16 md:pt-14 md:pb-24">
+    <nav aria-label="Breadcrumb" class="mb-6">
+      <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+        {breadcrumbs.map((item, idx) => (
+          <li class="flex items-center gap-1.5">
+            {idx === breadcrumbs.length - 1 ? (
+              <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+            ) : (
+              <>
+                <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+              </>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+    <div class="max-w-3xl">
+      <span class="chip-cyan mb-4">⚖️ Legal</span>
+      <h1 class="!text-4xl sm:!text-5xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900 mt-4" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+        The fine print, <span class="text-gradient-brand">findable.</span>
+      </h1>
+      <p class="mt-4 text-lg text-ink-700 font-medium leading-relaxed">Everything about how Calctube handles your data and what you agree to by using our calculators.</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10 max-w-3xl">
+      {docs.map((d) => (
+        <a href={d.href} class={`group ${d.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+          <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{d.icon}</div>
+          <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{d.title}</div>
+          <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{d.desc}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

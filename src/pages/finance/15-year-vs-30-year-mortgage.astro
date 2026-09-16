@@ -1,0 +1,263 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/finance/15-year-vs-30-year-mortgage';
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'Mortgage Calculator', url: '/finance/mortgage-calculator/' },
+  { name: '15-year vs 30-year', url: path },
+];
+
+const faqs = [
+  { q: 'Which is better: 15-year or 30-year mortgage?', a: 'Mathematically, the 15-year wins for total cost: lower rate, far less total interest, faster equity. The 30-year wins for monthly affordability and flexibility. The right answer depends on your cash flow: if you can comfortably afford the 15-year payment AND have already maxed retirement contributions, take the 15-year. Otherwise, take the 30-year and make occasional principal pre-payments.' },
+  { q: 'How much money does a 15-year mortgage save?', a: 'On a $400,000 loan: 15-year at 5.75% costs $3,322/mo and $198,000 total interest. 30-year at 6.5% costs $2,528/mo and $510,000 total interest. The 15-year saves $312,000 in interest at the cost of $794/mo extra payment. Effective return on the extra payment: roughly 12-15% guaranteed.' },
+  { q: 'Why is 15-year mortgage rate lower than 30-year?', a: 'Two reasons: (1) Shorter loans carry less duration risk for lenders. They price this in. (2) 15-year borrowers self-select for higher creditworthiness (they qualify for the higher payment), reducing default risk. The 50-75 basis point spread between 15 and 30-year is consistent across decades.' },
+  { q: 'Can I refinance from 30-year to 15-year mortgage?', a: 'Yes, and many borrowers do this 5-10 years into a 30-year as their equity and income grow. The refinance restarts the clock but at a shorter term and typically lower rate. Compute the break-even on closing costs (typically 2-3 years) before deciding.' },
+  { q: '15-year mortgage vs invest the difference: what wins?', a: 'Historical math: investing the $794/mo difference in S&P 500 over 15 years at 7% real return = $241,000. The 15-year mortgage saves $312,000 in interest. The 15-year wins by ~$71,000, plus guaranteed return + lower stress. The "invest the difference" math only beats the mortgage when stocks return >10% real, which is above historical averages.' },
+];
+
+// Worked example data
+const loanAmount = 400000;
+function emi(p: number, r: number, years: number): number {
+  const m = r / 100 / 12;
+  const n = years * 12;
+  return (p * m * Math.pow(1 + m, n)) / (Math.pow(1 + m, n) - 1);
+}
+const m15 = emi(loanAmount, 5.75, 15);
+const m30 = emi(loanAmount, 6.5, 30);
+const t15 = m15 * 15 * 12;
+const t30 = m30 * 30 * 12;
+const i15 = t15 - loanAmount;
+const i30 = t30 - loanAmount;
+const monthlyDiff = m15 - m30;
+const interestSavings = i30 - i15;
+
+const fmtUSD = (v: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
+
+const schemas = [
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+];
+---
+
+<BaseLayout
+  title="15-Year vs 30-Year Mortgage Calculator"
+  description="15-year vs 30-year mortgage compared. See real numbers: monthly payment, total interest, total paid. Plus when each term wins for your specific situation."
+  schemas={schemas}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-pink-accent/20 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">15-year</span>
+          <span class="text-xl font-bold text-ink-500">vs</span>
+          <span class="chip-pink">30-year</span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          15-Year vs 30-Year <span class="text-gradient-brand">Mortgage.</span>
+        </h1>
+
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">TL;DR</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                On a $400K loan: <strong>15-year saves {fmtUSD(interestSavings)} in interest</strong> but costs {fmtUSD(monthlyDiff)} more per month. The 30-year wins for affordability and flexibility; the 15-year wins for wealth-building if you can afford the higher payment.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIDE-BY-SIDE COMPARISON TABLE -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-pink mb-4">📊 Side-by-side</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        $400,000 loan, head-to-head.
+      </h2>
+
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">15-year</div>
+          <div class="text-4xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">{fmtUSD(m15)}</div>
+          <div class="text-sm text-ink-800 mt-1 font-bold">/month</div>
+          <div class="mt-5 space-y-2 text-sm font-semibold">
+            <div class="flex justify-between"><span>Interest rate</span><span>5.75%</span></div>
+            <div class="flex justify-between"><span>Term</span><span>15 years (180 months)</span></div>
+            <div class="flex justify-between"><span>Total interest</span><strong>{fmtUSD(i15)}</strong></div>
+            <div class="flex justify-between"><span>Total paid</span><strong>{fmtUSD(t15)}</strong></div>
+          </div>
+        </div>
+        <div class="bg-pink-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-white mb-2">30-year</div>
+          <div class="text-4xl font-extrabold text-white leading-none" style="font-family: 'Inter Tight', sans-serif;">{fmtUSD(m30)}</div>
+          <div class="text-sm text-white mt-1 font-bold">/month</div>
+          <div class="mt-5 space-y-2 text-sm font-semibold text-white">
+            <div class="flex justify-between"><span>Interest rate</span><span>6.5%</span></div>
+            <div class="flex justify-between"><span>Term</span><span>30 years (360 months)</span></div>
+            <div class="flex justify-between"><span>Total interest</span><strong>{fmtUSD(i30)}</strong></div>
+            <div class="flex justify-between"><span>Total paid</span><strong>{fmtUSD(t30)}</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Difference callout -->
+      <div class="mt-5 bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">💸 Extra monthly cost (15-year)</div>
+            <div class="text-3xl font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{fmtUSD(monthlyDiff)}/mo</div>
+          </div>
+          <div>
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">💰 Total interest saved (15-year)</div>
+            <div class="text-3xl font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{fmtUSD(interestSavings)}</div>
+          </div>
+        </div>
+        <p class="text-ink-900 font-semibold mt-3 !m-0 leading-relaxed">
+          You pay <strong>{fmtUSD(monthlyDiff)}/mo more</strong> on the 15-year. But you save <strong>{fmtUSD(interestSavings)}</strong> in total interest. Effective return on each extra dollar paid: <strong>~13% guaranteed</strong>, better than the long-term stock market average.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHEN EACH WINS -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">🎯 Decision matrix</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          When each term wins.
+        </h2>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+            <h3 class="!text-xl !mt-0 !mb-4" style="font-family: 'Inter Tight', sans-serif;">✅ Pick 15-year if...</h3>
+            <ul class="space-y-2.5 text-sm font-semibold text-ink-800">
+              <li class="flex gap-2"><span class="text-lime-accent">→</span><span>Dual-income household with stable W-2 income</span></li>
+              <li class="flex gap-2"><span class="text-lime-accent">→</span><span>Already maxing retirement contributions (401k, IRA)</span></li>
+              <li class="flex gap-2"><span class="text-lime-accent">→</span><span>Plan to stay in the home 10+ years</span></li>
+              <li class="flex gap-2"><span class="text-lime-accent">→</span><span>Want to be mortgage-free before retirement</span></li>
+              <li class="flex gap-2"><span class="text-lime-accent">→</span><span>Comfortable with 30-35% of income going to housing</span></li>
+              <li class="flex gap-2"><span class="text-lime-accent">→</span><span>Hate carrying debt psychologically</span></li>
+            </ul>
+          </div>
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+            <h3 class="!text-xl !mt-0 !mb-4" style="font-family: 'Inter Tight', sans-serif;">✅ Pick 30-year if...</h3>
+            <ul class="space-y-2.5 text-sm font-semibold text-ink-800">
+              <li class="flex gap-2"><span class="text-pink-accent">→</span><span>First-time buyer maximizing affordability</span></li>
+              <li class="flex gap-2"><span class="text-pink-accent">→</span><span>Variable or commission-based income</span></li>
+              <li class="flex gap-2"><span class="text-pink-accent">→</span><span>Want flexibility for unexpected expenses</span></li>
+              <li class="flex gap-2"><span class="text-pink-accent">→</span><span>NOT yet maxing retirement contributions</span></li>
+              <li class="flex gap-2"><span class="text-pink-accent">→</span><span>Expect to sell or refinance within 7-10 years</span></li>
+              <li class="flex gap-2"><span class="text-pink-accent">→</span><span>Plan to invest the difference in equities</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE SMART HYBRID -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">💡 The smart hybrid</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        The compromise most people miss.
+      </h2>
+      <p class="text-ink-700 mt-4 text-lg font-medium leading-relaxed">
+        Take a <strong>30-year mortgage</strong>, then voluntarily make payments as if it were a 15-year. You get the best of both:
+      </p>
+      <ul class="mt-4 space-y-2 text-ink-800 font-medium">
+        <li class="flex gap-2"><span class="text-lime-accent">→</span><span><strong>Pay off in roughly 15 years</strong> by adding {fmtUSD(monthlyDiff)}/month extra principal</span></li>
+        <li class="flex gap-2"><span class="text-lime-accent">→</span><span><strong>Cash-flow flexibility</strong>: in a job loss or medical emergency, drop back to the contractual 30-year payment</span></li>
+        <li class="flex gap-2"><span class="text-lime-accent">→</span><span><strong>Slightly higher rate</strong> than a true 15-year (~50-75 bps), so total interest is slightly higher than pure 15-year</span></li>
+      </ul>
+      <p class="text-ink-700 mt-4 font-medium leading-relaxed">
+        The math: same monthly payment as 15-year, slightly more total interest (~$30-50K extra on $400K loan), but with an option to pause the aggressive payoff anytime. Most disciplined borrowers prefer this structure.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          Common questions.
+        </h2>
+
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        More mortgage tools.
+      </h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+        <a href="/finance/mortgage-calculator/" class="group bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200">
+          <div class="text-2xl mb-2">🏠</div>
+          <div class="font-extrabold text-ink-900 text-sm" style="font-family: 'Inter Tight', sans-serif;">Mortgage Calculator</div>
+        </a>
+        <a href="/finance/15-year-mortgage-calculator/" class="group bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200">
+          <div class="text-2xl mb-2">⏱️</div>
+          <div class="font-extrabold text-ink-900 text-sm" style="font-family: 'Inter Tight', sans-serif;">15-year details</div>
+        </a>
+        <a href="/finance/30-year-mortgage-calculator/" class="group bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200">
+          <div class="text-2xl mb-2">⏱️</div>
+          <div class="font-extrabold text-ink-900 text-sm" style="font-family: 'Inter Tight', sans-serif;">30-year details</div>
+        </a>
+        <a href="/finance/10-year-vs-30-year-mortgage/" class="group bg-pink-accent border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200">
+          <div class="text-2xl mb-2">⚔️</div>
+          <div class="font-extrabold text-white text-sm" style="font-family: 'Inter Tight', sans-serif;">10-Year Calc</div>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

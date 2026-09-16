@@ -1,0 +1,165 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/how-much-home-loan-can-i-afford';
+const lastUpdated = '2026-07-10';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'How Much Home Loan Can I Afford', url: path },
+];
+
+// Build-time computed affordability table. Loan = present value of the max EMI.
+const RATE = 8.5, YEARS = 20;
+const r = RATE / 100 / 12;
+const n = YEARS * 12;
+const EMI_RATIO = 0.40; // banks cap total EMIs near 40-50% of net income (FOIR)
+function loanForEmi(emi: number): number {
+  return (emi * (1 - Math.pow(1 + r, -n))) / r;
+}
+const incomes = [50000, 75000, 100000, 150000, 200000, 300000];
+const rows = incomes.map((inc) => {
+  const maxEmi = inc * EMI_RATIO;
+  const loan = loanForEmi(maxEmi);
+  const property = loan / 0.8; // assuming 20% down payment
+  return { inc, maxEmi, loan, property };
+});
+const example = rows[2]; // ₹1L/month
+
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+const fmtL = (v: number) => v >= 10000000 ? `₹${(v / 10000000).toFixed(2)} Cr` : `₹${(v / 100000).toFixed(1)} L`;
+
+const faqs = [
+  { q: 'What is the 40% rule for home loans?', a: `A widely used affordability guardrail: keep your total EMIs (home loan plus any car or personal loan) under about 40% of your net monthly income. Banks apply a version of this called FOIR (Fixed Obligation to Income Ratio), usually capping it at 40-50%. At ${RATE}% over ${YEARS} years, a ${fmtINR(example.inc)}/month income supports an EMI of ${fmtINR(example.maxEmi)}, which funds a home loan of roughly ${fmtL(example.loan)}.` },
+  { q: `How much home loan can I get on a ₹1 lakh salary?`, a: `On ${fmtINR(example.inc)} net per month, the 40% rule allows an EMI of ${fmtINR(example.maxEmi)}. At the current ${RATE}% for ${YEARS} years that supports a loan of about ${fmtL(example.loan)}, and with a 20% down payment, a property of roughly ${fmtL(example.property)}. If you already pay a car or personal-loan EMI, subtract it from the ${fmtINR(example.maxEmi)} first. The bank counts all your obligations together.` },
+  { q: 'Does a longer tenure let me borrow more?', a: `Yes, but with a catch. Stretching from 20 to 30 years lowers the EMI for a given loan, so the same income qualifies for a bigger amount, but you pay far more total interest and stay in debt a decade longer. It's a tool for affordability, not a free lunch: borrow the longer tenure to qualify if you must, then prepay aggressively to cut the interest back down. Most lenders also cap the tenure so the loan ends by retirement age (usually 60-65).` },
+  { q: 'What else affects how much I can borrow besides income?', a: 'Four big factors. (1) Credit score: a 750+ CIBIL score gets you the best rate and full eligibility; below 700 and banks lend less, or nothing. (2) Existing EMIs: every other loan reduces your headroom rupee-for-rupee. (3) Age: a shorter remaining working life means a shorter tenure and smaller loan. (4) Employment type: salaried applicants get higher multiples than self-employed, who face income-averaging and stricter documentation.' },
+  { q: 'Should I borrow the maximum the bank offers?', a: 'Rarely a good idea. Banks lend to the edge of their risk appetite, not the edge of your comfort. Maxing out leaves nothing for the stamp duty and registration (which the loan won\'t cover), no emergency fund, and no room for a rate hike. On a floating loan, a 1% rate rise can lengthen your tenure by years. A safer target is keeping the home-loan EMI alone under 30-35% of net income, with total EMIs under 40%, and a 6-month emergency fund intact after the down payment.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`How Much Home Loan Can I Afford? The 40% Rule (2026): ₹1L Salary = ${fmtL(example.loan)} Loan`} description={`The 40% EMI rule, computed across income levels. A ₹1L/month salary supports a ${fmtINR(example.maxEmi)} EMI and a ${fmtL(example.loan)} home loan at ${RATE}%/${YEARS}yr. Full affordability table, FOIR explained, and why not to borrow the max.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">📚 Guide</span>
+          <span class="chip-cyan">🏠 Affordability</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          How much home loan <span class="text-gradient-brand">can you afford?</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Keep total EMIs under <strong>40% of net income</strong>. On <strong>{fmtINR(example.inc)}/month</strong> that's a <strong>{fmtINR(example.maxEmi)}</strong> EMI, funding a home loan of about <strong>{fmtL(example.loan)}</strong> at {RATE}% over {YEARS} years, a property near <strong>{fmtL(example.property)}</strong> with 20% down. Already paying a car EMI? Subtract it first.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">What the bank actually checks</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        "How much can I borrow?" has a precise answer, and it starts with a ratio bankers call <strong>FOIR</strong> (Fixed Obligation to Income Ratio). Add up every monthly loan payment you already have, add the proposed home-loan EMI, and divide by your net income. Lenders want that number under roughly 40-50%. Everything else (your salary, your other loans, the interest rate, the tenure) feeds into that one constraint. Work it backwards and you get your maximum loan: take 40% of income as the EMI ceiling, then find the loan whose EMI equals it.
+      </p>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Here's that calculation run across income levels, at the current {RATE}% for a {YEARS}-year loan, assuming no other EMIs and a 20% down payment:
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Net monthly income</th>
+            <th class="text-right p-3 font-extrabold">Max EMI (40%)</th>
+            <th class="text-right p-3 font-extrabold">Home loan</th>
+            <th class="text-right p-3 font-extrabold">Property (20% down)</th>
+          </tr></thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr class={`border-b-2 border-ink-100 ${i === 2 ? 'bg-lime-accent/25' : i % 2 ? 'bg-ink-50' : ''}`}>
+                <td class="p-3 font-bold text-ink-900">{fmtINR(row.inc)}</td>
+                <td class="p-3 text-right font-mono text-ink-800">{fmtINR(row.maxEmi)}</td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{fmtL(row.loan)}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtL(row.property)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">Illustrative, at {RATE}% for {YEARS} years with no existing EMIs. Your actual eligibility depends on credit score, age, employer, and current rates. Use the EMI calculator to model your exact numbers.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The gap between "can" and "should"</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        The table shows what a bank will <em>approve</em>. What you should actually <em>borrow</em> is usually less. A max-FOIR loan leaves no cash for stamp duty and registration (which the loan can't cover, often another 6-8% of the property), no emergency fund, and no cushion if a floating rate ticks up. The comfortable version of the rule: home-loan EMI alone under 30-35% of net income, all EMIs under 40%, and six months of expenses still in the bank after you've paid the down payment. Borrow to the second number, not the first. The house you can barely afford is the one that owns you.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Model your numbers</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'EMI Calculator', href: '/finance/emi-calculator/', icon: '🇮🇳', color: 'bg-rose-300' },
+          { name: 'Salary Calculator', href: '/finance/salary-calculator/', icon: '💼', color: 'bg-yellow-accent' },
+          { name: 'Mortgage Calculator', href: '/finance/mortgage-calculator/', icon: '🏠', color: 'bg-lime-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Legal', url: '/legal/' },
+  { name: 'Privacy Policy', url: '/legal/privacy/' },
+];
+
+const lastUpdated = '2026-05-13';
+---
+
+<BaseLayout
+  title="Privacy Policy"
+  description="How Calctube collects, uses, and protects your information. Plain-English privacy policy covering analytics, cookies, third-party services, and your rights."
+  schemas={[buildBreadcrumbSchema(breadcrumbs)]}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-prose relative pt-10 pb-8 md:pt-14 md:pb-10">
+      <Breadcrumbs items={breadcrumbs} />
+      <span class="chip-cyan mb-4">🔒 Privacy</span>
+      <h1 class="!text-4xl sm:!text-5xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900 mt-4" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+        Privacy <span class="text-gradient-brand">Policy.</span>
+      </h1>
+      <p class="mt-4 text-ink-700 font-medium">Last updated: {lastUpdated}</p>
+    </div>
+  </section>
+
+  <article class="container-prose pb-16 md:pb-24 prose-style">
+    <p>
+      Calctube ("we", "us", "our") respects your privacy. This Privacy Policy explains what
+      information we collect, how we use it, and your rights. By using calctube.com you agree
+      to the practices described here.
+    </p>
+
+    <h2>What we collect</h2>
+    <ul>
+      <li><strong>Usage analytics:</strong> via Google Analytics 4 and Cloudflare Web Analytics. Anonymized IP, browser, device, pages visited.</li>
+      <li><strong>Search Console data:</strong> aggregated, anonymous keyword and page-performance data from Google and Bing.</li>
+      <li><strong>Calculator inputs:</strong> processed entirely in your browser. We do NOT send the values you enter into our calculators to any server.</li>
+      <li><strong>Cookies:</strong> see the <a href="/legal/cookies/">Cookie Policy</a> for details.</li>
+    </ul>
+
+    <h2>What we do NOT collect</h2>
+    <ul>
+      <li>Personal identifiers (name, address, phone, SSN, etc.), unless you email us voluntarily.</li>
+      <li>Financial account numbers, credit card numbers, or banking details.</li>
+      <li>Medical records or health diagnoses.</li>
+      <li>The specific values you enter into our calculators.</li>
+    </ul>
+
+    <h2>Advertising</h2>
+    <p>
+      We display advertising via Google AdSense and similar networks. Ad partners may use
+      cookies to serve relevant ads based on your prior browsing. You can opt out via
+      <a href="https://www.google.com/settings/ads" rel="nofollow">Google Ads Settings</a>
+      and <a href="https://optout.networkadvertising.org/" rel="nofollow">NAI opt-out</a>.
+    </p>
+
+    <h2>Affiliate disclosure</h2>
+    <p>
+      Some links on this site are affiliate links. If you click through and make a purchase, we
+      may earn a commission at no extra cost to you. Affiliate relationships never influence
+      our calculator math or the answers we display.
+    </p>
+
+    <h2>Your rights</h2>
+    <p>
+      Under GDPR (EU), CCPA (California), and similar laws, you have the right to:
+    </p>
+    <ul>
+      <li>Request a copy of any personal data we hold about you.</li>
+      <li>Request deletion of that data.</li>
+      <li>Opt out of analytics and advertising cookies.</li>
+    </ul>
+    <p>
+      Send requests to <a href="mailto:privacy@calctube.com">privacy@calctube.com</a>. We respond within 30 days.
+    </p>
+
+    <h2>Children</h2>
+    <p>
+      Calctube is not directed at children under 13. We do not knowingly collect data from
+      minors. If you believe a child has provided us data, contact us and we will delete it.
+    </p>
+
+    <h2>Changes to this policy</h2>
+    <p>
+      We may update this Privacy Policy. The "Last updated" date above reflects the most
+      recent revision. Material changes will be announced on the homepage.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Privacy questions: <a href="mailto:privacy@calctube.com">privacy@calctube.com</a>
+    </p>
+  </article>
+</BaseLayout>

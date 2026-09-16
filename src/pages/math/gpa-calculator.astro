@@ -1,0 +1,188 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GpaCalculator from '../../components/calculators/GpaCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema, buildHowToSchema, buildSpeakableSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'gpa-calculator', name: 'GPA Calculator',
+  description: 'Free GPA calculator on the 4.0 scale. Add your courses, letter grades and credit hours to get your semester or cumulative GPA instantly, with the full grade-point table.',
+  category: 'math' as const,
+  keywords: ['gpa calculator', 'gpa', 'college gpa calculator', 'grade point average', '4.0 scale gpa', 'cumulative gpa', 'semester gpa'],
+  lastUpdated: '2026-07-18',
+};
+const path = '/math/gpa-calculator';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Math', url: '/math/' }, { name: 'GPA Calculator', url: path },
+];
+
+// Build-time letter grade → point reference (US unweighted 4.0).
+const gradeTable = [
+  { g: 'A+ / A', p: '4.0', pct: '93–100%' },
+  { g: 'A-', p: '3.7', pct: '90–92%' },
+  { g: 'B+', p: '3.3', pct: '87–89%' },
+  { g: 'B', p: '3.0', pct: '83–86%' },
+  { g: 'B-', p: '2.7', pct: '80–82%' },
+  { g: 'C+', p: '2.3', pct: '77–79%' },
+  { g: 'C', p: '2.0', pct: '73–76%' },
+  { g: 'C-', p: '1.7', pct: '70–72%' },
+  { g: 'D+', p: '1.3', pct: '67–69%' },
+  { g: 'D', p: '1.0', pct: '63–66%' },
+  { g: 'D-', p: '0.7', pct: '60–62%' },
+  { g: 'F', p: '0.0', pct: 'Below 60%' },
+];
+
+const faqs = [
+  { q: 'How is GPA calculated?', a: 'GPA is a credit-weighted average of your grade points. For each course, multiply the grade point (A = 4.0, B = 3.0, etc.) by the course\'s credit hours to get "quality points". Add up all quality points, add up all credit hours, then divide: GPA = total quality points ÷ total credit hours. A 4-credit A (16 points) counts twice as much as a 2-credit A (8 points), which is why credit hours matter. A high grade in a heavy course lifts your GPA more than the same grade in a light one.' },
+  { q: 'What is the difference between semester GPA and cumulative GPA?', a: 'Semester (or term) GPA uses only the courses from a single term. Cumulative GPA (CGPA in the US sense) uses every course you\'ve taken across all terms. To get cumulative GPA in this calculator, simply enter all your courses from every semester together. The credit-weighting handles the rest. Your transcript usually shows both.' },
+  { q: 'Is A+ worth 4.0 or 4.3?', a: 'It depends on the school. Most US universities cap the unweighted scale at 4.0, so A+ and A are both 4.0. That\'s the default here. Some schools award 4.3 for an A+ (which can push a cumulative GPA above 4.0). Weighted scales for Honors/AP/IB classes go higher still (often 5.0). Check your institution\'s grading key; if yours uses 4.3, treat the result here as a slight underestimate.' },
+  { q: 'How do I convert percentage or CGPA (out of 10) to GPA?', a: 'There is no single official formula, but a common approximation for India\'s 10-point CGPA is GPA ≈ CGPA × 0.4 (so a 9.0 CGPA ≈ 3.6 GPA), and for percentages many US universities use the WES rough bands (above 60% ≈ 4.0 for some Indian institutions, which is why WES evaluation matters). For study-abroad applications, always use the target university\'s or WES\'s official conversion, not a rule of thumb.' },
+  { q: 'What is a good GPA?', a: 'On the 4.0 scale, 3.5+ is generally considered strong (honors range), 3.0–3.5 is good, 2.0–3.0 is satisfactory, and below 2.0 usually risks academic probation. "Good" is relative to your goal: competitive grad schools and scholarships often want 3.5+, while simply graduating typically requires a 2.0 cumulative minimum.' },
+];
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate your GPA',
+    description: 'Calculate your semester or cumulative GPA on the 4.0 scale from your courses, grades and credit hours.',
+    totalTime: 'PT2M',
+    estimatedCost: { value: '0', currency: 'USD' },
+    steps: [
+      { name: 'List your courses', text: 'Add each course with its letter grade and credit hours.' },
+      { name: 'Convert grades to points', text: 'Each letter maps to a grade point: A = 4.0, B+ = 3.3, and so on.' },
+      { name: 'Weight by credits', text: 'Multiply each grade point by the course credit hours to get quality points.' },
+      { name: 'Divide', text: 'GPA = total quality points ÷ total credit hours.' },
+    ],
+  }),
+];
+const relatedCalcs = [
+  { name: 'CGPA to Percentage', href: '/math/cgpa-to-percentage-calculator/', desc: 'Convert CGPA ↔ % (CBSE, VTU…).', icon: '🎓', color: 'bg-lime-accent' },
+  { name: 'Grade Calculator', href: '/math/grade-calculator/', desc: 'Weighted grade & final needed.', icon: '📝', color: 'bg-cyan-accent' },
+  { name: 'Percentage Calculator', href: '/math/percentage-calculator/', desc: 'X% of Y, % change.', icon: '🧮', color: 'bg-yellow-accent' },
+  { name: 'Ratio Calculator', href: '/math/ratio-calculator/', desc: 'Solve & simplify ratios.', icon: '➗', color: 'bg-violet-300' },
+];
+---
+
+<BaseLayout title="GPA Calculator: 4.0 Scale, Semester & Cumulative" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-300/40 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-violet-300 text-ink-900">🎓 Academic</span>
+          <span class="chip-lime">🧮 Math</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          GPA <span class="text-gradient-brand">Calculator.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="speakable-answer text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Your <strong>GPA</strong> is your credit-weighted average grade point: <strong>GPA = total (grade point × credits) ÷ total credits</strong>. Add each course below with its letter grade and credit hours to get your <strong>semester or cumulative GPA</strong> on the 4.0 scale.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <GpaCalculator client:load />
+    </div>
+  </section>
+
+  <!-- GRADE POINT TABLE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">📊 Quick reference</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Letter grade to GPA points.</h2>
+        <p class="mt-3 text-ink-700 font-medium">The standard US unweighted 4.0 scale. Percentage bands are typical. Your school's cut-offs may differ by a point or two.</p>
+        <div class="mt-8 overflow-x-auto">
+          <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+            <thead><tr class="bg-ink-900 text-white">
+              <th class="text-left p-3 font-extrabold">Letter grade</th>
+              <th class="text-center p-3 font-extrabold">Grade points</th>
+              <th class="text-right p-3 font-extrabold">Typical %</th>
+            </tr></thead>
+            <tbody>
+              {gradeTable.map((r, i) => (
+                <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                  <td class="p-3 font-extrabold text-ink-900">{r.g}</td>
+                  <td class="p-3 text-center font-mono font-extrabold text-ink-900">{r.p}</td>
+                  <td class="p-3 text-right font-semibold text-ink-700">{r.pct}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

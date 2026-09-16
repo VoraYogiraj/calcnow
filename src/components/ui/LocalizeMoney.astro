@@ -1,0 +1,48 @@
+---
+/**
+ * Localises the hero "Quick answer" money figures to the visitor's currency, so the
+ * headline matches the calculator widget directly below it (which auto-detects region).
+ *
+ * The server-rendered wording stays USD. Googlebot crawls from US IPs, so the indexed
+ * copy is unchanged; the swap happens after load and re-runs whenever the widget's
+ * currency dropdown changes, so headline and calculator can never disagree.
+ *
+ * Markup contract:
+ *   <span data-money="20000">$20,000</span>         full format
+ *   <span data-money-compact="350000">$350K</span>  compact (K/M, or lakh/crore in en-IN)
+ */
+---
+
+<script>
+  import {
+    detectClientCurrency,
+    getCurrency,
+    formatMoney,
+    formatMoneyCompact,
+    amountScale,
+    type CurrencyOption,
+  } from '../../lib/currency';
+
+  function localize(cur: CurrencyOption) {
+    // Scale the USD-baseline example to the region, matching the widget's defaults.
+    const k = amountScale(cur);
+    document.querySelectorAll('[data-money]').forEach((el) => {
+      const v = Number(el.getAttribute('data-money'));
+      if (Number.isFinite(v)) el.textContent = formatMoney(Math.round(v * k), cur);
+    });
+    document.querySelectorAll('[data-money-compact]').forEach((el) => {
+      const v = Number(el.getAttribute('data-money-compact'));
+      if (Number.isFinite(v)) el.textContent = formatMoneyCompact(Math.round(v * k), cur);
+    });
+  }
+
+  // Skip the rewrite for USD visitors so they see no flash and the DOM stays
+  // byte-identical to the served HTML.
+  const initial = detectClientCurrency();
+  if (initial.code !== 'USD') localize(initial);
+
+  // setStoredCurrency() fires this when the widget dropdown changes.
+  window.addEventListener('calctube:currency', (e) => {
+    localize(getCurrency((e as CustomEvent<string>).detail));
+  });
+</script>

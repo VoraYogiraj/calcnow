@@ -1,0 +1,175 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+import { currencyPairs } from '../../data/currency-pairs';
+
+const path = '/guides/remittance-costs-gulf';
+const lastUpdated = '2026-07-09';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Gulf Remittance Costs', url: path },
+];
+
+// Real corridor data from our currency dataset, computed at build time.
+const corridors = ['aed-to-inr', 'aed-to-pkr', 'aed-to-php', 'aed-to-bdt', 'aed-to-npr', 'aed-to-egp']
+  .map((slug) => currencyPairs.find((p) => p.slug === slug))
+  .filter(Boolean) as typeof currencyPairs;
+
+// The hidden-margin math: sending AED 2,000/month home for a year.
+const MONTHLY_AED = 2000;
+const scenarios = [
+  { label: 'Typical bank wire', marginPct: 3.0, feeAED: 100 },
+  { label: 'Exchange house (Al Ansari, LuLu…)', marginPct: 1.0, feeAED: 22 },
+  { label: 'Digital (Wise, specialist apps)', marginPct: 0.55, feeAED: 12 },
+];
+const yearly = scenarios.map((s) => {
+  const perTransferLoss = MONTHLY_AED * (s.marginPct / 100) + s.feeAED;
+  return { ...s, perTransferLoss, yearlyLoss: perTransferLoss * 12 };
+});
+const worstVsBest = yearly[0].yearlyLoss - yearly[2].yearlyLoss;
+
+const fmtAED = (v: number) => `AED ${v.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+
+const faqs = [
+  { q: 'Why does the "0 fee" transfer still cost me money?', a: 'Because the real charge is hidden in the exchange rate. A provider advertising zero fees but converting your dirhams 2-3% below the mid-market rate is charging 2-3%. It just never appears as a line item. Always compare the rate you\'re offered against the mid-market rate (the one shown on our converters), multiply the gap by your transfer amount, and add the visible fee. That total is the true cost.' },
+  { q: 'What is the mid-market rate?', a: 'The midpoint between the global buy and sell price of a currency, the rate banks trade at with each other, and the one you see on Google, Reuters, or Calctube\'s converters. No consumer service gives you exactly mid-market, but the best get within 0.3-0.7%. Anything more than 1.5% below mid-market is an expensive transfer, whatever the marketing says.' },
+  { q: `How much do I lose per year sending ${fmtAED(MONTHLY_AED)} monthly through a bank?`, a: `At a typical 3% FX margin plus ~AED 100 wire fee, each transfer quietly costs about ${fmtAED(yearly[0].perTransferLoss)}, roughly ${fmtAED(yearly[0].yearlyLoss)} a year. The same volume through a low-margin digital provider costs about ${fmtAED(yearly[2].yearlyLoss)}. The difference (${fmtAED(worstVsBest)} a year) is a month's rent in many home cities, lost to nothing but routing.` },
+  { q: 'Are exchange houses in the UAE safe?', a: 'Licensed exchange houses (Al Ansari, LuLu Exchange, Al Fardan and peers) are regulated by the UAE Central Bank and move a large share of the Gulf\'s remittances. They\'re typically far cheaper than banks for cash and account transfers, especially on South Asian corridors where competition is fierce. Check the payout speed and the exact rate offered on the day. Spreads vary by corridor and volume.' },
+  { q: 'When is the best time to send money home?', a: 'Nobody can time FX reliably, but you can avoid the worst timing. Corridors like AED→INR and AED→PKR move 3-8% across a year (the dirham is dollar-pegged, so this is really USD vs your home currency). If a transfer isn\'t urgent, set a rate alert near the recent high instead of converting on payday by habit. And never let timing anxiety push you into a high-margin "instant" product. The guaranteed 2% loss usually outweighs the speculative 2% gain.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`The True Cost of Sending Money Home from the Gulf (2026): ${fmtAED(worstVsBest)}/Year Hides in the Rate`} description={`Bank wire vs exchange house vs digital: sending ${fmtAED(MONTHLY_AED)}/month home can cost ${fmtAED(yearly[0].yearlyLoss)} or ${fmtAED(yearly[2].yearlyLoss)} a year for the identical transfer. Corridor-by-corridor math for AED to INR, PKR, PHP, BDT, NPR & EGP.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-pink-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">📚 Guide</span>
+          <span class="chip-pink">💸 Remittances</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Sending money home: <span class="text-gradient-brand">the invisible fee.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Sending <strong>{fmtAED(MONTHLY_AED)} home every month</strong> costs about <strong>{fmtAED(yearly[0].yearlyLoss)}/year</strong> through a typical bank wire, but only <strong>{fmtAED(yearly[2].yearlyLoss)}/year</strong> through a low-margin digital provider: same money, same destination. The <strong>{fmtAED(worstVsBest)}</strong> difference hides in the exchange rate, not the fee line.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-3xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The two prices of every transfer</h2>
+      <p class="text-ink-700 font-medium leading-relaxed">
+        Every remittance has a visible price and a hidden one. The visible price is the transfer fee: AED 15 here, AED 100 there. The hidden price is the <em>FX margin</em>: the gap between the mid-market rate and the rate you're actually given. For the millions of workers sending salaries home from the UAE, Saudi Arabia and Qatar, the hidden price is almost always the bigger one, and it scales with the amount, so it hits the biggest senders hardest.
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Route ({fmtAED(MONTHLY_AED)}/month)</th>
+            <th class="text-right p-3 font-extrabold">FX margin</th>
+            <th class="text-right p-3 font-extrabold">Cost per transfer</th>
+            <th class="text-right p-3 font-extrabold">Cost per YEAR</th>
+          </tr></thead>
+          <tbody>
+            {yearly.map((s, i) => (
+              <tr class={`border-b-2 border-ink-100 ${i === 0 ? '' : i === 2 ? 'bg-lime-accent/20' : 'bg-ink-50'}`}>
+                <td class="p-3 font-semibold text-ink-700">{s.label}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">~{s.marginPct}% + {fmtAED(s.feeAED)}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtAED(s.perTransferLoss)}</td>
+                <td class={`p-3 text-right font-mono font-extrabold ${i === 0 ? 'text-red-600' : i === 2 ? 'text-green-700' : 'text-ink-900'}`}>{fmtAED(s.yearlyLoss)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">Margins are indicative 2026 ranges; individual providers vary by corridor, amount and promotion. Compute your own: (mid-market rate − offered rate) ÷ mid-market rate × amount + fee.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Corridor by corridor</h2>
+      <p class="text-ink-700 font-medium leading-relaxed">
+        The Gulf's remittance corridors are among the world's largest, and the most competitive, which keeps exchange-house margins tighter here than almost anywhere. Live mid-market reference rates for the six biggest AED corridors (tap any pair to convert):
+      </p>
+      <div class="not-prose grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {corridors.map((c) => (
+          <a href={`/conversions/currency/${c.slug}/`} class="group bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker-sm hover:shadow-sticker hover:-translate-y-0.5 transition-all">
+            <div class="font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{c.from} → {c.to}</div>
+            <div class="text-xs text-ink-600 mt-1 font-semibold">1 {c.from} ≈ {c.rate} {c.to}</div>
+            <div class={`text-xs mt-1 font-bold ${c.rate > c.yearAgoRate ? 'text-green-700' : 'text-red-600'}`}>{c.rate > c.yearAgoRate ? '▲' : '▼'} {(((c.rate - c.yearAgoRate) / c.yearAgoRate) * 100).toFixed(1)}% vs last year</div>
+          </a>
+        ))}
+      </div>
+      <p class="text-ink-700 font-medium leading-relaxed mt-6">
+        Two practical rules fall out of this data. First, <strong>the dirham is pegged to the dollar</strong>, so every corridor above is really "USD versus the home currency": when the rupee or taka weakens against the dollar, your dirhams buy more at home, and vice versa. Second, <strong>corridor competition sets your floor</strong>: AED→INR and AED→PHP are so contested that even average providers stay under 1.5% total cost, while thinner corridors (AED→NPR, AED→EGP) reward more comparison shopping before each transfer.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Check today's rates</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'AED → INR Converter', href: '/conversions/currency/aed-to-inr/', icon: '🇮🇳', color: 'bg-lime-accent' },
+          { name: 'AED → PKR Converter', href: '/conversions/currency/aed-to-pkr/', icon: '🇵🇰', color: 'bg-cyan-accent' },
+          { name: 'All 244 currency pairs', href: '/conversions/currency/', icon: '💱', color: 'bg-yellow-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

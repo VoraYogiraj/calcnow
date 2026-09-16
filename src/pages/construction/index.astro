@@ -1,0 +1,113 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HubHero from '../../components/ui/HubHero.astro';
+import HubCard from '../../components/ui/HubCard.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+import { buildHubCards } from '../../lib/category-hub';
+
+// Derived from the calculators registry. See src/lib/category-hub.ts.
+const liveCalcs = buildHubCards('construction', {
+  order: [
+    'concrete-calculator',
+    'paint-calculator',
+    'tile-calculator',
+    'brick-calculator',
+    'roofing-calculator',
+  ],
+  copy: {
+    'concrete-calculator': { desc: 'Cubic yards, cubic meters and bags of concrete for slabs and footings, with a waste allowance.' },
+    'paint-calculator': { desc: 'Gallons or litres of paint for a room, from dimensions, coats, doors and windows.' },
+    'tile-calculator': { desc: 'Tiles and boxes needed for a floor or wall, adjusted for waste and layout.' },
+    'brick-calculator': { desc: 'How many bricks and mortar bags for a wall of any size, single or double layer.' },
+    'roofing-calculator': { desc: 'Roofing squares and shingle bundles from footprint and roof pitch.' },
+  },
+});
+
+const upcomingCalcs = [
+  { name: 'Wallpaper Calculator', desc: 'Rolls of wallpaper accounting for pattern repeat and cutouts.', icon: '🖼️' },
+  { name: 'Drywall Calculator', desc: 'Sheets, screws, joint compound and tape by wall area.', icon: '🪛' },
+];
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Construction', url: '/construction/' },
+];
+
+const faqs = [
+  { q: 'Do the construction calculators support metric and imperial units?', a: 'Yes. The concrete, paint, tile and brick calculators toggle between US imperial (feet, square feet, cubic yards, gallons) and metric (metres, square metres, cubic metres, litres). The roofing calculator uses US roofing squares, the industry standard for shingles.' },
+  { q: 'How much waste should I add to a material estimate?', a: 'Sensible defaults are about 10% for concrete, brick and shingles, 10–15% for tile (more for diagonal or patterned layouts), and roughly 5% for paint. Every calculator lets you set the waste percentage. Ordering a little extra is almost always cheaper than a second delivery or a dye-lot mismatch.' },
+  { q: 'Are these estimates accurate enough to order materials?', a: 'They are accurate for planning and ordering everyday DIY and trade jobs, and each one shows the formula so you can check the working. For structural work, complex roofs, or anything requiring engineering sign-off, confirm quantities with your supplier or a professional before ordering.' },
+];
+
+const schemas = [
+  buildBreadcrumbSchema(breadcrumbs),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Construction Calculators | Calctube',
+    description: 'Free material estimators for concrete, paint, tile, brick and roofing, in imperial and metric units.',
+    url: 'https://calctube.com/construction/',
+    isPartOf: { '@id': 'https://calctube.com/#website' },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.com${c.href}`, name: c.name })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  },
+];
+---
+
+<BaseLayout
+  title="Construction Calculators: Concrete, Paint, Tile & Brick"
+  description="Free material estimators for concrete, paint, tile, brick and roofing. Imperial and metric units, waste allowances, and the formula shown. No signup."
+  schemas={schemas}
+>
+  <HubHero
+    breadcrumbs={breadcrumbs}
+    chip="🔨 Construction"
+    chipClass="chip-yellow"
+    stats={[{ label: 'Tools', value: String(liveCalcs.length) }]}
+    titleLead="Construction Calculators."
+    titleAccent="Materials, measured."
+    intro="Material estimators for concrete, paint, tile, brick and roofing, built for DIY homeowners, contractors and trade pros. Every calculator shows the formula, the waste factor, and works in imperial or metric units."
+    orbA="bg-yellow-accent/30"
+    orbB="bg-lime-accent/25"
+  />
+
+  <section class="container-wide pb-16 md:pb-24">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Available now</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {liveCalcs.map((c) => (
+          <HubCard href={c.href} name={c.name} desc={c.desc} icon={c.icon} />
+        ))}
+      </div>
+
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Coming soon</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {upcomingCalcs.map((c) => (
+          <HubCard name={c.name} desc={c.desc} icon={c.icon} soon />
+        ))}
+      </div>
+
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Estimate materials without the guesswork</h2>
+      <p class="text-ink-700 leading-relaxed">
+        Most online material estimators either oversimplify (no waste factor, no allowance for openings or pitch) or hide the working behind a signup. Calctube's construction tools show the formula, the assumptions used (coverage rates, bricks per square foot, shingle bundles per square), and let you adjust the waste percentage, so DIY homeowners and quantity surveyors alike can verify every number before ordering.
+      </p>
+
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Frequently asked questions</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card">
+            <summary class="cursor-pointer font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{f.q}</summary>
+            <p class="text-sm text-ink-700 mt-2 !leading-relaxed">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

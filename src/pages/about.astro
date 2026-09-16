@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/ui/Breadcrumbs.astro';
+import { buildBreadcrumbSchema } from '../lib/seo';
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'About', url: '/about/' },
+];
+---
+
+<BaseLayout
+  title="About Calctube"
+  description="Calctube provides free, accurate online calculators for finance, health, math, and more. Built with care, audited for accuracy."
+  schemas={[buildBreadcrumbSchema(breadcrumbs)]}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-prose relative pt-10 pb-8 md:pt-14 md:pb-10">
+      <Breadcrumbs items={breadcrumbs} />
+      <span class="chip-lime mb-4">🧮 About</span>
+      <h1 class="!text-4xl sm:!text-5xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900 mt-4" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+        About Calctube: <span class="text-gradient-brand">calculators that show their work.</span>
+      </h1>
+      <p class="mt-5 text-lg text-ink-700 font-medium leading-relaxed">
+        Calctube is a free online calculator hub built by a small team of engineers and educators who got tired of the cluttered, ad-heavy calculator sites that dominate Google. We wanted something faster, cleaner, and more accurate.
+      </p>
+    </div>
+  </section>
+
+  <article class="container-prose pb-16 md:pb-24">
+    <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-10" style="font-family: 'Inter Tight', sans-serif;">What we do</h2>
+    <p class="text-ink-700 leading-relaxed">
+      We build calculators for the everyday math that most people don't enjoy doing by hand: mortgages, loans, BMI, percentages, unit conversions, taxes. Every tool is free, works on mobile, and runs entirely in your browser. No accounts, no email gates, no premium tier.
+    </p>
+
+    <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-10" style="font-family: 'Inter Tight', sans-serif;">What is on Calctube today</h2>
+    <p class="text-ink-700 leading-relaxed">
+      The site currently runs 57 calculators across finance, health, math, conversions, date and time, construction, and auto. Alongside those sit localised reference pages, because the right answer to a money question usually depends on where you live:
+    </p>
+    <div class="card mt-5">
+      <ul class="list-disc pl-5 space-y-3 text-ink-700 leading-relaxed marker:text-ink-900">
+        <li><strong class="text-ink-900">India in depth.</strong> Home loan EMI broken out by lender and by more than 270 cities, income tax under both the old and new regimes with state professional tax, stamp duty by state, and the retirement products people actually hold: EPF, NPS, PPF, gratuity, Sukanya Samriddhi, SIP and lumpsum.</li>
+        <li><strong class="text-ink-900">Mortgages in over 160 countries</strong>, each with local rate ranges, typical terms, and the deposit norms that apply there rather than a single US-shaped default.</li>
+        <li><strong class="text-ink-900">More than 210 currency pairs</strong>, quoted at mid-market reference rates, with notes on what remitters and banks typically charge above that rate.</li>
+      </ul>
+    </div>
+    <p class="mt-5 text-ink-700 leading-relaxed">
+      Every calculator shows the formula it uses and a worked example, so you can check the result rather than take it on trust. Where a figure depends on a rate that changes, such as a small-savings rate or a lender's spread, the rate is an input you can edit rather than a number baked into the page.
+    </p>
+
+    <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-10" style="font-family: 'Inter Tight', sans-serif;">What we do not do</h2>
+    <div class="card mt-5">
+      <ul class="list-disc pl-5 space-y-3 text-ink-700 leading-relaxed marker:text-ink-900">
+        <li>We do not give personalised financial, medical, or legal advice, and nothing here is a recommendation to buy or sell anything.</li>
+        <li>We do not ask for your name, email, or account details to use a calculator.</li>
+        <li>We do not claim to cover every jurisdiction. Where we have not localised a tool, we say so rather than showing a generic number and implying it is local.</li>
+      </ul>
+    </div>
+
+    <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-10" style="font-family: 'Inter Tight', sans-serif;">How we ensure accuracy</h2>
+    <div class="card mt-5">
+      <ul class="list-disc pl-5 space-y-3 text-ink-700 leading-relaxed marker:text-ink-900">
+        <li><strong class="text-ink-900">Every formula is sourced</strong>. We cite the authoritative source (USDA FoodData Central for nutrition, official IRS publications for taxes, central bank rate tables, etc.).</li>
+        <li><strong class="text-ink-900">Every calculator is tested</strong> against known reference outputs before publishing.</li>
+        <li><strong class="text-ink-900">Every page shows a "last updated" date</strong> so you know when the tool was last reviewed.</li>
+        <li>If you spot an error, please <a href="/contact/">tell us</a>. We fix issues within 48 hours.</li>
+      </ul>
+    </div>
+
+    <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-10" style="font-family: 'Inter Tight', sans-serif;">Our editorial principles</h2>
+    <div class="card mt-5">
+      <ul class="list-disc pl-5 space-y-3 text-ink-700 leading-relaxed marker:text-ink-900">
+        <li>Calculations are for informational purposes only, never a substitute for professional financial, medical, or legal advice.</li>
+        <li>We do not collect personal information from calculator inputs. Your numbers stay in your browser.</li>
+        <li>We disclose all advertising relationships and affiliate partnerships clearly.</li>
+        <li>We update tools when laws, rates, or formulas change.</li>
+      </ul>
+    </div>
+
+    <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-10" style="font-family: 'Inter Tight', sans-serif;">How we make money</h2>
+    <p class="text-ink-700 leading-relaxed">
+      Calctube is supported by display advertising and select affiliate partnerships with financial services, insurance, and software providers. We never let advertisers influence which calculators we build or what answers they produce. The math is the math, regardless of who pays for ads.
+    </p>
+
+    <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-10" style="font-family: 'Inter Tight', sans-serif;">Contact</h2>
+    <p class="text-ink-700 leading-relaxed">
+      Have a question, correction, or calculator request? Reach us at <a href="mailto:hello@calctube.com">hello@calctube.com</a> or via our <a href="/contact/">contact page</a>.
+    </p>
+  </article>
+</BaseLayout>

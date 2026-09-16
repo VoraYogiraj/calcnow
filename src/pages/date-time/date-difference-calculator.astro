@@ -1,0 +1,199 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DateDifferenceCalculator from '../../components/calculators/DateDifferenceCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'date-difference-calculator',
+  name: 'Date Difference Calculator',
+  description: 'Free date difference calculator. Find the exact number of days, weeks, months, and years between any two dates, plus an estimate of working days.',
+  category: 'date-time' as const,
+  keywords: ['date difference calculator', 'days between dates', 'how many days between', 'date calculator', 'days between two dates', 'working days calculator'],
+  lastUpdated: '2026-05-25',
+  ratingValue: '4.8',
+  ratingCount: '278',
+};
+const path = '/date-time/date-difference-calculator';
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Date & Time', url: '/date-time/' },
+  { name: 'Date Difference Calculator', url: path },
+];
+const faqs = [
+  {
+    q: 'How many days between two dates?',
+    a: 'Subtract the start date from the end date in milliseconds, then divide by 86,400,000 (ms per day). The calculator does this instantly and also breaks the total down into years, months, and days.',
+  },
+  {
+    q: 'How are working days calculated?',
+    a: 'Working days are estimated as (full weeks × 5) + min(remaining days, 5). This assumes a Mon–Fri work week with no public holidays. For an exact count including holidays, use a dedicated business-days tool.',
+  },
+  {
+    q: 'What does "years, months, days" breakdown mean?',
+    a: 'It is the human-readable breakdown: first count full elapsed years, then remaining full months, then remaining days, the same way we describe a person\'s age. It\'s more intuitive than just showing total days.',
+  },
+  {
+    q: 'Can I calculate the difference for future dates?',
+    a: 'Yes. Both the start and end date fields accept any valid date, past or future. You can plan project timelines, contract periods, or event countdowns.',
+  },
+  {
+    q: 'What does the Swap button do?',
+    a: 'It swaps the start and end dates instantly. Useful if you accidentally entered them in reverse order or want to quickly see the difference in both directions.',
+  },
+];
+const schemas = [buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+const relatedCalcs = [
+  { name: 'Age Calculator', href: '/date-time/age-calculator/', desc: 'Exact age in years, months, days.', icon: '🎂', color: 'bg-lime-accent' },
+  { name: 'Tip Calculator', href: '/math/tip-calculator/', desc: 'Split bills & tips.', icon: '🍽️', color: 'bg-yellow-accent' },
+  { name: 'BMI Calculator', href: '/health/bmi-calculator/', desc: 'Body Mass Index.', icon: '⚖️', color: 'bg-cyan-accent' },
+  { name: 'Percentage Calculator', href: '/math/percentage-calculator/', desc: 'Percents in 3 modes.', icon: '🧮', color: 'bg-pink-accent' },
+];
+---
+
+<BaseLayout
+  title="Date Difference Calculator: Days, Weeks, Months"
+  description={meta.description}
+  schemas={schemas}
+  publishedTime={meta.lastUpdated}
+  modifiedTime={meta.lastUpdated}
+>
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/35 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-cyan-accent text-ink-900">📅 Date & Time</span>
+          <span class="chip-lime">Working days</span>
+          <span class="chip-white"><span class="text-ink-500">Last tested</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1
+          class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900"
+          style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;"
+        >
+          Date Difference <span class="text-gradient-brand">calculated fast.</span>
+        </h1>
+        <div class="mt-7 bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker speakable-answer">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                From <strong>January 1, 2020</strong> to <strong>May 25, 2026</strong> is <strong>2,336 days</strong>. That's 333 weeks 5 days, approximately 1,669 working days, and 6 years 4 months 24 days.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <DateDifferenceCalculator client:visible />
+    </div>
+  </section>
+
+
+  <!-- HOW IT WORKS -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">📖 How to use</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Pick two dates. Done.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 mt-8">
+          {[
+            { num: '1', text: 'Enter your start date in the first field.', color: 'bg-cyan-accent' },
+            { num: '2', text: 'Enter the end date, which defaults to today. Use the Swap button to reverse.', color: 'bg-lime-accent' },
+            { num: '3', text: 'See total days, week breakdown, years/months/days, and working days estimate.', color: 'bg-yellow-accent' },
+          ].map((step) => (
+            <div class={`${step.color} border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm`}>
+              <div class="text-3xl font-extrabold mb-3 leading-none" style="font-family: 'Inter Tight', sans-serif;">{step.num}</div>
+              <p class="text-sm font-semibold leading-snug !m-0 !text-current">{step.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE MATH -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-pink mb-4">🧮 The math</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">How the numbers are computed.</h2>
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-ink-900 text-white border-[2.5px] border-ink-900 rounded-3xl p-6 shadow-sticker">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-lime-accent mb-3">Total days</div>
+          <div class="font-mono text-base font-bold">days = (end − start) ÷ 86,400,000 ms</div>
+          <p class="mt-4 text-sm text-ink-300">Both dates are parsed at midnight local time to avoid daylight-saving edge cases.</p>
+        </div>
+        <div class="bg-ink-900 text-white border-[2.5px] border-ink-900 rounded-3xl p-6 shadow-sticker">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-cyan-accent mb-3">Working days (approx.)</div>
+          <div class="font-mono text-base font-bold">= (⌊days/7⌋ × 5) + min(days mod 7, 5)</div>
+          <p class="mt-4 text-sm text-ink-300">Assumes Mon–Fri work week. Does not subtract public holidays.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto speakable-summary">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+        {relatedCalcs.map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+            <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

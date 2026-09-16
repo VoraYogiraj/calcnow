@@ -1,0 +1,193 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/apr-vs-interest-rate';
+const lastUpdated = '2026-07-22';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'APR vs Interest Rate', url: path },
+];
+
+// Build-time: the true cost of a loan is its APR, the internal rate of return (IRR)
+// that equates the money you actually receive (principal minus upfront fees) to the
+// stream of EMIs you repay. We solve that IRR by bisection at build time.
+const P = 1000000;          // ₹10,00,000 loan
+const NOMINAL = 10;         // 10% nominal (advertised) annual rate
+const YEARS = 5;
+const n = YEARS * 12;       // 60 monthly instalments
+const iMonthly = NOMINAL / 100 / 12;
+
+// EMI is computed on the FULL principal at the nominal rate, the fee doesn't reduce it.
+const emi = P * iMonthly * Math.pow(1 + iMonthly, n) / (Math.pow(1 + iMonthly, n) - 1);
+
+// Present value of the 60-EMI stream at a candidate monthly rate r.
+function pv(r: number): number {
+  if (r === 0) return emi * n;
+  return emi * (1 - Math.pow(1 + r, -n)) / r;
+}
+// Solve the monthly IRR where the EMI stream is worth exactly `net` (amount actually received).
+// pv() falls as r rises, so this bisection is monotone and converges cleanly.
+function apr(net: number) {
+  let lo = 0, hi = 1; // monthly rate between 0% and 100%
+  for (let k = 0; k < 200; k++) {
+    const mid = (lo + hi) / 2;
+    if (pv(mid) > net) lo = mid; else hi = mid;
+  }
+  const monthly = (lo + hi) / 2;
+  return {
+    aprNominal: monthly * 12 * 100,                       // regulatory APR (rate × 12)
+    aprEffective: (Math.pow(1 + monthly, 12) - 1) * 100,  // effective annual, compounded
+  };
+}
+
+const feeLevels = [0, 0.5, 1, 2, 3];
+const rows = feeLevels.map((feePct) => {
+  const feeRupees = P * feePct / 100;
+  const net = P - feeRupees;         // what actually lands in your account
+  const { aprNominal, aprEffective } = apr(net);
+  return { feePct, feeRupees, aprNominal, aprEffective, gapBps: (aprNominal - NOMINAL) * 100 };
+});
+
+const base = rows.find((r) => r.feePct === 1)!;   // the headline 1%-fee case
+const totalRepaid = emi * n;
+const totalCost = totalRepaid - P + base.feeRupees; // interest paid + the ₹fee
+
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+const faqs = [
+  { q: 'What is the difference between APR and the interest rate?', a: `The interest rate is the price of borrowing the money itself. The APR (Annual Percentage Rate) is the price of the whole deal, interest plus the fees you're charged to get the loan, expressed as one annual rate. On our ${fmtINR(P)} loan at a ${NOMINAL}% nominal rate with a 1% processing fee, the interest rate is ${NOMINAL}% but the APR is about ${base.aprNominal.toFixed(2)}%. APR is always ≥ the interest rate; they're only equal when the loan has zero fees. That's why APR is the number to compare across lenders, the headline rate can hide a fat fee.` },
+  { q: 'How is APR actually calculated?', a: `APR is the internal rate of return (IRR) that makes the money you receive equal the money you repay. You don't get the full ${fmtINR(P)}, a 1% fee means ${fmtINR(base.feeRupees)} is skimmed off, so ${fmtINR(P - base.feeRupees)} actually reaches you, yet your EMI of ${fmtINR(emi)} is still calculated on the full ${fmtINR(P)}. APR solves for the rate at which repaying ${fmtINR(emi)} a month for ${n} months is equivalent to borrowing only ${fmtINR(P - base.feeRupees)}. Borrowing less while repaying the same pushes the true rate above the nominal one, here from ${NOMINAL}% to ~${base.aprNominal.toFixed(2)}%.` },
+  { q: 'Why does a small 1% fee raise the rate by so much?', a: `Two forces multiply the fee. First, you pay it on day one but only borrowed the money for ${YEARS} years, so it's front-loaded pain. Second, as you repay, your outstanding balance shrinks, the fee stays fixed while the loan it's a percentage "of" is disappearing. A ${fmtINR(base.feeRupees)} fee on a balance that averages far below ${fmtINR(P)} over the term works out to roughly ${(base.aprNominal - NOMINAL).toFixed(2)} extra percentage points of APR, not the 1% you might expect. Shorter tenures amplify this further, because the fee is spread over fewer months.` },
+  { q: 'Nominal APR or effective APR, which should I look at?', a: `Both describe the same loan, differently. The "nominal" APR (${base.aprNominal.toFixed(2)}% here) is the monthly rate × 12, the figure most regulators, including the RBI's Key Fact Statement and the US Truth-in-Lending Act, require lenders to disclose. The "effective" APR (${base.aprEffective.toFixed(2)}% here) compounds that monthly rate over the year, so it's a touch higher and reflects what you truly pay once compounding is counted. Use the nominal APR to compare offers on a like-for-like basis, and the effective figure when you want the honest all-in cost.` },
+  { q: 'What fees get baked into APR, and what escapes it?', a: `APR is meant to capture the mandatory cost of credit: processing or origination fees, administrative charges, and in some products mandatory insurance or documentation fees. What it typically excludes: penalties you can avoid (late-payment or prepayment charges), and genuinely optional add-ons. The catch is that "APR" is only honest if the lender folds in every compulsory fee, some quote a low APR and then list "additional charges" separately. Always ask for the total cost of the loan in rupees, then check it against the APR you were quoted.` },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`APR vs Interest Rate: Why a 1% Fee Turns ${NOMINAL}% Into ${base.aprNominal.toFixed(2)}%`} description={`The interest rate is the price of the money; APR is the price of the whole deal. A ${fmtINR(P)} loan at ${NOMINAL}% with a 1% processing fee has an APR of ~${base.aprNominal.toFixed(2)}%. Full table by fee level, every figure solved by IRR at build time.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-pink-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-pink">📚 Guide</span>
+          <span class="chip-cyan">🚩 Loan traps</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          The rate they quote <span class="text-gradient-brand">isn't the rate you pay.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                The <strong>interest rate</strong> ({NOMINAL}%) prices the money; the <strong>APR</strong> prices the whole deal, interest <em>plus</em> fees. A {fmtINR(P)} loan at {NOMINAL}% with a 1% processing fee ({fmtINR(base.feeRupees)}) has an APR of about <strong>{base.aprNominal.toFixed(2)}%</strong>, because you repay on {fmtINR(P)} but only {fmtINR(P - base.feeRupees)} ever reaches you. Always compare loans on <strong>APR</strong>, never the headline rate.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Why APR is always the bigger number</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        A lender advertises "{NOMINAL}% interest" and your EMI gets calculated on the full {fmtINR(P)} you asked for. But a 1% processing fee means {fmtINR(base.feeRupees)} is deducted before the money reaches you, so you're really repaying a {fmtINR(P)} loan while having borrowed only {fmtINR(P - base.feeRupees)}. Repaying more than you received is, by definition, a higher rate. APR is simply the honest rate that accounts for it: the single annual figure at which paying {fmtINR(emi)} a month for {n} months matches borrowing {fmtINR(P - base.feeRupees)} today. That's why APR is what regulators, the RBI's Key Fact Statement in India, the Truth-in-Lending Act in the US, the EU's APRC, force lenders to disclose. The interest rate is marketing; the APR is the price. Here's the same loan at rising fee levels, with the APR solved at build time:
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Processing fee</th>
+            <th class="text-right p-3 font-extrabold">Fee (₹)</th>
+            <th class="text-right p-3 font-extrabold">Interest rate</th>
+            <th class="text-right p-3 font-extrabold">APR</th>
+            <th class="text-right p-3 font-extrabold hidden sm:table-cell">Effective APR</th>
+          </tr></thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr class={`border-b-2 border-ink-100 ${row.feePct === 1 ? 'bg-lime-accent/25' : i % 2 ? 'bg-ink-50' : ''}`}>
+                <td class="p-3 font-bold text-ink-900">{row.feePct}%</td>
+                <td class="p-3 text-right font-mono text-ink-700">{row.feeRupees === 0 ? '0' : fmtINR(row.feeRupees)}</td>
+                <td class="p-3 text-right font-mono text-ink-700">{NOMINAL.toFixed(2)}%</td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{row.aprNominal.toFixed(2)}%</td>
+                <td class="p-3 text-right font-mono text-ink-600 hidden sm:table-cell">{row.aprEffective.toFixed(2)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">{fmtINR(P)} loan, {NOMINAL}% nominal, {YEARS}-year ({n}-month) tenure, EMI {fmtINR(emi)}. APR = the monthly IRR × 12 that equates the EMI stream to (principal − fee); effective APR compounds that monthly rate. Illustrative, not a loan offer.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The fee is small, the damage isn't</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Intuition says a 1% fee should add 1% to the rate. It doesn't, it adds about <strong>{(base.aprNominal - NOMINAL).toFixed(2)} percentage points</strong> of APR ({NOMINAL}% → {base.aprNominal.toFixed(2)}%), and here's why. You pay the fee on day one but only hold the loan for {YEARS} years, so it's front-loaded. Worse, as you repay, your outstanding balance melts away, but that fixed {fmtINR(base.feeRupees)} was charged as if you'd keep the whole {fmtINR(P)} the entire time. A flat fee against a shrinking balance always bites harder than its sticker percentage, and the shorter the loan, the harder, because it's spread across fewer months. Over this loan you'll repay {fmtINR(totalRepaid)} in EMIs plus the {fmtINR(base.feeRupees)} fee, so the total cost of borrowing is {fmtINR(totalCost)} on top of the {fmtINR(P)} you set out to borrow.
+      </p>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        The practical takeaway: when two lenders quote the same interest rate, the one with the lower fee wins, and when one quotes a lower rate but a bigger fee, only the APR tells you which is actually cheaper. Ask for the APR and the total rupee cost in writing. A "special {NOMINAL}% rate" with a 3% fee ({rows.find((r) => r.feePct === 3)!.aprNominal.toFixed(2)}% APR) is a worse deal than a plain {(NOMINAL + 1).toFixed(0)}% loan with no fee at all.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'EMI Calculator', href: '/finance/emi-calculator/', icon: '🏦', color: 'bg-cyan-accent' },
+          { name: 'Flat vs Reducing Rate', href: '/finance/flat-vs-reducing-interest/', icon: '🚩', color: 'bg-pink-accent' },
+          { name: 'Loan Calculator', href: '/finance/loan-calculator/', icon: '🧮', color: 'bg-lime-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

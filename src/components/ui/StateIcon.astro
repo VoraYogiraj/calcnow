@@ -1,0 +1,31 @@
+---
+/**
+ * Renders an Indian state logo from public/states/{slug}.svg.
+ * Branded circle with 2-letter postal code (MH, KA, TN, …) on a stable color.
+ *
+ * Props:
+ *   slug:  State slug matching india-states.ts (e.g., 'maharashtra', 'karnataka')
+ *   size:  Rendered px size — defaults to 32. Square.
+ *   alt:   Accessible alt text. Defaults to humanized slug.
+ *   class: Extra classes
+ */
+export interface Props {
+  slug: string;
+  size?: number;
+  alt?: string;
+  class?: string;
+}
+const { slug, size = 32, alt, class: className = '' } = Astro.props;
+const altText = alt || slug.replace(/-/g, ' ');
+---
+
+<img
+  src={`/states/${slug}.svg`}
+  alt={altText}
+  width={size}
+  height={size}
+  loading="lazy"
+  decoding="async"
+  class={`inline-block rounded-full ${className}`}
+  style={`width: ${size}px; height: ${size}px;`}
+/>

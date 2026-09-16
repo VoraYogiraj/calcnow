@@ -1,0 +1,180 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ConcreteCalculator from '../../components/calculators/ConcreteCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema, buildHowToSchema, buildSpeakableSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'concrete-calculator', name: 'Concrete Calculator',
+  description: 'Free concrete calculator for slabs, footings and columns. Get cubic yards, cubic meters and the number of 80/60/40 lb bags needed, with a waste allowance built in.',
+  category: 'construction' as const,
+  keywords: ['concrete calculator', 'cubic yards of concrete', 'concrete slab calculator', 'bags of concrete', 'how much concrete do i need', 'concrete volume'],
+  lastUpdated: '2026-07-19',
+};
+const path = '/construction/concrete-calculator';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Construction', url: '/construction/' }, { name: 'Concrete Calculator', url: path },
+];
+
+// Build-time reference: concrete for common slab sizes at 4" thickness.
+const slabs = [
+  { size: '4 × 4 ft (shed base)', cuyd: (4 * 4 * (4 / 12) / 27) },
+  { size: '8 × 10 ft (small patio)', cuyd: (8 * 10 * (4 / 12) / 27) },
+  { size: '10 × 10 ft (patio)', cuyd: (10 * 10 * (4 / 12) / 27) },
+  { size: '12 × 12 ft (large patio)', cuyd: (12 * 12 * (4 / 12) / 27) },
+  { size: '10 × 20 ft (1-car drive)', cuyd: (10 * 20 * (4 / 12) / 27) },
+  { size: '20 × 20 ft (2-car drive)', cuyd: (20 * 20 * (4 / 12) / 27) },
+];
+
+const faqs = [
+  { q: 'How do I calculate how much concrete I need?', a: 'Multiply length × width × thickness to get the volume, keeping units consistent. In feet, a 10 × 10 ft slab that is 4 inches (0.33 ft) thick is 10 × 10 × 0.333 = 33.3 cubic feet, which is 33.3 ÷ 27 = 1.23 cubic yards. Concrete is ordered by the cubic yard (or cubic meter), so always convert to those units and add a waste allowance of about 10% for spillage and uneven subgrade.' },
+  { q: 'How many bags of concrete are in a cubic yard?', a: 'A cubic yard is 27 cubic feet. An 80 lb bag of pre-mixed concrete yields about 0.6 cubic feet, so a cubic yard takes roughly 45 of the 80 lb bags. A 60 lb bag yields ~0.45 ft³ (about 60 bags per yard) and a 40 lb bag ~0.30 ft³ (about 90 bags per yard). Bags make sense for small jobs; beyond about 1 cubic yard, ordering ready-mix from a truck is usually cheaper and easier.' },
+  { q: 'How thick should a concrete slab be?', a: 'Typical thicknesses are 4 inches (10 cm) for patios, walkways and shed bases, and 5–6 inches (12–15 cm) for driveways and areas that carry vehicles. Thicker slabs and those bearing heavy loads usually need reinforcing mesh or rebar. Local building codes may specify minimums, so check before you pour. This calculator lets you set any thickness.' },
+  { q: 'Why should I add a waste percentage?', a: 'Real pours never match the theoretical volume exactly: the subgrade is rarely perfectly level, forms flex, some concrete sticks to the mixer or wheelbarrow, and you do not want to run short mid-pour. A 5–10% allowance covers this. Running out is far more costly than a little extra, because a second batch means a second delivery fee and a cold joint in the slab.' },
+  { q: 'What is the difference between a cubic yard and a cubic meter?', a: 'Both measure volume. One cubic yard equals 0.765 cubic meters, and one cubic meter equals 1.308 cubic yards. US suppliers quote concrete in cubic yards; most other countries use cubic meters. This calculator shows both so you can order in whichever unit your supplier uses.' },
+];
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate concrete for a slab',
+    description: 'Work out the concrete volume and bag count for a slab or footing.',
+    totalTime: 'PT2M',
+    estimatedCost: { value: '0', currency: 'USD' },
+    steps: [
+      { name: 'Measure the area', text: 'Enter the length, width and thickness of the pour.' },
+      { name: 'Add quantity and waste', text: 'Set how many identical slabs and a waste allowance (~10%).' },
+      { name: 'Read the volume and bags', text: 'The calculator shows cubic yards, cubic meters and the number of 80/60/40 lb bags.' },
+    ],
+  }),
+];
+const relatedCalcs = [
+  { name: 'Tile Calculator', href: '/construction/tile-calculator/', desc: 'Tiles & boxes by area.', icon: '🟦', color: 'bg-cyan-accent' },
+  { name: 'Brick Calculator', href: '/construction/brick-calculator/', desc: 'Bricks for a wall.', icon: '🧱', color: 'bg-lime-accent' },
+  { name: 'Paint Calculator', href: '/construction/paint-calculator/', desc: 'Paint by room area.', icon: '🎨', color: 'bg-yellow-accent' },
+  { name: 'Roofing Calculator', href: '/construction/roofing-calculator/', desc: 'Squares & bundles.', icon: '🏠', color: 'bg-violet-300' },
+];
+---
+
+<BaseLayout title="Concrete Calculator: Cubic Yards, Meters & Bags" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-orange-300/40 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-yellow-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-orange-300 text-ink-900">🧱 Construction</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Concrete <span class="text-gradient-brand">Calculator.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="speakable-answer text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Concrete volume = <strong>length × width × thickness</strong>. A 10 × 10 ft slab at 4" thick is <strong>1.23 cubic yards</strong> (0.94 m³): about <strong>56 × 80 lb bags</strong>. Enter your dimensions below and add ~10% for waste.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <ConcreteCalculator client:load />
+    </div>
+  </section>
+
+  <!-- SLAB TABLE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip bg-orange-300 text-ink-900 mb-4">📊 Quick reference</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Concrete for common slab sizes.</h2>
+        <p class="mt-3 text-ink-700 font-medium">At 4-inch (10 cm) thickness, before waste allowance.</p>
+        <div class="mt-8 overflow-x-auto">
+          <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+            <thead><tr class="bg-ink-900 text-white">
+              <th class="text-left p-3 font-extrabold">Slab size</th>
+              <th class="text-center p-3 font-extrabold">Cubic yards</th>
+              <th class="text-right p-3 font-extrabold">Cubic meters</th>
+            </tr></thead>
+            <tbody>
+              {slabs.map((r, i) => (
+                <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                  <td class="p-3 font-extrabold text-ink-900">{r.size}</td>
+                  <td class="p-3 text-center font-mono font-bold text-ink-900">{r.cuyd.toFixed(2)}</td>
+                  <td class="p-3 text-right font-mono font-bold text-ink-900">{(r.cuyd * 0.764555).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-orange-300 text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">More construction tools.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

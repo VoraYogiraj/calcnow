@@ -1,0 +1,196 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GstCalculator from '../../components/calculators/GstCalculator.tsx';
+import {
+  buildCalculatorSchema,
+  buildBreadcrumbSchema,
+  buildFAQSchema,
+  buildSpeakableSchema,
+  buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/gst-calculator';
+
+const meta = {
+  slug: 'gst-calculator',
+  name: 'GST Calculator',
+  description: 'Free GST calculator for India. Add or remove GST from any amount at standard rates (5%, 12%, 18%, 28%). Includes CGST + SGST and IGST split. Live recalculation, no signup.',
+  category: 'finance' as const,
+  keywords: ['gst calculator', 'gst calculator india', 'cgst sgst calculator', 'gst rate calculator', 'gst inclusive exclusive'],
+  lastUpdated: '2026-05-17',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'GST Calculator', url: path },
+];
+
+const faqs = [
+  {
+    q: 'What are the standard GST rates in India?',
+    a: 'India has five standard GST rates: 0% (essential goods like fresh fruits, vegetables, milk, eggs, healthcare services, education), 5% (transport, packaged food, basic apparel), 12% (processed food, computer software, mobile phones), 18% (most goods and services, including restaurants, financial services, telecom), and 28% (luxury items, automobiles, tobacco, aerated drinks). Additional cess applies on luxury cars, tobacco, and sin goods.',
+  },
+  {
+    q: 'GST inclusive vs exclusive: what\'s the difference?',
+    a: 'GST-exclusive: the price you see does NOT include GST. You add GST on top. Example: ₹10,000 + 18% GST = ₹11,800 total. GST-inclusive: the price you see ALREADY includes GST. You extract GST from it. Example: ₹11,800 total includes ₹1,800 GST and ₹10,000 net amount. Retail consumer prices (MRP-based) are typically GST-inclusive; B2B invoices and quotations are typically GST-exclusive. Always check which one applies before calculating.',
+  },
+  {
+    q: 'CGST + SGST vs IGST: when does each apply?',
+    a: 'CGST (Central GST) + SGST (State GST) apply to intra-state transactions where the seller and buyer are in the same state. Each is half of the total GST rate, so 18% GST splits into 9% CGST + 9% SGST. IGST (Integrated GST) applies to inter-state transactions and equals the full rate (e.g., 18%). The buyer\'s state gets the SGST/IGST share. From an end-customer perspective, the total tax burden is identical; the split only affects how tax is distributed between Centre and States.',
+  },
+  {
+    q: 'GST on services in India: common rates?',
+    a: 'Most services attract 18% GST including: financial services (bank charges, brokerage, insurance), telecom (mobile, internet), professional services (CA, lawyer, consultant), restaurant services (some at 5% non-AC), hotel rooms (₹7,500+ at 18%, lower bands at 12%), e-commerce platforms, courier and transport (some at 5%). Healthcare and education services are exempt. Specific composition schemes exist for small businesses (1-5% turnover-based) but are not pass-through to customers.',
+  },
+  {
+    q: 'How to extract GST from a GST-inclusive price?',
+    a: 'Formula: Net amount = Total ÷ (1 + GST rate / 100). For 18% GST: Net = Total ÷ 1.18; GST = Total × 18 / 118. Example: ₹11,800 with 18% included: Net = ₹11,800 / 1.18 = ₹10,000; GST = ₹11,800 - ₹10,000 = ₹1,800. For 5% GST: divide by 1.05. For 12% GST: divide by 1.12. For 28%: divide by 1.28. The GST calculator above automatically applies the inverse formula when you select "Remove GST" mode.',
+  },
+  {
+    q: 'Is GST applicable on property purchases?',
+    a: 'GST applies to under-construction property purchases (homes still being built and not yet ready-to-move). Rates: 1% (affordable housing under ₹45 lakh in metros / ₹60 lakh outside) or 5% (premium/non-affordable under-construction). Ready-to-move properties (with completion certificate) are GST-exempt. Resale (second-hand) property transactions are GST-exempt. Always confirm the GST applicability and rate with your developer or property lawyer before signing the sale agreement.',
+  },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate GST in India',
+    description: 'Step-by-step instructions for adding or removing GST from any amount using Indian standard GST rates (5%, 12%, 18%, 28%) plus CGST + SGST and IGST splits.',
+    totalTime: 'PT1M',
+    estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Choose calculation mode', text: 'Pick "Add GST" if your amount is pre-GST (you want to know the total after adding tax). Pick "Remove GST" if your amount already includes GST (you want to extract the net amount and tax separately).' },
+      { name: 'Enter the amount', text: 'Type the base amount in rupees. For B2B invoices: usually pre-GST. For consumer MRPs: usually GST-inclusive. When in doubt, check the invoice or product label.' },
+      { name: 'Select the GST rate', text: 'Use the standard rate for your goods/services: 0% essentials, 5% basic goods, 12% processed/mobile, 18% most services and goods, 28% luxury. Custom rates can be entered for cess scenarios.' },
+      { name: 'Read the breakdown', text: 'The calculator shows net amount, GST amount, and total. Below that, the CGST + SGST split (for intra-state) and IGST amount (for inter-state) are shown separately for invoice preparation.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout
+  title="GST Calculator India: Add or Remove GST 🧾"
+  description={meta.description}
+  schemas={schemas}
+  publishedTime={meta.lastUpdated}
+  modifiedTime={meta.lastUpdated}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">🧾 GST</span>
+          <span class="chip-cyan">🇮🇳 India</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          GST Calculator.
+          <span class="text-gradient-brand">India.</span>
+        </h1>
+
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                India has 5 standard GST rates: <strong>0%, 5%, 12%, 18%, 28%</strong>. Most goods and services attract <strong>18% GST</strong>. Example: ₹10,000 + 18% GST = ₹11,800 total (₹1,800 GST). For intra-state: GST splits into <strong>9% CGST + 9% SGST</strong>. For inter-state: <strong>18% IGST</strong>. To extract GST from inclusive price: divide by 1.18.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <GstCalculator client:load />
+    </div>
+  </section>
+
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">📋 GST rate table</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          Standard GST rates by category.
+        </h2>
+
+        <div class="mt-8 space-y-3">
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="font-extrabold text-lg text-ink-900 mb-1" style="font-family: 'Inter Tight', sans-serif;">0%: Exempt / Nil-rated</div>
+            <p class="text-ink-700 font-medium text-sm !m-0">Fresh fruits and vegetables, milk, eggs, unpacked food grains, books, newspapers, healthcare services, education services, prasad, salt.</p>
+          </div>
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="font-extrabold text-lg text-ink-900 mb-1" style="font-family: 'Inter Tight', sans-serif;">5%: Basic goods + transport</div>
+            <p class="text-ink-700 font-medium text-sm !m-0">Packaged food items, edible oils, sugar, tea/coffee, life-saving medicines, public transport (rail, bus), small restaurants without AC, footwear under ₹500, clothes under ₹1,000.</p>
+          </div>
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="font-extrabold text-lg text-ink-900 mb-1" style="font-family: 'Inter Tight', sans-serif;">12%: Processed food + mid-tier goods</div>
+            <p class="text-ink-700 font-medium text-sm !m-0">Processed food, butter, cheese, ghee, computer software, mobile phones (basic), hotel rooms ₹1,000-7,500, ayurvedic medicines, business class air travel.</p>
+          </div>
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="font-extrabold text-lg text-ink-900 mb-1" style="font-family: 'Inter Tight', sans-serif;">18%: Standard rate (most goods + services)</div>
+            <p class="text-ink-700 font-medium text-sm !m-0">Most consumer goods (electronics, cosmetics, footwear over ₹500, clothes over ₹1,000), financial services (bank charges, brokerage, insurance), telecom (mobile, internet), restaurants with AC, hotel rooms ₹7,500+, professional services.</p>
+          </div>
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="font-extrabold text-lg text-ink-900 mb-1" style="font-family: 'Inter Tight', sans-serif;">28%: Luxury + sin goods</div>
+            <p class="text-ink-700 font-medium text-sm !m-0">Automobiles (with cess), aerated drinks, tobacco products (with cess), luxury watches, premium cosmetics, paan masala, betting/gambling, racing. Cess on luxury cars and sin goods adds 12-200% on top.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-cyan mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        GST calculator FAQ.
+      </h2>
+
+      <div class="mt-8 space-y-4">
+        {faqs.map((faq) => (
+          <details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group">
+            <summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4">
+              <span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

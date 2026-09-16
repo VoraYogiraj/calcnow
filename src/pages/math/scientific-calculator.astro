@@ -1,0 +1,180 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ScientificCalculator from '../../components/calculators/ScientificCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema, buildHowToSchema, buildSpeakableSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'scientific-calculator', name: 'Scientific Calculator',
+  description: 'Free online scientific calculator with trigonometry (sin, cos, tan), logarithms (log, ln), powers, square roots, π, e and factorial. Works in degrees or radians, right in your browser.',
+  category: 'math' as const,
+  keywords: ['scientific calculator', 'online scientific calculator', 'trigonometry calculator', 'log calculator', 'sin cos tan calculator', 'exponent calculator'],
+  lastUpdated: '2026-07-19',
+};
+const path = '/math/scientific-calculator';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Math', url: '/math/' }, { name: 'Scientific Calculator', url: path },
+];
+
+// Build-time function reference (unique, extractable content).
+const functions = [
+  { fn: 'sin, cos, tan', use: 'Trigonometric functions (choose DEG or RAD)' },
+  { fn: 'ln', use: 'Natural logarithm (base e)' },
+  { fn: 'log', use: 'Common logarithm (base 10)' },
+  { fn: '√', use: 'Square root' },
+  { fn: 'xʸ (^)', use: 'Raise to a power, e.g. 2^10 = 1024' },
+  { fn: 'π', use: 'Pi ≈ 3.14159' },
+  { fn: 'e', use: "Euler's number ≈ 2.71828" },
+  { fn: 'n!', use: 'Factorial, e.g. 5! = 120' },
+  { fn: '%', use: 'Percent: divides the number by 100' },
+];
+
+const faqs = [
+  { q: 'How do I use degrees vs radians for trig functions?', a: 'Use the DEG / RAD toggle in the top-right of the calculator. In DEG mode, sin(30) = 0.5 because 30 is read as degrees; in RAD mode the same input is treated as 30 radians and gives a very different answer. Most school and everyday geometry uses degrees, while calculus and physics usually use radians. Pick the one your problem expects before you calculate.' },
+  { q: 'What is the difference between log and ln?', a: '"log" is the common logarithm, base 10, so log(1000) = 3 because 10³ = 1000. "ln" is the natural logarithm, base e (≈ 2.718), which appears throughout calculus, growth and decay. So log and ln of the same number give different values; use log for base-10 work and ln when the maths involves continuous growth or the constant e.' },
+  { q: 'How do I calculate powers and roots?', a: 'For powers, use the xʸ (^) button: type the base, press ^, then the exponent: 2 ^ 10 = 1024. For square roots use the √ button, which inserts √( for you, so √(144) = 12. For other roots, use a fractional exponent: a cube root is the power 1/3, e.g. 27 ^ (1÷3) = 3.' },
+  { q: 'How does the percentage button work?', a: 'The % button divides the current number by 100, turning it into its decimal form. So 50% becomes 0.5, and 200 × 15% evaluates as 200 × 0.15 = 30. It\'s handy for quick percentage-of calculations without converting by hand.' },
+  { q: 'Is the calculator private? Is my data sent anywhere?', a: 'Yes, it\'s private. Every calculation runs locally in your browser with no data sent to any server. There\'s nothing to sign up for and no history stored, so you can use it freely for homework, exams practice, engineering or finance work.' },
+];
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to use the scientific calculator',
+    description: 'Perform trigonometric, logarithmic and power calculations online.',
+    totalTime: 'PT1M',
+    estimatedCost: { value: '0', currency: 'USD' },
+    steps: [
+      { name: 'Set degrees or radians', text: 'Toggle DEG/RAD for trigonometric functions.' },
+      { name: 'Enter your expression', text: 'Tap numbers, operators and functions like sin, log, √ or ^.' },
+      { name: 'Read the result', text: 'The answer updates live and locks in when you press =.' },
+    ],
+  }),
+];
+const relatedCalcs = [
+  { name: 'Percentage Calculator', href: '/math/percentage-calculator/', desc: 'X% of Y, % change.', icon: '🧮', color: 'bg-lime-accent' },
+  { name: 'Fraction Calculator', href: '/math/fraction-calculator/', desc: 'Add, simplify fractions.', icon: '½', color: 'bg-cyan-accent' },
+  { name: 'GPA Calculator', href: '/math/gpa-calculator/', desc: 'Weighted 4.0 GPA.', icon: '🎓', color: 'bg-yellow-accent' },
+  { name: 'Ratio Calculator', href: '/math/ratio-calculator/', desc: 'Solve & simplify ratios.', icon: '➗', color: 'bg-violet-300' },
+];
+---
+
+<BaseLayout title="Scientific Calculator: Trig, Log, Powers & π (Online)" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-300/40 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-violet-300 text-ink-900">🔬 Math</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Scientific <span class="text-gradient-brand">Calculator.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="speakable-answer text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                A full <strong>scientific calculator</strong> with trigonometry (sin, cos, tan), logarithms (log, ln), <strong>powers, roots, π, e and factorial</strong>. Switch between <strong>degrees and radians</strong> for trig, and the result updates as you type. Runs entirely in your browser.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-lg mx-auto">
+      <ScientificCalculator client:load />
+    </div>
+  </section>
+
+  <!-- FUNCTION REFERENCE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">📊 Function reference</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">What each button does.</h2>
+        <div class="mt-8 overflow-x-auto">
+          <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+            <thead><tr class="bg-ink-900 text-white">
+              <th class="text-left p-3 font-extrabold">Button</th>
+              <th class="text-left p-3 font-extrabold">What it does</th>
+            </tr></thead>
+            <tbody>
+              {functions.map((r, i) => (
+                <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                  <td class="p-3 font-mono font-extrabold text-ink-900 whitespace-nowrap">{r.fn}</td>
+                  <td class="p-3 font-semibold text-ink-700">{r.use}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

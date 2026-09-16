@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HubHero from '../../components/ui/HubHero.astro';
+import HubCard from '../../components/ui/HubCard.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+import { buildHubCards } from '../../lib/category-hub';
+
+// Derived from the calculators registry: see src/lib/category-hub.ts.
+const liveCalcs = buildHubCards('math', {
+  order: [
+    'percentage-calculator',
+    'cgpa-to-percentage-calculator',
+    'gpa-calculator',
+    'grade-calculator',
+    'fraction-calculator',
+    'ratio-calculator',
+    'scientific-calculator',
+    'tip-calculator',
+    'discount-calculator',
+  ],
+  copy: {
+    'percentage-calculator': { desc: 'What is X% of Y, percentage change, increase or decrease: every variant on one page.' },
+    'cgpa-to-percentage-calculator': { desc: 'Convert CGPA to percentage and back: CBSE, VTU, Anna, Mumbai, GTU and MAKAUT formulas.' },
+    'gpa-calculator': { desc: 'Weighted GPA on the 4.0 scale from your courses, grades and credit hours.' },
+    'grade-calculator': { desc: 'Your weighted class grade, and the score you need on the final exam.' },
+    'fraction-calculator': { desc: 'Add, subtract, multiply and divide fractions and simplify to lowest terms.' },
+    'ratio-calculator': { desc: 'Solve proportions (A:B = C:D), simplify and scale ratios.' },
+    'scientific-calculator': { desc: 'Trig, logs, powers, roots, π, e and factorial, in degrees or radians.' },
+    'tip-calculator': { desc: 'Split a restaurant bill any way: tip %, divide between people, per-person total.' },
+    'discount-calculator': { desc: 'Sale price from % off, original price, or discount % from before/after price.' },
+  },
+});
+
+const upcomingCalcs = [
+  { name: 'Statistics Calculator', desc: 'Mean, median, mode, standard deviation, variance, and quartiles from any dataset.', icon: '📊' },
+  { name: 'Quadratic Equation Solver', desc: 'Solve ax² + bx + c = 0 with real and complex roots, full working shown.', icon: '∛' },
+];
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Math', url: '/math/' },
+];
+
+const faqs = [
+  {
+    q: 'Do Calctube math calculators show the working?',
+    a: 'Yes. Every result shows the formula used, the substituted values, and the steps to the answer. The goal is to teach the math, not just hand over a number.',
+  },
+  {
+    q: 'Can I use Calctube math calculators for homework?',
+    a: 'Yes, they are accurate and free. We recommend writing out the working yourself afterwards so the method sticks.',
+  },
+  {
+    q: 'Why is the percentage calculator one page instead of three?',
+    a: 'Most users want "what is X% of Y", "what % is X of Y", and "Y is X% more than what", all variations of the same arithmetic. One page lets you toggle between the modes without losing your inputs.',
+  },
+];
+
+const schemas = [
+  buildBreadcrumbSchema(breadcrumbs),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Math Calculators | Calctube',
+    description: 'Free percentage, fraction, scientific, and statistics calculators with worked steps.',
+    url: 'https://calctube.com/math/',
+    isPartOf: { '@id': 'https://calctube.com/#website' },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: liveCalcs.map((c, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `https://calctube.com${c.href}`,
+        name: c.name,
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="Math Calculators: Percentage, Fractions"
+  description="Free math calculators with worked steps: percentage, fraction, scientific functions, and statistics. Every formula and step shown. No signup."
+  schemas={schemas}
+>
+  <HubHero
+    breadcrumbs={breadcrumbs}
+    chip="🧮 Math"
+    chipClass="chip-cyan"
+    stats={[{ label: 'Tools', value: String(liveCalcs.length) }]}
+    titleLead="Math Calculators."
+    titleAccent="With the working."
+    intro="Percentage, fractions, scientific functions, and statistics. Every calculator shows the formula and the working, not just the answer."
+    orbA="bg-cyan-accent/30"
+    orbB="bg-lime-accent/25"
+  />
+
+  <section class="container-wide pb-16 md:pb-24">
+    <h2
+      class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-0 !mb-4"
+      style="font-family: 'Inter Tight', sans-serif;"
+    >
+      Available now
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {liveCalcs.map((c) => (
+        <HubCard href={c.href} name={c.name} desc={c.desc} icon={c.icon} />
+      ))}
+    </div>
+
+    <h2
+      class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
+      style="font-family: 'Inter Tight', sans-serif;"
+    >
+      Coming soon
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {upcomingCalcs.map((c) => (
+        <HubCard name={c.name} desc={c.desc} icon={c.icon} soon />
+      ))}
+    </div>
+
+    <h2
+      class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
+      style="font-family: 'Inter Tight', sans-serif;"
+    >
+      About Calctube math tools
+    </h2>
+    <p class="text-ink-700 leading-relaxed max-w-3xl">
+      Math is best learned by seeing the steps, not just the answer. Every Calctube math calculator shows the formula, substitutes your values, and walks the working out line by line. The goal is for the underlying method to stick, so the next time you encounter the same kind of problem, you can do it on paper.
+    </p>
+
+    <h2
+      class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
+      style="font-family: 'Inter Tight', sans-serif;"
+    >
+      Frequently asked questions
+    </h2>
+    <div class="space-y-3 max-w-3xl">
+      {faqs.map((f) => (
+        <details class="card">
+          <summary class="cursor-pointer font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{f.q}</summary>
+          <p class="text-sm text-ink-700 mt-2 !leading-relaxed">{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

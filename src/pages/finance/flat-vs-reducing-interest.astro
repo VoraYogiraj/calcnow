@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/finance/flat-vs-reducing-interest';
+const lastUpdated = '2026-07-01';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Finance', url: '/finance/' }, { name: 'Flat vs Reducing Interest', url: path },
+];
+
+// Worked example, computed at build time: ₹5,00,000 for 5 years.
+const P = 500000;
+const YEARS = 5;
+const N = YEARS * 12;
+const FLAT_RATE = 10;
+
+// Flat: interest on full principal for entire tenure.
+const flatInterest = P * (FLAT_RATE / 100) * YEARS;
+const flatTotal = P + flatInterest;
+const flatEmi = flatTotal / N;
+
+// Reducing at the same 10% quoted rate.
+function emiAt(rPct: number): number {
+  const r = rPct / 100 / 12;
+  return (P * r * Math.pow(1 + r, N)) / (Math.pow(1 + r, N) - 1);
+}
+const redEmi = emiAt(10);
+const redTotal = redEmi * N;
+const redInterest = redTotal - P;
+
+// Effective reducing rate equivalent to the 10% flat quote (solve for EMI == flatEmi).
+let lo = 10, hi = 30, effRate = 17.5;
+for (let i = 0; i < 60; i++) {
+  const mid = (lo + hi) / 2;
+  if (emiAt(mid) < flatEmi) lo = mid; else hi = mid;
+  effRate = mid;
+}
+
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+const faqs = [
+  { q: 'What is the difference between flat and reducing-balance interest?', a: `Flat interest is charged on the full original loan amount for the entire tenure, even as you repay. Reducing-balance interest is charged only on the outstanding principal, which falls with every EMI. On a ${fmtINR(P)} loan at a quoted 10% for 5 years, flat interest costs ${fmtINR(flatInterest)} while reducing-balance costs ${fmtINR(Math.round(redInterest))}, a difference of ${fmtINR(Math.round(flatInterest - redInterest))}.` },
+  { q: 'How do I convert a flat rate to a reducing-balance rate?', a: `A rough rule: effective reducing rate ≈ flat rate × 1.75 to 1.9 (for typical 3–5 year tenures). Precisely, a 10% flat rate on a 5-year loan equals about ${effRate.toFixed(1)}% reducing-balance, because you keep paying interest on money you have already returned. The longer the tenure, the worse the gap.` },
+  { q: 'Which loans use flat rates?', a: 'Flat rates are common on two-wheeler loans, used-car loans from dealers, gold loans, personal loans from some NBFCs, and informal lending. Bank home loans and most bank car loans use reducing-balance (that is what an EMI quote normally means). Regulation increasingly requires lenders to disclose the effective (APR/reducing) rate. Always ask for it.' },
+  { q: 'Is a lower flat rate ever better than a higher reducing rate?', a: `Compare them on the same basis first: multiply the flat rate by ~1.8 to approximate its reducing equivalent, then compare. A "7% flat" (~12.5–13% reducing) is worse than a 11% reducing-balance loan despite looking cheaper. The only honest comparison is total interest paid or APR, never the headline number.` },
+  { q: 'Why do dealers quote flat rates?', a: 'Because the number looks smaller. A dealer quoting "10% flat" sounds cheaper than a bank quoting "14% reducing," yet the flat loan costs more. It is a framing tactic, not a different kind of cheap credit. Ask every lender the same question: "What is the total interest I will pay in rupees, and what is the APR?"' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title="Flat vs Reducing Balance Interest Rate: The Real Difference (2026)" description={`Flat vs reducing-balance interest explained with real math: a 10% flat rate equals ~${effRate.toFixed(1)}% reducing. Comparison table on a ₹5 lakh loan, conversion rule, and how to spot the dealer trick.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-pink-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">📚 Guide</span>
+          <span class="chip-pink">🚩 Loan trap</span>
+          <span class="chip-white"><span class="text-ink-500">Last updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Flat vs reducing <span class="text-gradient-brand">interest rate.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                A <strong>10% flat rate is NOT 10%</strong>. On a 5-year loan it equals about <strong>{effRate.toFixed(1)}% reducing-balance</strong>. Flat interest is charged on the full original amount forever; reducing-balance only on what you still owe. Rule of thumb: <strong>reducing ≈ flat × 1.8</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON TABLE -->
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-cyan mb-4">🧮 Same loan, two quotes</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">{fmtINR(P)} for {YEARS} years at "10%".</h2>
+      <div class="mt-8 overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm md:text-base">
+          <thead>
+            <tr class="bg-ink-900 text-white">
+              <th class="text-left p-4 font-extrabold" style="font-family: 'Inter Tight', sans-serif;">&nbsp;</th>
+              <th class="text-right p-4 font-extrabold" style="font-family: 'Inter Tight', sans-serif;">10% FLAT</th>
+              <th class="text-right p-4 font-extrabold" style="font-family: 'Inter Tight', sans-serif;">10% REDUCING</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b-2 border-ink-100">
+              <td class="p-4 font-semibold text-ink-700">Interest charged on</td>
+              <td class="p-4 text-right font-bold text-ink-900">Full {fmtINR(P)}, all 5 years</td>
+              <td class="p-4 text-right font-bold text-ink-900">Only the outstanding balance</td>
+            </tr>
+            <tr class="border-b-2 border-ink-100 bg-ink-50">
+              <td class="p-4 font-semibold text-ink-700">Monthly EMI</td>
+              <td class="p-4 text-right font-mono font-bold text-ink-900">{fmtINR(Math.round(flatEmi))}</td>
+              <td class="p-4 text-right font-mono font-bold text-ink-900">{fmtINR(Math.round(redEmi))}</td>
+            </tr>
+            <tr class="border-b-2 border-ink-100">
+              <td class="p-4 font-semibold text-ink-700">Total interest paid</td>
+              <td class="p-4 text-right font-mono font-extrabold text-red-600">{fmtINR(flatInterest)}</td>
+              <td class="p-4 text-right font-mono font-extrabold text-green-700">{fmtINR(Math.round(redInterest))}</td>
+            </tr>
+            <tr class="border-b-2 border-ink-100 bg-ink-50">
+              <td class="p-4 font-semibold text-ink-700">Total repaid</td>
+              <td class="p-4 text-right font-mono font-bold text-ink-900">{fmtINR(flatTotal)}</td>
+              <td class="p-4 text-right font-mono font-bold text-ink-900">{fmtINR(Math.round(redTotal))}</td>
+            </tr>
+            <tr>
+              <td class="p-4 font-semibold text-ink-700">True (effective) rate</td>
+              <td class="p-4 text-right font-mono font-extrabold text-red-600">~{effRate.toFixed(1)}% reducing</td>
+              <td class="p-4 text-right font-mono font-extrabold text-green-700">10% (honest)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-5 text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Same headline number, <strong>{fmtINR(Math.round(flatInterest - redInterest))} difference</strong> in interest. The flat loan keeps charging you 10% on the full {fmtINR(P)} even in month 59, when you owe almost nothing. That's why regulators push lenders to disclose the effective rate (APR), and why you should never compare a flat quote with a reducing quote directly.
+      </p>
+    </div>
+  </section>
+
+  <!-- CONVERSION RULE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-pink mb-4">🔁 Conversion</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Flat → reducing, in your head.</h2>
+        <div class="mt-8 bg-ink-900 text-white border-[2.5px] border-ink-900 rounded-3xl p-6 md:p-8 shadow-sticker">
+          <div class="font-mono text-xl md:text-2xl font-bold">
+            <span class="text-lime-accent">reducing rate</span> ≈ <span class="text-cyan-accent">flat rate</span> × <span class="text-yellow-accent">1.8</span>
+          </div>
+          <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            {[[5, 9.4], [7, 12.8], [10, 17.6], [12, 20.7]].map(([flat, red]) => (
+              <div class="bg-white/10 border-2 border-white/20 rounded-xl p-3">
+                <div class="text-xs text-ink-300 font-bold">{flat}% flat</div>
+                <div class="text-lg font-extrabold text-lime-accent">≈ {red}%</div>
+                <div class="text-[10px] text-ink-400 font-semibold">reducing (5-yr)</div>
+              </div>
+            ))}
+          </div>
+          <p class="text-sm text-ink-300 mt-6">
+            The multiplier drifts with tenure: ~1.75× for 3 years, ~1.85× for 5 years, ~1.9× for 7 years. When it matters, compute the exact EMI both ways. Our <a href="/finance/emi-calculator/" class="text-yellow-accent underline decoration-2">EMI calculator</a> uses reducing-balance, and the <a href="/finance/simple-interest-calculator/" class="text-yellow-accent underline decoration-2">simple interest calculator</a> shows the flat side.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Run the numbers yourself.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {[
+            { name: 'Simple Interest', href: '/finance/simple-interest-calculator/', desc: 'The flat-rate math.', icon: '🧾', color: 'bg-cyan-accent' },
+            { name: 'EMI Calculator', href: '/finance/emi-calculator/', desc: 'Honest reducing-balance EMIs.', icon: '🇮🇳', color: 'bg-rose-300' },
+            { name: 'Car Loan Calculator', href: '/finance/car-loan-calculator/', desc: 'Where flat quotes lurk most.', icon: '🚗', color: 'bg-pink-accent' },
+            { name: 'Loan Calculator', href: '/finance/loan-calculator/', desc: 'General loan payments.', icon: '💵', color: 'bg-lime-accent' },
+          ].map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

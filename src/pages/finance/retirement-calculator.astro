@@ -1,0 +1,226 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LocalizeMoney from '../../components/ui/LocalizeMoney.astro';
+import RetirementCalculator from '../../components/calculators/RetirementCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'retirement-calculator',
+  name: 'Retirement Savings Calculator',
+  description:
+    'Free retirement savings calculator. See how much you will have at retirement, inflation-adjusted value, and year-by-year growth chart.',
+  category: 'finance' as const,
+  keywords: [
+    'retirement calculator',
+    'retirement savings calculator',
+    'how much to retire',
+    'retirement planning',
+    'nest egg calculator',
+  ],
+  lastUpdated: '2026-05-25',
+  ratingValue: '4.8',
+  ratingCount: '214',
+};
+
+const path = '/finance/retirement-calculator';
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'Retirement Calculator', url: path },
+];
+
+const faqs = [
+  {
+    q: 'How is projected retirement savings calculated?',
+    a: 'The calculator combines two future-value formulas. Your lump-sum savings grow as FV = P × (1+r)^n. Your monthly contributions grow as FV = C × ((1+r/12)^(n×12) − 1) / (r/12). Adding both gives the total projected balance. Inflation-adjusted value divides this total by (1 + inflation)^years to show purchasing power in today\'s dollars.',
+  },
+  {
+    q: 'What annual return should I use?',
+    a: 'The US stock market has historically returned around 7–10% annually before inflation. A balanced portfolio (stocks + bonds) typically averages 5–7%. Conservative investors might use 4–5%. The default of 7% is a common rule-of-thumb that accounts for long-term averages after inflation.',
+  },
+  {
+    q: 'How does inflation affect my retirement savings?',
+    a: 'Inflation erodes purchasing power over time. $1 million today will only buy what roughly $550,000 buys today if inflation averages 3% over 20 years. The "inflation-adjusted value" output shows your projected savings in today\'s equivalent dollars, helping you judge if you\'re on track.',
+  },
+  {
+    q: 'How much do I need to retire comfortably?',
+    a: 'A widely used rule is the "25× rule": save 25 times your expected annual spending. If you plan to spend $60,000/year, aim for $1.5 million. This is based on the 4% safe withdrawal rate from decades of portfolio research. Your actual target depends on lifestyle, healthcare, Social Security, and other income sources.',
+  },
+  {
+    q: 'What if I start saving late?',
+    a: 'Starting later means shorter compounding time, so you\'ll need to contribute more each month to reach the same target. The calculator updates instantly as you adjust the current age. Raise monthly contributions to compensate for fewer years of growth. Even 10 extra years of compounding at 7% roughly doubles your balance.',
+  },
+];
+
+const schemas = [buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+
+const relatedCalcs = [
+  { name: 'Compound Interest', href: '/finance/compound-interest-calculator/', desc: 'See how savings grow with compounding.', icon: '💹', color: 'bg-cyan-accent' },
+  { name: 'Inflation Calculator', href: '/finance/inflation-calculator/', desc: 'Understand how inflation erodes value.', icon: '📈', color: 'bg-yellow-accent' },
+  { name: 'Mortgage Calculator', href: '/finance/mortgage-calculator/', desc: 'Calculate monthly mortgage payments.', icon: '🏠', color: 'bg-lime-accent' },
+  { name: 'Net Worth Calculator', href: '/finance/net-worth-calculator/', desc: 'Track assets minus liabilities.', icon: '💰', color: 'bg-pink-accent' },
+];
+
+---
+
+<BaseLayout
+  title="Retirement Savings Calculator: Project Your Nest Egg"
+  description={meta.description}
+  schemas={schemas}
+  publishedTime={meta.lastUpdated}
+  modifiedTime={meta.lastUpdated}
+>
+
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-brand-400/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="absolute inset-0 -z-10 bg-grain opacity-50" aria-hidden="true"></div>
+
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <!-- Breadcrumb -->
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">
+                  {item.name}
+                </span>
+              ) : (
+                <>
+                  <a
+                    href={item.url}
+                    class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors"
+                  >
+                    {item.name}
+                  </a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">💰 Finance</span>
+          <span class="chip-yellow">🏖️ Retirement</span>
+          <span class="chip-white">
+            <span class="text-ink-500">Updated</span>
+            <span>{meta.lastUpdated}</span>
+          </span>
+        </div>
+
+        <h1
+          class="fade-in !text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900"
+          style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;"
+        >
+          Retirement Savings
+          <span class="text-gradient-brand">Calculator.</span>
+        </h1>
+
+        <!-- Quick answer -->
+        <div class="fade-in fade-in-delay-1 mt-7 bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl flex-shrink-0">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick Answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Contributing <strong class="font-extrabold"><span data-money="500">$500</span>/month</strong> starting at age 30 with <strong class="font-extrabold"><span data-money="10000">$10,000</span></strong> already saved, at <strong class="font-extrabold">7% annual return</strong>, gives you about <strong class="font-extrabold"><span data-money-compact="1007293">$1.01M</span></strong> by age 65, roughly <strong class="font-extrabold"><span data-money-compact="357975">$358K</span> in today's money</strong> after 3% inflation.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <RetirementCalculator client:visible />
+    </div>
+  </section>
+
+  <!-- CONTENT -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto prose prose-ink">
+
+        <h2 style="font-family: 'Inter Tight', sans-serif;">How Retirement Compounding Works</h2>
+        <p>
+          The power behind retirement savings is compound interest, earning returns not just on your contributions but on your accumulated gains. At 7% annual return, money roughly doubles every 10 years. This means starting at 25 instead of 35 can more than double your retirement balance, even with identical monthly contributions. The calculator uses a standard future-value annuity formula for your monthly contributions combined with a lump-sum formula for your existing savings.
+        </p>
+
+        <h2 style="font-family: 'Inter Tight', sans-serif;">Why Inflation-Adjusted Value Matters</h2>
+        <p>
+          A projected balance of $2 million in 35 years sounds impressive, but inflation means that $2M won't buy what $2M buys today. At 3% annual inflation, $2M in 35 years is equivalent to about $710K in today's purchasing power. Always check the inflation-adjusted figure. It gives you a realistic sense of what your nest egg will actually be worth when you retire. The 3% default reflects the historical US CPI long-run average, though your local inflation rate may differ.
+        </p>
+
+        <p class="text-xs text-ink-500 mt-6 font-medium">Sources: <a href="https://www.dol.gov/agencies/ebsa/about-ebsa/our-activities/resource-center/publications/savings-fitness" rel="noopener noreferrer" target="_blank" class="underline hover:text-ink-700">DOL Savings Fitness Guide</a> · <a href="https://www.ssa.gov/pubs/EN-05-10024.pdf" rel="noopener noreferrer" target="_blank" class="underline hover:text-ink-700">SSA Retirement Benefits publication</a> · <a href="https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-contributions" rel="noopener noreferrer" target="_blank" class="underline hover:text-ink-700">IRS Retirement Contribution Limits</a></p>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        Common questions.
+      </h2>
+
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details
+            class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all overflow-hidden"
+            open={idx === 0}
+          >
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((calc) => (
+            <a
+              href={calc.href}
+              class={`group ${calc.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}
+            >
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{calc.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{calc.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{calc.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <LocalizeMoney />
+</BaseLayout>

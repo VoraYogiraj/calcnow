@@ -1,0 +1,148 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Logo from '../components/ui/Logo.astro';
+
+const concepts = [
+  {
+    theme: 'divide',
+    name: '÷ Lime',
+    description: 'Current pick. Division symbol on lime sticker. Math-direct, instantly readable.',
+    vibe: 'Friendly · Math-forward · Default',
+  },
+  {
+    theme: 'equal',
+    name: '= Pink',
+    description: 'Equals sign on hot pink. More energetic, less common in tech.',
+    vibe: 'Bold · Punchy · Memorable',
+  },
+  {
+    theme: 'multiply',
+    name: '× Yellow',
+    description: 'Multiplication X on yellow. High contrast, playful.',
+    vibe: 'Energetic · Playful · Loud',
+  },
+  {
+    theme: 'percent',
+    name: '% Cyan',
+    description: 'Percent symbol on cyan. Finance/data-vibe.',
+    vibe: 'Premium · Tech · Subtle',
+  },
+  {
+    theme: 'letter-c',
+    name: 'C Initial',
+    description: 'Bold rounded letter C on lime. Initial-based, simplest.',
+    vibe: 'Minimal · Direct · Brandable',
+  },
+  {
+    theme: 'play',
+    name: '▷ Play (Tube)',
+    description: 'Play arrow in black sticker. References the "tube" in Calctube (YouTube parallel).',
+    vibe: 'Edgy · Tube-themed · Distinctive',
+  },
+  {
+    theme: 'wordmark',
+    name: 'c÷lctube',
+    description: 'Pure typographic logo. The "a" is replaced with ÷.',
+    vibe: 'Clever · Minimal · Wordmark-only',
+  },
+  {
+    theme: 'mono',
+    name: '÷ Mono',
+    description: 'Black + white only. Premium minimal feel.',
+    vibe: 'Classy · Minimal · Print-ready',
+  },
+];
+---
+
+<BaseLayout
+  title="Logo Gallery | Calctube"
+  description="Internal logo gallery. Pick a logo design."
+  noindex={true}
+>
+  <div class="container-wide py-12 md:py-16">
+    <div class="mb-12 max-w-2xl">
+      <span class="chip-pink mb-4">Internal</span>
+      <h1 class="!mt-4 !text-4xl md:!text-5xl !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        Pick your logo
+      </h1>
+      <p class="text-ink-600 mt-3 text-lg">
+        8 sticker-style concepts. Each shown at 3 sizes on both light and dark backgrounds.
+        Tell me which one and I'll wire it up everywhere.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      {
+        concepts.map((c) => (
+          <div class="bg-white border-2 border-ink-900 rounded-3xl overflow-hidden shadow-sticker">
+            <!-- Header -->
+            <div class="p-5 md:p-6 border-b-2 border-ink-900 bg-ink-50">
+              <div class="flex items-center justify-between gap-3 mb-2">
+                <h2 class="!text-2xl !my-0" style="font-family: 'Inter Tight', sans-serif;">{c.name}</h2>
+                <span class="text-xs font-bold uppercase tracking-wider text-ink-600">theme="{c.theme}"</span>
+              </div>
+              <p class="text-sm text-ink-700">{c.description}</p>
+              <p class="text-xs text-ink-500 mt-2 font-medium">{c.vibe}</p>
+            </div>
+
+            <!-- Light preview -->
+            <div class="p-6 md:p-8 bg-white border-b-2 border-ink-900">
+              <div class="text-xs font-bold uppercase tracking-wider text-ink-500 mb-4">Light background</div>
+              <div class="flex flex-col gap-5">
+                <div class="flex items-center gap-4">
+                  <Logo theme={c.theme as any} variant="light" size="sm" href={false} />
+                  <span class="text-xs font-mono text-ink-400">sm</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <Logo theme={c.theme as any} variant="light" size="md" href={false} />
+                  <span class="text-xs font-mono text-ink-400">md (default)</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <Logo theme={c.theme as any} variant="light" size="lg" href={false} />
+                  <span class="text-xs font-mono text-ink-400">lg</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dark preview -->
+            <div class="p-6 md:p-8 bg-ink-900">
+              <div class="text-xs font-bold uppercase tracking-wider text-ink-400 mb-4">Dark background</div>
+              <div class="flex flex-col gap-5">
+                <div class="flex items-center gap-4">
+                  <Logo theme={c.theme as any} variant="dark" size="sm" href={false} />
+                  <span class="text-xs font-mono text-ink-500">sm</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <Logo theme={c.theme as any} variant="dark" size="md" href={false} />
+                  <span class="text-xs font-mono text-ink-500">md</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <Logo theme={c.theme as any} variant="dark" size="lg" href={false} />
+                  <span class="text-xs font-mono text-ink-500">lg</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Code snippet -->
+            <div class="p-5 md:p-6 bg-ink-50 font-mono text-xs text-ink-700 break-all">
+              <span class="text-ink-400">// To use this logo:</span><br />
+              {`<Logo theme="${c.theme}" />`}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="mt-16 p-6 md:p-8 bg-lime-accent border-2 border-ink-900 rounded-3xl shadow-sticker max-w-3xl mx-auto">
+      <h2 class="!text-2xl !mt-0 !mb-3" style="font-family: 'Inter Tight', sans-serif;">
+        How to lock one in
+      </h2>
+      <p class="text-ink-900 font-medium mb-4">
+        Tell me which theme you want (e.g., "go with <code class="font-mono bg-white px-1.5 py-0.5 rounded">multiply</code>") and I'll update the default in <code class="font-mono bg-white px-1.5 py-0.5 rounded">Logo.astro</code> + regenerate the favicon and OG image to match.
+      </p>
+      <p class="text-sm text-ink-800">
+        Currently using: <strong class="font-mono bg-white px-1.5 py-0.5 rounded border border-ink-900">divide</strong> (lime ÷)
+      </p>
+    </div>
+  </div>
+</BaseLayout>

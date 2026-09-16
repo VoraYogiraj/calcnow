@@ -1,0 +1,402 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GeoBanner from '../../../components/ui/GeoBanner.astro';
+import FlagIcon from '../../../components/ui/FlagIcon.astro';
+import MortgageCalculator from '../../../components/calculators/MortgageCalculator.tsx';
+import {
+  mortgageLocales,
+  formatLocaleCurrency,
+  type LocaleData,
+} from '../../../data/mortgage-locales';
+import {
+  SITE,
+  buildCalculatorSchema,
+  buildBreadcrumbSchema,
+  buildFAQSchema,
+  buildSpeakableSchema,
+  buildHowToSchema,
+} from '../../../lib/seo';
+
+export async function getStaticPaths() {
+  return mortgageLocales.map((locale) => ({
+    params: { country: locale.slug },
+    props: { locale },
+  }));
+}
+
+interface Props {
+  locale: LocaleData;
+}
+
+const { locale } = Astro.props;
+
+// Calculate the worked example monthly payment for the locale
+function emi(p: number, r: number, years: number): number {
+  const m = r / 100 / 12;
+  const n = years * 12;
+  return m === 0 ? p / n : (p * m * Math.pow(1 + m, n)) / (Math.pow(1 + m, n) - 1);
+}
+const examplePayment = emi(locale.workedExample.amount, locale.workedExample.rate, locale.workedExample.term);
+const exampleTotal = examplePayment * locale.workedExample.term * 12;
+const exampleInterest = exampleTotal - locale.workedExample.amount;
+
+const path = `/finance/mortgage-calculator/${locale.slug}`;
+
+const meta = {
+  slug: `mortgage-calculator-${locale.slug}`,
+  name: `Mortgage Calculator (${locale.country})`,
+  description: `Free ${locale.country} mortgage calculator (2026). ${formatLocaleCurrency(locale.workedExample.amount, locale)} at ${locale.workedExample.rate}% for ${locale.workedExample.term} yrs = ~${formatLocaleCurrency(Math.round(examplePayment), locale)}/mo. Instant amortization table.`,
+  category: 'finance' as const,
+  keywords: locale.metaKeywords,
+  lastUpdated: '2026-05-28',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'Mortgage Calculator', url: '/finance/mortgage-calculator/' },
+  { name: locale.country, url: path },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(locale.faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: `How to calculate a ${locale.termLocalName} in ${locale.country}`,
+    description: `Step-by-step instructions to estimate your monthly ${locale.termLocalName} payment in ${locale.country} using the ${locale.currency} currency, typical ${locale.typicalRate}% rate, and ${locale.typicalTerm}-year term.`,
+    totalTime: 'PT2M',
+    estimatedCost: { value: '0', currency: 'USD' },
+    steps: [
+      {
+        name: 'Enter the loan amount',
+        text: `Type the property price minus your down payment. In ${locale.country}, a typical loan amount is ${formatLocaleCurrency(locale.typicalAmount, locale)}.`,
+      },
+      {
+        name: 'Enter the interest rate',
+        text: `Use your bank's quoted rate or the country median. In ${locale.country} as of 2026, ${locale.typicalRate}% is a typical rate for prime borrowers.`,
+      },
+      {
+        name: 'Choose the loan term',
+        text: `Pick the number of years to repay. In ${locale.country}, ${locale.typicalTerm}-year ${locale.termLocalName} terms are most common.`,
+      },
+      {
+        name: 'Read the monthly payment',
+        text: `The calculator shows your monthly EMI/instalment, total interest paid, and a principal-vs-interest split. ${locale.workedExample.description} works out to about ${formatLocaleCurrency(examplePayment, locale)}/month.`,
+      },
+      {
+        name: 'Review tax and regulatory notes',
+        text: `Factor country-specific tax treatment: ${locale.taxAndRegulation.split('.')[0]}.`,
+      },
+    ],
+  }),
+];
+
+// Related country pages — prefer same-currency siblings (EUR cluster, USD-pegged Gulf, etc.),
+// then fill with other prominent countries. Limits to 8 for stronger internal linking density.
+const sameCurrencySiblings = mortgageLocales.filter(
+  (l) => l.slug !== locale.slug && l.currency === locale.currency
+);
+const otherProminent = mortgageLocales.filter(
+  (l) => l.slug !== locale.slug && l.currency !== locale.currency
+);
+const otherCountries = [...sameCurrencySiblings, ...otherProminent].slice(0, 8);
+
+
+// Hreflang alternates — self-reference + x-default.
+// All content is English, so we use English language codes:
+//   • English-speaking locales (en-*): use country-specific English (en-CA, en-AU…)
+//   • Non-English locales (fi-FI, nl-NL, de-DE…): use plain 'en' since the page
+//     content is English, not the native language.
+// Setting hreflang="fi" for an English page is WRONG — it tells Google the page
+// is Finnish, causing a language-signal mismatch that hurts rankings.
+const contentLang = locale.language.startsWith('en') ? locale.language : 'en';
+
+// H1 must match what people actually type into Google (Latin script). For
+// locales whose local term is non-Latin (Greek, Arabic, Pashto, Thai…), a
+// mixed-script H1 like "Στεγαστικό δάνειο Calculator Cyprus" matches nothing —
+// use "Mortgage Calculator" in the H1 and surface the local term as a chip.
+const isLatinTerm = /^[ -ɏḀ-ỿ’'’-]+$/.test(locale.termLocalName);
+const h1Term = isLatinTerm
+  ? locale.termLocalName.charAt(0).toUpperCase() + locale.termLocalName.slice(1)
+  : 'Mortgage';
+const selfUrl = `${SITE.url}${path}/`;
+const hreflangs = [
+  { hreflang: contentLang, href: selfUrl },
+  { hreflang: 'x-default', href: `${SITE.url}/finance/mortgage-calculator/` }, // global fallback
+];
+---
+
+<BaseLayout
+  title={`${locale.country} Mortgage Calculator 2026`}
+  description={meta.description}
+  schemas={schemas}
+  publishedTime={meta.lastUpdated}
+  modifiedTime={meta.lastUpdated}
+  htmlLang={locale.language.startsWith('en') ? locale.language : 'en'}
+  hreflangs={hreflangs}
+>
+  <GeoBanner country={locale.country} flag={locale.flag} slug={locale.slug} />
+
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-brand-400/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <!-- Breadcrumbs -->
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">
+                  {item.name}
+                </span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime inline-flex items-center gap-1.5"><FlagIcon slug={locale.slug} size={20} alt={`${locale.country} flag`} /> {locale.country}</span>
+          <span class="chip-cyan">💰 {locale.currency}</span>
+          <span class="chip-white"><span class="text-ink-500">Last updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          {h1Term} Calculator
+          <span class="text-gradient-brand inline-flex items-baseline gap-2">{locale.country} <FlagIcon slug={locale.slug} size={40} alt={`${locale.country} flag`} class="-mb-1 self-center" /></span>
+        </h1>
+        {!isLatinTerm && (
+          <p class="mt-3 text-ink-600 font-semibold text-base">
+            Known locally as <span class="text-ink-900 font-extrabold">{locale.termLocalName}</span>
+          </p>
+        )}
+
+        <!-- Quick-answer with locale-specific data (Speakable schema target) -->
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer ({locale.country})</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                {locale.workedExample.description} works out to a monthly payment of about <strong>{formatLocaleCurrency(examplePayment, locale)}</strong>, with total interest of <strong>{formatLocaleCurrency(exampleInterest, locale)}</strong> over the full term.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="container-wide pb-8 md:pb-10">
+    <div class="max-w-4xl mx-auto">
+      <MortgageCalculator
+        client:load
+        currency={locale.currency}
+        locked={true}
+        initialAmount={locale.typicalAmount}
+        initialRate={locale.typicalRate}
+        initialTerm={locale.typicalTerm}
+      />
+    </div>
+  </section>
+
+  <!-- LOCALE-SPECIFIC CONTEXT -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4 inline-flex items-center gap-1.5"><FlagIcon slug={locale.slug} size={18} alt={`${locale.country} flag`} /> Local context</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          {isLatinTerm ? `${h1Term}s` : 'Mortgages'} in {locale.country}
+        </h2>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">Typical loan</div>
+            <div class="text-2xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {formatLocaleCurrency(locale.typicalAmount, locale)}
+            </div>
+            <div class="text-xs text-ink-800 mt-2 font-semibold">in {locale.country}</div>
+          </div>
+          <div class="bg-pink-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-white mb-2">Typical rate</div>
+            <div class="text-2xl font-extrabold text-white leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {locale.typicalRate}% p.a.
+            </div>
+            <div class="text-xs text-white/90 mt-2 font-semibold">prime borrower, 2026</div>
+          </div>
+          <div class="bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">Typical term</div>
+            <div class="text-2xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {locale.typicalTerm} years
+            </div>
+            <div class="text-xs text-ink-800 mt-2 font-semibold">most common</div>
+          </div>
+        </div>
+
+        <div class="mt-8 prose prose-lg max-w-none">
+          <h3 class="!text-xl !mt-0">Market overview</h3>
+          <p class="text-ink-700 leading-relaxed font-medium">{locale.marketContext}</p>
+
+          <h3 class="!text-xl">Why {locale.typicalRate}% is the typical rate</h3>
+          <p class="text-ink-700 leading-relaxed font-medium">{locale.rateContext}</p>
+
+          <h3 class="!text-xl">Tax & regulatory notes</h3>
+          <p class="text-ink-700 leading-relaxed font-medium">{locale.taxAndRegulation}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCAL BANKS & RATES (only when locale.localBanks is populated) -->
+  {locale.localBanks && locale.localBanks.length > 0 && (
+    <section class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-lime mb-4 inline-flex items-center gap-1.5"><FlagIcon slug={locale.slug} size={18} alt={`${locale.country} flag`} /> Local banks</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          {locale.country} mortgage rates by bank
+        </h2>
+        <p class="mt-4 text-ink-700 leading-relaxed font-medium max-w-3xl">
+          The main {locale.termLocalName} lenders in {locale.country}, with indicative 2026 rates and typical
+          loan-to-value caps. Rates vary by borrower profile, residency and property type. Use the calculator
+          above with each bank's quoted rate to compare your real monthly payment.
+        </p>
+
+        <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {locale.localBanks.map((bank) => (
+            <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <h3 class="!text-lg !font-extrabold !text-ink-900 !m-0 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">{bank.name}</h3>
+              </div>
+              <div class="flex flex-wrap gap-2 mb-3">
+                {bank.rateRange && (
+                  <span class="inline-flex items-center gap-1 text-xs font-extrabold bg-pink-accent text-white px-2.5 py-1 rounded-full">
+                    {bank.rateRange}
+                  </span>
+                )}
+                {bank.ltv && (
+                  <span class="inline-flex items-center gap-1 text-xs font-extrabold bg-cyan-accent text-ink-900 px-2.5 py-1 rounded-full">
+                    LTV {bank.ltv}
+                  </span>
+                )}
+              </div>
+              <p class="text-sm text-ink-700 leading-relaxed font-medium !m-0">{bank.note}</p>
+            </div>
+          ))}
+        </div>
+
+        <p class="mt-6 text-xs text-ink-500 font-medium">
+          Indicative rates compiled from public bank disclosures and central-bank data for 2026; not a quote or
+          an offer of credit. Confirm current terms directly with the lender.
+        </p>
+      </div>
+    </section>
+  )}
+
+  <!-- WORKED EXAMPLE -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-pink mb-4">🧮 Worked example</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        {locale.workedExample.description}
+      </h2>
+
+      <div class="mt-6 bg-white border-2 border-ink-900 rounded-2xl divide-y-2 divide-ink-100 shadow-sticker-sm overflow-hidden">
+        <div class="flex items-center justify-between gap-4 p-4">
+          <div class="text-sm font-semibold text-ink-700">Loan amount</div>
+          <code class="font-mono font-bold text-ink-900">{formatLocaleCurrency(locale.workedExample.amount, locale)}</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4">
+          <div class="text-sm font-semibold text-ink-700">Annual interest rate</div>
+          <code class="font-mono font-bold text-ink-900">{locale.workedExample.rate}%</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4">
+          <div class="text-sm font-semibold text-ink-700">Term</div>
+          <code class="font-mono font-bold text-ink-900">{locale.workedExample.term} years ({locale.workedExample.term * 12} months)</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4 bg-lime-accent/30">
+          <div class="text-sm font-semibold text-ink-700">Monthly payment</div>
+          <code class="font-mono font-extrabold text-ink-900 text-base">{formatLocaleCurrency(examplePayment, locale)}</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4 bg-pink-accent/20">
+          <div class="text-sm font-semibold text-ink-700">Total interest paid</div>
+          <code class="font-mono font-extrabold text-ink-900 text-base">{formatLocaleCurrency(exampleInterest, locale)}</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4 bg-yellow-accent/30">
+          <div class="text-sm font-semibold text-ink-700">Total paid (principal + interest)</div>
+          <code class="font-mono font-extrabold text-ink-900 text-base">{formatLocaleCurrency(exampleTotal, locale)}</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCALE-SPECIFIC FAQ -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ ({locale.country})</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          Common questions in {locale.country}.
+        </h2>
+
+        <div class="space-y-3 mt-8">
+          {locale.faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OTHER COUNTRIES -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🌍 Other countries</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        Mortgage calculator for other countries.
+      </h2>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8">
+        {otherCountries.map((other) => (
+          <a
+            href={`/finance/mortgage-calculator/${other.slug}/`}
+            class="group bg-white border-[2.5px] border-ink-900 rounded-3xl p-4 sm:p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200"
+          >
+            <FlagIcon slug={other.slug} size={40} alt={`${other.country} flag`} class="mb-2 group-hover:rotate-12 transition-transform" />
+            <div class="font-extrabold text-ink-900 text-sm leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+              {other.country}
+            </div>
+            <div class="text-xs text-ink-600 mt-1 font-semibold">~{other.typicalRate}% rate</div>
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-6">
+        <a href="/finance/mortgage-calculator/" class="font-bold underline decoration-2 underline-offset-4 decoration-lime-accent">
+          ← Back to main mortgage calculator
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

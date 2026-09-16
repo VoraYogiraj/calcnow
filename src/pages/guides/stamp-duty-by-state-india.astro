@@ -1,0 +1,173 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+import { indiaCities } from '../../data/india-cities';
+
+const path = '/guides/stamp-duty-by-state-india';
+const lastUpdated = '2026-07-10';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Stamp Duty by State', url: path },
+];
+
+// Original synthesis: dedupe our 285-city dataset to one row per state (stamp duty
+// is a state-level tax), then rank by the true combined cost. Computed at build time.
+const byState = new Map<string, { state: string; stamp: number; reg: number; women: number }>();
+for (const c of indiaCities) {
+  if (!byState.has(c.stateName)) {
+    byState.set(c.stateName, { state: c.stateName, stamp: c.stampDutyPct, reg: c.registrationPct, women: c.womenStampDutyDiscount });
+  }
+}
+const states = [...byState.values()].map((s) => ({
+  ...s,
+  combined: s.stamp + s.reg,
+  womenCombined: s.stamp - s.women + s.reg,
+})).sort((a, b) => a.combined - b.combined);
+
+const PROP = 5000000; // ₹50 lakh sample property
+const cheapest = states[0];
+const dearest = states[states.length - 1];
+const medianCombined = states[Math.floor(states.length / 2)].combined;
+const womenStates = states.filter((s) => s.women > 0);
+
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+const fmtL = (v: number) => `₹${(v / 100000).toFixed(2)} L`;
+
+const faqs = [
+  { q: 'What is stamp duty and why do I pay it?', a: `Stamp duty is a state government tax on property transfer. You pay it to legally register the sale in your name. It's calculated as a percentage of the property's value (or the government's guidance value, whichever is higher) and, crucially, it cannot be financed by your home loan: it comes out of your savings on top of the down payment. Registration charges are a separate, usually smaller, fee for recording the deed. Across India's states these combine to between ${cheapest.combined}% (${cheapest.state}) and ${dearest.combined}% (${dearest.state}) of the property value.` },
+  { q: 'How much stamp duty will I pay on a ₹50 lakh flat?', a: `It depends entirely on the state. On a ${fmtL(PROP)} property you'd pay about ${fmtINR(PROP * cheapest.combined / 100)} in the cheapest state (${cheapest.state}, ${cheapest.combined}% combined) versus ${fmtINR(PROP * dearest.combined / 100)} in the most expensive (${dearest.state}, ${dearest.combined}%), a difference of ${fmtINR(PROP * (dearest.combined - cheapest.combined) / 100)} on the identical flat. The national median is around ${medianCombined}%.` },
+  { q: 'Do women get a stamp duty discount?', a: `Yes, in ${womenStates.length} states and union territories, registering the property in a woman's name (or jointly) earns a stamp-duty rebate, typically 1-2 percentage points. ${womenStates.slice(0, 4).map(s => `${s.state} (-${s.women}%)`).join(', ')} and others offer it. On a ${fmtL(PROP)} home a 1-2% rebate is ${fmtINR(PROP * 0.01)}-${fmtINR(PROP * 0.02)} saved, a real reason many families register in the wife's or mother's name.` },
+  { q: 'Is stamp duty charged on the loan amount or the property value?', a: 'On the property value, not the loan. Stamp duty is a tax on the transfer of the asset, so it applies to the full agreement value (or the state\'s circle/guidance rate if higher), regardless of how much you borrow. Someone paying all cash and someone taking a 90% loan pay the same stamp duty on the same flat. Budget for it separately. It is one of the biggest "hidden" upfront costs of buying.' },
+  { q: 'Can I claim stamp duty on income tax?', a: 'Yes, partially. Under Section 80C of the Income Tax Act, stamp duty and registration charges paid on a home purchase are deductible up to the overall ₹1.5 lakh 80C limit, but only in the financial year you actually paid them, and only under the old tax regime. If your 80C is already full with EPF, ELSS and insurance, the stamp-duty deduction adds nothing; if not, it can recover a slice of the cost.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`Stamp Duty by State in India 2026: ${cheapest.combined}% to ${dearest.combined}% Compared`} description={`Full stamp duty + registration comparison across all ${states.length} Indian states. On a ₹50L flat that's ${fmtINR(PROP * cheapest.combined / 100)} in ${cheapest.state} vs ${fmtINR(PROP * dearest.combined / 100)} in ${dearest.state}. Women's rebates in ${womenStates.length} states. Original data.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-pink-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-yellow">📚 Guide</span>
+          <span class="chip-cyan">🇮🇳 {states.length} states</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Stamp duty, <span class="text-gradient-brand">state by state.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                The same <strong>₹50 lakh flat</strong> costs <strong>{fmtINR(PROP * cheapest.combined / 100)}</strong> in stamp duty + registration in <strong>{cheapest.state}</strong> ({cheapest.combined}%) but <strong>{fmtINR(PROP * dearest.combined / 100)}</strong> in <strong>{dearest.state}</strong> ({dearest.combined}%), a <strong>{fmtINR(PROP * (dearest.combined - cheapest.combined) / 100)}</strong> gap. It can't be financed by your loan; it comes from savings.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The cost that isn't in your EMI</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Every home buyer budgets for the down payment and the EMI. Far fewer budget for stamp duty, and it can be the difference between closing the deal and coming up short at the registrar's office. Stamp duty is a state tax on transferring the property into your name; registration is the fee to record it. Together they're due <em>in cash, upfront</em>, on top of your down payment, because a home loan can't cover them. On a ₹50 lakh flat that's anywhere from {fmtL(PROP * cheapest.combined / 100)} to {fmtL(PROP * dearest.combined / 100)} depending purely on which state you're buying in.
+      </p>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Here's every state and union territory in our dataset, ranked from cheapest to most expensive by the combined rate. Rates shown are the standard non-agricultural, urban residential rates; many states add small municipal cesses, and metro/rural rates can differ.
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">State / UT</th>
+            <th class="text-right p-3 font-extrabold">Stamp</th>
+            <th class="text-right p-3 font-extrabold">Reg.</th>
+            <th class="text-right p-3 font-extrabold">Combined</th>
+            <th class="text-right p-3 font-extrabold">On ₹50L</th>
+            <th class="text-right p-3 font-extrabold hidden sm:table-cell">Women</th>
+          </tr></thead>
+          <tbody>
+            {states.map((s, i) => (
+              <tr class={`border-b-2 border-ink-100 ${i === 0 ? 'bg-lime-accent/25' : i === states.length - 1 ? 'bg-pink-accent/15' : i % 2 ? 'bg-ink-50' : ''}`}>
+                <td class="p-3 font-bold text-ink-900">{s.state}</td>
+                <td class="p-3 text-right font-mono text-ink-800">{s.stamp}%</td>
+                <td class="p-3 text-right font-mono text-ink-800">{s.reg}%</td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{s.combined.toFixed(1)}%</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtINR(PROP * s.combined / 100)}</td>
+                <td class="p-3 text-right font-mono text-green-700 hidden sm:table-cell">{s.women > 0 ? `−${s.women}%` : '–'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">Indicative 2026 standard urban residential rates compiled from state registration departments; confirm the current rate and any city cess with your sub-registrar before budgeting.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Three things the table reveals</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        <strong>1. Registration charges swing the total more than you'd think.</strong> {dearest.state} tops the list not because of a punishing stamp rate but because its registration charge stacks on heavily, proof that you must add both lines, never just the headline stamp percentage. <strong>2. The women's rebate is real money.</strong> In {womenStates.length} states, registering in a woman's name saves 1-2% ({fmtINR(PROP * 0.01)}-{fmtINR(PROP * 0.02)} on this flat), which is why so many Indian families put the wife's or mother's name on the deed. <strong>3. Your EMI is identical across states, your upfront cost is not.</strong> Two buyers with the same ₹50L flat and same loan pay the same monthly EMI whether they're in {cheapest.state} or {dearest.state}, but one hands over {fmtINR(PROP * (dearest.combined - cheapest.combined) / 100)} more at registration.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Calculate for your city</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'India City EMI', href: '/finance/mortgage-calculator/cities/', icon: '🏙️', color: 'bg-lime-accent' },
+          { name: 'EMI Calculator', href: '/finance/emi-calculator/', icon: '🇮🇳', color: 'bg-rose-300' },
+          { name: 'Income Tax India', href: '/finance/income-tax-india/', icon: '🪙', color: 'bg-yellow-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,186 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SipCalculator from '../../components/calculators/SipCalculator.tsx';
+import {
+  buildCalculatorSchema,
+  buildBreadcrumbSchema,
+  buildFAQSchema,
+  buildSpeakableSchema,
+  buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/sip-calculator';
+
+const meta = {
+  slug: 'sip-calculator',
+  name: 'SIP Calculator',
+  description: 'Free SIP (Systematic Investment Plan) calculator for Indian mutual fund investors. Calculate maturity value, wealth gained, and step-up SIP returns. Live recalculation, no signup.',
+  category: 'finance' as const,
+  keywords: ['sip calculator', 'mutual fund calculator', 'sip return calculator', 'step up sip calculator', 'sip maturity calculator'],
+  lastUpdated: '2026-05-17',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'SIP Calculator', url: path },
+];
+
+const faqs = [
+  {
+    q: 'What is a SIP and how does it work?',
+    a: 'SIP (Systematic Investment Plan) is a method of investing a fixed amount in mutual funds at regular intervals (typically monthly). Each instalment buys mutual fund units at the prevailing NAV, so when markets are low, you buy more units, and when markets are high, you buy fewer. Over long horizons (15-20+ years), this rupee-cost averaging smooths out volatility and historically delivers ~12% annualized returns in Indian equity funds.',
+  },
+  {
+    q: 'How is SIP maturity value calculated?',
+    a: 'SIP uses a future-value formula for an annuity. Maturity = P × [(1 + r)^n - 1] / r × (1 + r), where P is monthly SIP, r is monthly return (annual ÷ 12), and n is total months. For example: ₹10,000/month at 12% annual return over 15 years (180 months) = approximately ₹50.4 lakh maturity from ₹18 lakh total invested. The wealth gained (returns) compounds because each instalment earns interest on top of all prior instalments.',
+  },
+  {
+    q: 'What is a step-up SIP?',
+    a: 'A step-up SIP increases your monthly contribution by a fixed percentage each year (typically 5-15%) to match salary growth. Example: ₹10,000/month with 10% annual step-up means ₹11,000/month in Year 2, ₹12,100/month in Year 3, etc. Over 20 years, step-up SIP can result in 2-3× larger corpus vs flat SIP because more capital is invested in later years when compounding compounds more powerfully.',
+  },
+  {
+    q: 'What return should I assume for SIP planning?',
+    a: 'Conservative assumptions: 8-10% for long-term hybrid funds, 11-13% for diversified equity funds, 14-16% for small-cap funds (with much higher volatility). Historical 15-year rolling returns for Nifty 50 have averaged ~12% per year. SEBI advertises mutual fund returns in a standardized "amount you would have made" format. For your own planning, use 10-12% as a moderate expectation. Higher assumptions (15%+) are increasingly unrealistic for large-cap equity funds.',
+  },
+  {
+    q: 'What is the difference between SIP and lump sum investment?',
+    a: 'SIP invests gradually over time (rupee-cost averaging); lump sum invests once upfront. Over 15+ years with similar total amounts: lump sum mathematically outperforms SIP in rising markets (more time invested), but SIP outperforms in volatile/falling markets. For most retail investors with monthly income and no large windfall: SIP is the practical default. If you receive a large bonus or inheritance: lump sum is acceptable but split across 6-12 months to reduce timing risk.',
+  },
+  {
+    q: 'Are SIP returns guaranteed?',
+    a: 'No. SIP is a method of investing, not a product. The underlying mutual fund returns depend on equity/debt market performance. They can be negative in any given year. The 12% historical average is an aggregate; individual years range from -50% (2008) to +60% (2020-2021). Long-term (15+ year) rolling returns for equity mutual funds have been positive in essentially all historical windows, but past performance does not guarantee future results.',
+  },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate SIP maturity value',
+    description: 'Step-by-step instructions for estimating Systematic Investment Plan (SIP) maturity value using monthly investment, expected annual return, and tenure.',
+    totalTime: 'PT2M',
+    estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter monthly investment amount', text: 'Type the amount you plan to invest each month. Typical Indian retail SIP amounts range ₹500-₹50,000 per scheme.' },
+      { name: 'Enter expected annual return', text: 'Use a realistic long-term return: 10-12% for diversified equity funds, 8-10% for hybrid funds, 6-7% for debt funds.' },
+      { name: 'Choose investment period', text: 'SIPs work best over long horizons (10-20+ years) due to compounding. Pick the number of years to invest.' },
+      { name: 'Optional: add step-up percentage', text: 'If you plan to increase your SIP by a fixed % each year (typically matching salary growth), enter 5-15% step-up. This significantly increases final corpus.' },
+      { name: 'Read maturity value and wealth gained', text: 'The calculator shows total maturity, money you invested, and wealth gained (returns). The year-by-year chart shows how compounding accelerates in later years.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout
+  title="SIP Calculator: Mutual Fund Returns Estimator 📈"
+  description={meta.description}
+  schemas={schemas}
+  publishedTime={meta.lastUpdated}
+  modifiedTime={meta.lastUpdated}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-pink-accent/20 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">📈 SIP</span>
+          <span class="chip-cyan">💰 Mutual fund</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          SIP Calculator.
+          <span class="text-gradient-brand">Plan your wealth.</span>
+        </h1>
+
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                ₹10,000/month SIP at <strong>12% annual return</strong> over <strong>15 years</strong> = approximately <strong>₹50.4 lakh maturity value</strong>. Total invested: ₹18 lakh. Wealth gained: ~₹32.4 lakh, the power of compounding. Add 10% annual step-up to boost maturity to ~₹83 lakh.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <SipCalculator client:load />
+    </div>
+  </section>
+
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">📊 How SIPs work</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          The compounding math behind SIPs.
+        </h2>
+
+        <div class="mt-8 prose prose-lg max-w-none">
+          <p class="text-ink-700 leading-relaxed font-medium">
+            A Systematic Investment Plan invests a fixed amount in mutual funds monthly, leveraging <strong>rupee-cost averaging</strong> (buying more units when markets fall, fewer when they rise) and <strong>compound returns</strong> (where each month's investment earns returns on top of all prior months' investments). Over 15-20+ year horizons, this combination has historically produced 11-13% annualized returns in Indian equity mutual funds, comfortably ahead of fixed deposits (6-7%) and inflation (5-7%).
+          </p>
+          <p class="text-ink-700 leading-relaxed font-medium">
+            <strong>Step-up SIPs</strong> increase your monthly contribution by a fixed percentage each year (typically matching salary growth at 5-15%/yr). Mathematically, step-up SIPs front-load less capital and back-load more, but because later contributions still benefit from substantial remaining compounding time, total wealth at maturity typically grows 50-100% larger than flat SIPs over 20-year horizons.
+          </p>
+          <p class="text-ink-700 leading-relaxed font-medium">
+            <strong>Caveats:</strong> All return assumptions are approximations of historical averages; actual mutual fund returns vary year-to-year and can be negative in any single year. SEBI requires standardized disclosure of "amount invested vs amount you would have" in mutual fund marketing. SIPs are not insurance and not guaranteed. For 5-year horizons or shorter, consider lower-risk debt funds. For 15+ year horizons, equity-heavy diversified or index funds have historically been optimal.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-cyan mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        SIP calculator FAQ.
+      </h2>
+
+      <div class="mt-8 space-y-4">
+        {faqs.map((faq) => (
+          <details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group">
+            <summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4">
+              <span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,184 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TimeZoneConverter from '../../components/calculators/TimeZoneConverter.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema, buildHowToSchema, buildSpeakableSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'time-zone-converter', name: 'Time Zone Converter',
+  description: 'Free time zone converter. Convert a time from one city or zone to another (EST to IST, PST to GMT and more), with daylight saving handled automatically and live world clocks.',
+  category: 'conversion' as const,
+  keywords: ['time zone converter', 'est to ist', 'pst to est', 'gmt to ist', 'time difference calculator', 'world clock', 'utc converter'],
+  lastUpdated: '2026-07-19',
+};
+const path = '/conversions/time-zone-converter';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Conversions', url: '/conversions/' }, { name: 'Time Zone Converter', url: path },
+];
+
+// Build-time standard UTC-offset reference (standard time; DST noted separately).
+const zones = [
+  { city: 'Los Angeles', abbr: 'PT', off: 'UTC−8 (−7 in DST)' },
+  { city: 'New York', abbr: 'ET', off: 'UTC−5 (−4 in DST)' },
+  { city: 'UTC / London (winter)', abbr: 'UTC/GMT', off: 'UTC+0 (+1 in DST)' },
+  { city: 'Paris / Berlin', abbr: 'CET', off: 'UTC+1 (+2 in DST)' },
+  { city: 'Dubai', abbr: 'GST', off: 'UTC+4 (no DST)' },
+  { city: 'India', abbr: 'IST', off: 'UTC+5:30 (no DST)' },
+  { city: 'Bangkok', abbr: 'ICT', off: 'UTC+7 (no DST)' },
+  { city: 'Singapore / Hong Kong / Beijing', abbr: 'SGT/CST', off: 'UTC+8 (no DST)' },
+  { city: 'Tokyo / Seoul', abbr: 'JST/KST', off: 'UTC+9 (no DST)' },
+  { city: 'Sydney', abbr: 'AEST', off: 'UTC+10 (+11 in DST)' },
+];
+
+const faqs = [
+  { q: 'How do I convert one time zone to another?', a: 'Find the UTC offset of each zone, then apply the difference. For example, New York is UTC−5 and India is UTC+5:30, a 10.5-hour gap, so 9:00 AM in New York is 7:30 PM in India (on standard time). The catch is daylight saving: many zones shift by an hour for part of the year, which changes the gap. This converter uses your browser\'s built-in time-zone database, so it applies the correct offset (including DST) for the exact date you pick.' },
+  { q: 'What is EST to IST?', a: 'US Eastern Time (ET) is UTC−5 in winter (EST) and UTC−4 in summer (EDT); India (IST) is a fixed UTC+5:30. So the gap is 10.5 hours in winter and 9.5 hours in summer, with India always ahead. For instance, 8:00 AM EST = 6:30 PM IST, while 8:00 AM EDT = 5:30 PM IST. Pick the date in the converter and it selects the right offset automatically.' },
+  { q: 'How does daylight saving time affect the conversion?', a: 'Daylight saving shifts a zone forward by one hour (usually spring to autumn), so the time difference between two places changes depending on the date, and the two zones may not switch on the same day. That\'s why converting with a fixed offset can be an hour off. Because this tool reads the offset for the specific date you enter, it stays correct across DST transitions.' },
+  { q: 'What is UTC and how is it different from GMT?', a: 'UTC (Coordinated Universal Time) is the global time standard that clocks and computers reference; it never observes daylight saving. GMT (Greenwich Mean Time) is effectively the same as UTC in everyday use, and it\'s also London\'s winter time, but London moves to UTC+1 (BST) in summer, so "GMT" and "London time" aren\'t always identical. For precise scheduling, UTC is the safe reference.' },
+  { q: 'What time should I schedule a meeting across zones?', a: 'Convert your proposed time into each participant\'s zone and look for an hour that\'s reasonable for everyone, roughly 8 AM to 6 PM locally. Large gaps (say India to US West Coast, 12.5–13.5 hours) leave a narrow overlap, often early morning for one side and evening for the other. Use the live clocks on this page to sanity-check what "now" is for each person before you send the invite.' },
+];
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to convert between time zones',
+    description: 'Convert a time from one zone to another with daylight saving handled automatically.',
+    totalTime: 'PT1M',
+    estimatedCost: { value: '0', currency: 'USD' },
+    steps: [
+      { name: 'Choose the zones', text: 'Pick the "from" zone and the "to" zone.' },
+      { name: 'Enter the date and time', text: 'Set the date and time as it is in the from zone.' },
+      { name: 'Read the converted time', text: 'The tool shows the matching time in the destination zone and the hour difference.' },
+    ],
+  }),
+];
+const relatedCalcs = [
+  { name: 'Age Calculator', href: '/date-time/age-calculator/', desc: 'Exact age in y/m/d.', icon: '🎂', color: 'bg-cyan-accent' },
+  { name: 'Date Difference', href: '/date-time/date-difference-calculator/', desc: 'Days between dates.', icon: '📆', color: 'bg-lime-accent' },
+  { name: 'Countdown Timer', href: '/date-time/countdown-timer/', desc: 'Days until any date.', icon: '⏳', color: 'bg-yellow-accent' },
+  { name: 'Unit Converter', href: '/conversions/unit-converter/', desc: 'Length, weight, speed…', icon: '🔄', color: 'bg-violet-300' },
+];
+---
+
+<BaseLayout title="Time Zone Converter: EST, IST, GMT, PST & More" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-sky-300/40 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-sky-300 text-ink-900">🌐 Conversions</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Time Zone <span class="text-gradient-brand">Converter.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="speakable-answer text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                To convert a time between zones, apply the <strong>UTC offset difference</strong>. New York (UTC−5) to India (UTC+5:30) is +10.5 hours, so <strong>9:00 AM in New York = 7:30 PM in India</strong>. Daylight saving changes the gap by an hour. This converter handles it automatically for the date you pick.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <TimeZoneConverter client:load />
+    </div>
+  </section>
+
+  <!-- OFFSET TABLE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip bg-sky-300 text-ink-900 mb-4">📊 Quick reference</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Major time zones by UTC offset.</h2>
+        <p class="mt-3 text-ink-700 font-medium">Standard-time offsets. Daylight saving shifts several of these by an hour for part of the year.</p>
+        <div class="mt-8 overflow-x-auto">
+          <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+            <thead><tr class="bg-ink-900 text-white">
+              <th class="text-left p-3 font-extrabold">City / region</th>
+              <th class="text-center p-3 font-extrabold">Abbr.</th>
+              <th class="text-right p-3 font-extrabold">UTC offset</th>
+            </tr></thead>
+            <tbody>
+              {zones.map((r, i) => (
+                <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                  <td class="p-3 font-extrabold text-ink-900">{r.city}</td>
+                  <td class="p-3 text-center font-mono font-bold text-ink-700">{r.abbr}</td>
+                  <td class="p-3 text-right font-mono font-bold text-ink-900">{r.off}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-sky-300 text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

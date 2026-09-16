@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Legal', url: '/legal/' },
+  { name: 'Terms of Service', url: '/legal/terms/' },
+];
+
+const lastUpdated = '2026-05-13';
+---
+
+<BaseLayout
+  title="Terms of Service"
+  description="Terms governing your use of Calctube: disclaimers, acceptable use, intellectual property, limitations of liability, and the not-financial-advice notice."
+  schemas={[buildBreadcrumbSchema(breadcrumbs)]}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-prose relative pt-10 pb-8 md:pt-14 md:pb-10">
+      <Breadcrumbs items={breadcrumbs} />
+      <span class="chip-lime mb-4">📜 Terms</span>
+      <h1 class="!text-4xl sm:!text-5xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900 mt-4" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+        Terms of <span class="text-gradient-brand">Service.</span>
+      </h1>
+      <p class="mt-4 text-ink-700 font-medium">Last updated: {lastUpdated}</p>
+    </div>
+  </section>
+
+  <article class="container-prose pb-16 md:pb-24">
+    <p>
+      By accessing or using calctube.com (the "Site"), you agree to these Terms. If you do not agree, do not use the Site.
+    </p>
+
+    <h2>No professional advice</h2>
+    <p>
+      All calculators, tools, and content on Calctube are provided for <strong>informational and educational purposes only</strong>. Nothing on this Site constitutes financial, investment, medical, legal, tax, or any other professional advice. Always consult a qualified professional before making financial, medical, or legal decisions.
+    </p>
+
+    <h2>Accuracy</h2>
+    <p>
+      We make reasonable efforts to ensure that calculator math, formulas, and reference data are accurate. However, we make no warranty, express or implied, about the accuracy, completeness, or fitness for any purpose of the Site's content. Use at your own risk.
+    </p>
+
+    <h2>Acceptable use</h2>
+    <p>You agree NOT to:</p>
+    <ul>
+      <li>Reverse engineer, scrape at scale, or replicate the Site without permission.</li>
+      <li>Use automated means to overload our servers.</li>
+      <li>Attempt to compromise the security of the Site or its users.</li>
+      <li>Use the Site for any unlawful purpose.</li>
+    </ul>
+
+    <h2>Embedded calculators</h2>
+    <p>
+      You may embed our calculators on your own website using the embed code provided on each calculator page, provided the embedded version retains the "Powered by Calctube" link.
+    </p>
+
+    <h2>Intellectual property</h2>
+    <p>
+      All Site content (code, design, original text, branding) is owned by Calctube or used under license. Calculator math, formulas, and publicly-known constants are not proprietary. Feel free to learn from them.
+    </p>
+
+    <h2>Third-party links</h2>
+    <p>
+      The Site may link to third-party websites or services we do not control. We are not responsible for the content, accuracy, or practices of any third party.
+    </p>
+
+    <h2>Limitation of liability</h2>
+    <p>
+      To the maximum extent permitted by law, Calctube and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Site.
+    </p>
+
+    <h2>Changes</h2>
+    <p>
+      We may update these Terms. Continued use of the Site after changes constitutes acceptance of the updated Terms.
+    </p>
+
+    <h2>Governing law</h2>
+    <p>
+      These Terms are governed by the laws of India, without regard to conflict of laws principles.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions about these Terms: <a href="mailto:legal@calctube.com">legal@calctube.com</a>
+    </p>
+  </article>
+</BaseLayout>

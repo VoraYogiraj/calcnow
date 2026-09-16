@@ -1,0 +1,163 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/hra-exemption-explained';
+const lastUpdated = '2026-07-10';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'HRA Exemption Explained', url: path },
+];
+
+// Build-time HRA exemption = LEAST of (actual HRA, rent − 10% basic, 50%/40% basic).
+const BASIC = 600000;          // ₹50,000/month basic salary (annual)
+const HRA_RECEIVED = 300000;   // ₹25,000/month HRA (annual)
+const SLAB = 30;               // marginal tax slab for the "tax saved" column
+const metroPct = 50, nonMetroPct = 40;
+
+function exemptionFor(annualRent: number, metro: boolean) {
+  const limbActual = HRA_RECEIVED;
+  const limbRent = Math.max(0, annualRent - 0.10 * BASIC);
+  const limbPct = ((metro ? metroPct : nonMetroPct) / 100) * BASIC;
+  const exempt = Math.min(limbActual, limbRent, limbPct);
+  return { limbActual, limbRent, limbPct, exempt, taxable: HRA_RECEIVED - exempt, taxSaved: exempt * SLAB / 100 };
+}
+
+const rentLevels = [10000, 15000, 20000, 25000, 30000];
+const rows = rentLevels.map((rentMo) => ({ rentMo, ...exemptionFor(rentMo * 12, true) }));
+const example = rows[2]; // ₹20,000/month rent
+
+const fmtL = (v: number) => `₹${(v / 100000).toFixed(2)} L`;
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+const faqs = [
+  { q: 'How is HRA exemption calculated?', a: `Your tax-free HRA is the LEAST of three numbers: (1) the actual HRA your employer pays, (2) the rent you pay minus 10% of your basic salary, and (3) 50% of basic salary if you live in a metro (Delhi, Mumbai, Kolkata, Chennai) or 40% if non-metro. Whichever is smallest is exempt; the rest of your HRA is taxed. For example, on a ${fmtINR(BASIC / 12)}/month basic and ${fmtINR(HRA_RECEIVED / 12)}/month HRA, paying ${fmtINR(example.rentMo)}/month rent in a metro, the exemption works out to ${fmtL(example.exempt)} a year.` },
+  { q: 'Which tax regime allows HRA exemption?', a: 'Only the OLD regime. The HRA exemption under Section 10(13A) is one of the deductions removed by the new tax regime (now the default). So if you\'ve opted for the new regime\'s lower slab rates, you get no HRA benefit even if you pay rent. For salaried people paying significant rent in a metro, the HRA exemption is often the single biggest reason to stay on the old regime. Run both regimes before deciding.' },
+  { q: 'Can I claim HRA if I live in my own house or pay no rent?', a: 'No. HRA exemption requires you to actually pay rent for accommodation you occupy and don\'t own. If you live in your own home, or rent-free, the entire HRA is taxable. You also can\'t claim it for a property you own even in the same city, though in specific cases you may claim both HRA (for where you live) and home-loan interest (on a property you own elsewhere or have let out), if the facts genuinely support it.' },
+  { q: 'Can I pay rent to my parents and claim HRA?', a: 'Yes, and it\'s legitimate if the arrangement is real. You can pay rent to a parent who owns the home you live in and claim HRA on it, but the rent must actually be paid (bank transfer, not cash), the parent must declare that rental income in their own tax return, and the amount should be a fair market rent. Tax authorities scrutinise round-figure cash "rent" to family, so keep it documented and reasonable.' },
+  { q: 'What documents do I need to claim HRA?', a: 'Rent receipts, and for annual rent above ₹1 lakh, your landlord\'s PAN (or a signed declaration if they don\'t have one). A rent agreement helps but isn\'t always mandatory. Keep proof of actual payment. Bank transfers are cleanest. Your employer collects these to give the exemption in your Form 16; if you miss the employer window, you can still claim it directly when filing your return, keeping the documents in case of a query.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`HRA Exemption Explained (2026): How Much of Your Rent Is Tax-Free`} description={`HRA exemption is the LEAST of: actual HRA, rent − 10% basic, and 50%/40% of basic. On ₹50k basic + ₹25k HRA paying ₹20k rent in a metro, that's ${fmtL(example.exempt)} tax-free (~${fmtINR(example.taxSaved)} saved). Full table + old-regime rule.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-yellow">📚 Guide</span>
+          <span class="chip-cyan">🪙 Tax</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          How much rent is <span class="text-gradient-brand">tax-free?</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                HRA exemption = the <strong>least</strong> of: actual HRA, <strong>rent − 10% of basic</strong>, and <strong>50% of basic</strong> (metro) / 40% (non-metro). On ₹50k basic + ₹25k HRA paying <strong>₹20k rent in a metro</strong>, that's <strong>{fmtL(example.exempt)} tax-free</strong>, about <strong>{fmtINR(example.taxSaved)} saved</strong> at the 30% slab. Old regime only.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The three-way "least of" test</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        House Rent Allowance is part of most Indian salary packages, but only a portion of it escapes tax. And that portion isn't your choice, it's the smallest of three formulas under Section 10(13A). The one that trips people up is the middle limb: you subtract 10% of your basic salary from the rent you actually pay. Pay too little rent relative to your salary and this limb shrinks your exemption fast. Here's the exemption on a {fmtINR(BASIC / 12)}/month basic with {fmtINR(HRA_RECEIVED / 12)}/month HRA in a metro, across rent levels:
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Monthly rent</th>
+            <th class="text-right p-3 font-extrabold">Rent − 10% basic</th>
+            <th class="text-right p-3 font-extrabold">Exempt (least)</th>
+            <th class="text-right p-3 font-extrabold">Tax saved (30%)</th>
+          </tr></thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr class={`border-b-2 border-ink-100 ${row.rentMo === example.rentMo ? 'bg-lime-accent/25' : i % 2 ? 'bg-ink-50' : ''}`}>
+                <td class="p-3 font-bold text-ink-900">{fmtINR(row.rentMo)}</td>
+                <td class="p-3 text-right font-mono text-ink-800">{fmtL(row.limbRent)}</td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{fmtL(row.exempt)}</td>
+                <td class="p-3 text-right font-mono font-bold text-green-700">{fmtINR(row.taxSaved)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">Metro (50%) example, basic {fmtINR(BASIC / 12)}/mo, HRA {fmtINR(HRA_RECEIVED / 12)}/mo, FY 2025-26, old regime. The exemption is capped by whichever limb is smallest, often the actual HRA or the 50%/40% cap at higher rents. Not tax advice.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Why the "10% of basic" catch matters</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Notice how the exemption grows with rent until it hits a ceiling: the actual HRA received, or the 50% (metro) / 40% (non-metro) cap. That's the key insight: <strong>your exemption is bounded by your salary structure, not just your rent.</strong> If your basic is low (common when employers load pay into allowances to reduce their PF cost), both the "50% of basic" limb and the "10% of basic" subtraction shift, and your HRA benefit is smaller than the rent alone would suggest. And remember the regime rule above all: none of this applies under the new tax regime. Before counting on HRA, confirm you're on the old regime and that the maths, run both ways, still favours it.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'HRA Calculator', href: '/finance/hra-calculator/', icon: '🏠', color: 'bg-lime-accent' },
+          { name: 'Income Tax India', href: '/finance/income-tax-india/', icon: '🪙', color: 'bg-yellow-accent' },
+          { name: 'Home Loan Tax Benefits', href: '/guides/home-loan-tax-benefits/', icon: '📈', color: 'bg-cyan-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

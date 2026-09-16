@@ -1,0 +1,61 @@
+---
+/**
+ * One calculator card on a category hub.
+ *
+ * Live entries are sticker cards that lift on hover; coming-soon entries render
+ * as a dimmed, non-interactive card with a "Soon" badge, so an unbuilt tool can
+ * never look like a broken link.
+ */
+export interface Props {
+  href?: string;
+  name: string;
+  desc: string;
+  icon?: string;
+  /** Render as a non-clickable "coming soon" card. */
+  soon?: boolean;
+  /** Optional trailing note next to the name, e.g. "· 243 pairs". */
+  meta?: string;
+}
+const { href, name, desc, icon, soon = false, meta } = Astro.props;
+---
+
+{
+  soon ? (
+    <div class="bg-white border-[2.5px] border-ink-200 rounded-3xl p-5 shadow-sticker-sm opacity-70">
+      <div class="flex items-start gap-3">
+        {icon && <div class="text-3xl leading-none flex-shrink-0">{icon}</div>}
+        <div class="flex-1 min-w-0">
+          <div
+            class="font-extrabold text-ink-900 flex items-center gap-2 flex-wrap"
+            style="font-family: 'Inter Tight', sans-serif;"
+          >
+            {name}
+            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-yellow-accent border-2 border-ink-900 text-ink-900 uppercase tracking-wider">
+              Soon
+            </span>
+          </div>
+          <p class="text-sm text-ink-600 mt-1.5 !leading-snug font-medium">{desc}</p>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <a
+      href={href}
+      class="group block bg-white border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200"
+    >
+      <div class="flex items-start gap-3">
+        {icon && (
+          <div class="text-3xl leading-none flex-shrink-0 group-hover:rotate-12 transition-transform">{icon}</div>
+        )}
+        <div class="flex-1 min-w-0">
+          <div class="font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">
+            {name}
+            {/* Margin rather than a literal space: Astro trims whitespace between expressions. */}
+            {meta && <span class="text-ink-500 font-semibold ml-1">{meta}</span>}
+          </div>
+          <p class="text-sm text-ink-700 mt-1.5 !leading-snug font-medium">{desc}</p>
+        </div>
+      </div>
+    </a>
+  )
+}

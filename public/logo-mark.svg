@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Sticker face — lime-accent square with rounded corners + ink-900 border -->
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="#a3e635" stroke="#0f172a" stroke-width="20"/>
+  <!-- ÷ division symbol (Calctube wordmark) -->
+  <circle cx="256" cy="160" r="42" fill="#0f172a"/>
+  <rect x="128" y="232" width="256" height="48" rx="24" fill="#0f172a"/>
+  <circle cx="256" cy="352" r="42" fill="#0f172a"/>
+</svg>

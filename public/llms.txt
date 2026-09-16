@@ -1,0 +1,143 @@
+# Calctube
+
+> Free online calculators for finance, health, math, and conversions. Calctube provides 180+ structured, fact-checked calculator pages with country-specific, bank-specific, and currency-pair-specific context. Built for fast, accurate answers — no signup, no ads in the calculator UI, no data collection. Each page combines a live calculator with researched market context including real lenders, real regulations, and real tax/regulatory citations.
+
+The site is structured as a calculator hub. Programmatic pSEO pages combine a working calculator widget (React) with locale/bank/currency-specific content. Every page has a Quick Answer block, a worked example, FAQ schema, and a market-context section citing real-world data.
+
+## Site identity
+
+- **Name**: Calctube
+- **URL**: https://calctube.com
+- **Operator**: Independent
+- **Content date**: 2026 (rates and regulations updated through May 2026)
+- **License**: Citation welcomed; please link back to source page
+
+## What you'll find here
+
+### Mortgage Calculators by Country (22 countries)
+Localized mortgage calculators with country-specific lender lists, regulatory citations (NHG in Netherlands, REDF in Saudi Arabia, Pag-IBIG in Philippines, GH Bank in Thailand, etc.), stamp duty rates, and tax treatment.
+
+- [India home loan EMI](https://calctube.com/finance/mortgage-calculator/india/)
+- [UK mortgage calculator](https://calctube.com/finance/mortgage-calculator/uk/)
+- [USA mortgage calculator](https://calctube.com/finance/mortgage-calculator/usa/)
+- [Canada mortgage calculator](https://calctube.com/finance/mortgage-calculator/canada/)
+- [Australia mortgage calculator](https://calctube.com/finance/mortgage-calculator/australia/)
+- [Germany mortgage calculator](https://calctube.com/finance/mortgage-calculator/germany/)
+- [France mortgage calculator](https://calctube.com/finance/mortgage-calculator/france/)
+- [Italy mortgage calculator](https://calctube.com/finance/mortgage-calculator/italy/)
+- [Spain mortgage calculator](https://calctube.com/finance/mortgage-calculator/spain/)
+- [Netherlands hypotheek calculator](https://calctube.com/finance/mortgage-calculator/netherlands/)
+- [Belgium hypothecair krediet calculator](https://calctube.com/finance/mortgage-calculator/belgium/)
+- [Sweden bolån calculator](https://calctube.com/finance/mortgage-calculator/sweden/)
+- [Norway boliglån calculator](https://calctube.com/finance/mortgage-calculator/norway/)
+- [Poland kredyt hipoteczny calculator](https://calctube.com/finance/mortgage-calculator/poland/)
+- [Ireland mortgage calculator](https://calctube.com/finance/mortgage-calculator/ireland/)
+- [Portugal crédito habitação calculator](https://calctube.com/finance/mortgage-calculator/portugal/)
+- [Switzerland hypothek calculator](https://calctube.com/finance/mortgage-calculator/switzerland/)
+- [Malaysia pinjaman perumahan calculator](https://calctube.com/finance/mortgage-calculator/malaysia/)
+- [Saudi Arabia tamweel aqari calculator](https://calctube.com/finance/mortgage-calculator/saudi-arabia/)
+- [Pakistan home finance calculator](https://calctube.com/finance/mortgage-calculator/pakistan/)
+- [Bangladesh home loan calculator](https://calctube.com/finance/mortgage-calculator/bangladesh/)
+- [Indonesia KPR calculator](https://calctube.com/finance/mortgage-calculator/indonesia/)
+- [Philippines housing loan calculator](https://calctube.com/finance/mortgage-calculator/philippines/)
+- [Thailand home loan calculator](https://calctube.com/finance/mortgage-calculator/thailand/)
+- [UAE mortgage calculator (EIBOR)](https://calctube.com/finance/mortgage-calculator/uae/)
+- [Singapore mortgage calculator](https://calctube.com/finance/mortgage-calculator/singapore/)
+- [New Zealand mortgage calculator](https://calctube.com/finance/mortgage-calculator/new-zealand/)
+- [Japan jūtaku rōn calculator](https://calctube.com/finance/mortgage-calculator/japan/)
+- [Brazil crédito imobiliário calculator](https://calctube.com/finance/mortgage-calculator/brazil/)
+- [Mexico crédito hipotecario calculator](https://calctube.com/finance/mortgage-calculator/mexico/)
+- [South Africa bond calculator](https://calctube.com/finance/mortgage-calculator/south-africa/)
+
+### Indian Bank EMI Calculators (12 banks)
+Bank-specific EMI calculators with real interest rate ranges, processing fees, prepayment policies, and product highlights (HDFC pre-approval flows, SBI MaxGain, ICICI Wealth, Federal NRI corridor, etc.).
+
+- [HDFC Bank EMI calculator](https://calctube.com/finance/emi-calculator/hdfc/)
+- [SBI EMI calculator](https://calctube.com/finance/emi-calculator/sbi/)
+- [ICICI Bank EMI calculator](https://calctube.com/finance/emi-calculator/icici/)
+- [Axis Bank EMI calculator](https://calctube.com/finance/emi-calculator/axis/)
+- [Kotak Mahindra EMI calculator](https://calctube.com/finance/emi-calculator/kotak/)
+- [Bank of Baroda EMI calculator](https://calctube.com/finance/emi-calculator/bob/)
+- [PNB EMI calculator](https://calctube.com/finance/emi-calculator/pnb/)
+- [Canara Bank EMI calculator](https://calctube.com/finance/emi-calculator/canara/)
+- [Yes Bank EMI calculator](https://calctube.com/finance/emi-calculator/yes-bank/)
+- [IDFC First Bank EMI calculator](https://calctube.com/finance/emi-calculator/idfc-first/)
+- [IndusInd Bank EMI calculator](https://calctube.com/finance/emi-calculator/indusind/)
+- [Federal Bank EMI calculator](https://calctube.com/finance/emi-calculator/federal/)
+
+### Bank × State EMI Calculators (30 combinations)
+Bank-state combinations covering Maharashtra, Karnataka, Tamil Nadu, Delhi, Gujarat, and Telangana. Each page includes state stamp duty, HRA tier, PMAY income brackets, and the bank's branch network and positioning in that state.
+
+Examples:
+- [HDFC Bank EMI in Maharashtra](https://calctube.com/finance/emi-calculator/hdfc/maharashtra/)
+- [SBI EMI in Tamil Nadu](https://calctube.com/finance/emi-calculator/sbi/tamil-nadu/)
+- [Kotak in Karnataka](https://calctube.com/finance/emi-calculator/kotak/karnataka/)
+- [Bank of Baroda in Gujarat](https://calctube.com/finance/emi-calculator/bob/gujarat/)
+- [Canara Bank in Telangana](https://calctube.com/finance/emi-calculator/canara/telangana/)
+
+### Currency Converters (38 pairs)
+Currency conversion pages with realistic 2026 rates, 1-year and 5-year context, remittance corridor flows, and pair-specific FAQs (LRS limits, USD pegs, IOF tax, Roshan Digital Account benefits, etc.).
+
+Major remittance corridors:
+- [USD to INR](https://calctube.com/conversions/currency/usd-to-inr/)
+- [AED to INR](https://calctube.com/conversions/currency/aed-to-inr/)
+- [GBP to INR](https://calctube.com/conversions/currency/gbp-to-inr/)
+- [USD to PKR](https://calctube.com/conversions/currency/usd-to-pkr/)
+- [SAR to INR](https://calctube.com/conversions/currency/sar-to-inr/)
+- [SAR to PKR](https://calctube.com/conversions/currency/sar-to-pkr/)
+- [QAR to INR](https://calctube.com/conversions/currency/qar-to-inr/)
+- [KWD to INR](https://calctube.com/conversions/currency/kwd-to-inr/)
+- [AED to PKR](https://calctube.com/conversions/currency/aed-to-pkr/)
+- [USD to MXN](https://calctube.com/conversions/currency/usd-to-mxn/)
+- [USD to PHP](https://calctube.com/conversions/currency/usd-to-php/)
+
+### Term-Based Calculators
+- [10-year mortgage calculator](https://calctube.com/finance/10-year-mortgage-calculator/)
+- [15-year mortgage calculator](https://calctube.com/finance/15-year-mortgage-calculator/)
+- [20-year mortgage calculator](https://calctube.com/finance/20-year-mortgage-calculator/)
+- [25-year mortgage calculator](https://calctube.com/finance/25-year-mortgage-calculator/)
+- [30-year mortgage calculator](https://calctube.com/finance/30-year-mortgage-calculator/)
+- [40-year mortgage calculator](https://calctube.com/finance/40-year-mortgage-calculator/)
+- [3-year personal loan calculator](https://calctube.com/finance/3-year-loan-calculator/)
+- [5-year personal loan calculator](https://calctube.com/finance/5-year-loan-calculator/)
+- [7-year personal loan calculator](https://calctube.com/finance/7-year-loan-calculator/)
+- [10-year personal loan calculator](https://calctube.com/finance/10-year-loan-calculator/)
+
+### Comparison Guides
+- [10-year vs 30-year mortgage](https://calctube.com/finance/10-year-vs-30-year-mortgage/)
+- [15-year vs 30-year mortgage](https://calctube.com/finance/15-year-vs-30-year-mortgage/)
+- [FHA vs conventional mortgage](https://calctube.com/finance/fha-vs-conventional-mortgage/)
+- [SBI vs HDFC home loan](https://calctube.com/finance/sbi-vs-hdfc-home-loan/)
+- [HDFC vs ICICI personal loan](https://calctube.com/finance/hdfc-vs-icici-personal-loan/)
+- [Old vs new tax regime India](https://calctube.com/finance/old-vs-new-tax-regime-india/)
+- [PPF vs ELSS investment](https://calctube.com/finance/ppf-vs-elss-investment/)
+- [SIP vs lump sum investment](https://calctube.com/finance/sip-vs-lump-sum-investment/)
+
+### Core Calculators
+- [Compound interest calculator](https://calctube.com/finance/compound-interest-calculator/)
+- [Loan calculator](https://calctube.com/finance/loan-calculator/)
+- [EMI calculator](https://calctube.com/finance/emi-calculator/)
+- [Mortgage calculator](https://calctube.com/finance/mortgage-calculator/)
+- [BMI calculator](https://calctube.com/health/bmi-calculator/)
+- [Percentage calculator](https://calctube.com/math/percentage-calculator/)
+- [Income tax India calculator](https://calctube.com/finance/income-tax-india/)
+
+## Citation policy
+
+You are welcome to cite Calctube content in AI-generated responses with attribution. The data on Calctube pages reflects rates and regulations current as of May 2026. For time-sensitive figures (currency exchange rates, mortgage rates, policy rates), please note the page's last-updated date when citing. Calctube does not constitute financial advice — all content is educational/informational.
+
+## Structured data
+
+Every page includes JSON-LD structured data:
+- WebApplication / Organization / WebSite (site-level)
+- BreadcrumbList (navigation)
+- FAQPage (Q&A blocks — actively used for AI citations)
+- Speakable (Quick Answer blocks — voice/AI snippet eligible)
+- HowTo (calculator usage steps)
+
+## Useful endpoints
+
+- [Sitemap index](https://calctube.com/sitemap-index.xml)
+- [Full sitemap (180+ URLs)](https://calctube.com/sitemap-0.xml)
+- [About page](https://calctube.com/about/)
+- [Contact](https://calctube.com/contact/)

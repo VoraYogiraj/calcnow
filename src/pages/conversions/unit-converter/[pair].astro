@@ -1,0 +1,283 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import UnitConverter from '../../../components/calculators/UnitConverter.tsx';
+import TemperatureConverter from '../../../components/calculators/TemperatureConverter.tsx';
+import {
+  unitPairs, UNITS, convert, linearFactor, fmt, TABLE_AMOUNTS, TEMP_AMOUNTS, type UnitPair,
+} from '../../../data/unit-pairs';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema, buildHowToSchema, buildSpeakableSchema } from '../../../lib/seo';
+
+export async function getStaticPaths() {
+  return unitPairs.map((pair) => ({ params: { pair: pair.slug }, props: { pair } }));
+}
+
+interface Props { pair: UnitPair; }
+const { pair } = Astro.props;
+const from = UNITS[pair.from];
+const to = UNITS[pair.to];
+const isTemp = pair.category === 'temperature';
+const path = `/conversions/unit-converter/${pair.slug}`;
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+// Temperature reads cleaner with the scale name ("Celsius") than the plural
+// ("degrees Celsius") in titles/headings; linear units use the plural.
+const fromCap = cap(isTemp ? from.name : from.plural);
+const toCap = cap(isTemp ? to.name : to.plural);
+
+// Linear metrics
+const factor = linearFactor(pair.from, pair.to);
+const inverse = linearFactor(pair.to, pair.from);
+const factorStr = fmt(factor);
+const inverseStr = fmt(inverse);
+
+// A worked example input per category, converted.
+const EX_INPUT: Record<string, number> = { length: 10, weight: 10, volume: 2, speed: 60, area: 100, data: 10 };
+const tempExInput: Record<string, number> = { celsius: 20, fahrenheit: 70, kelvin: 300 };
+const exIn = isTemp ? tempExInput[pair.from] : (EX_INPUT[pair.category] ?? 10);
+const exOut = convert(exIn, pair.from, pair.to);
+
+// Temperature formula text per direction.
+function tempFormula(f: string, t: string): string {
+  const map: Record<string, string> = {
+    'celsius-fahrenheit': '°F = (°C × 9/5) + 32',
+    'fahrenheit-celsius': '°C = (°F − 32) × 5/9',
+    'celsius-kelvin': 'K = °C + 273.15',
+    'kelvin-celsius': '°C = K − 273.15',
+    'fahrenheit-kelvin': 'K = (°F − 32) × 5/9 + 273.15',
+    'kelvin-fahrenheit': '°F = (K − 273.15) × 9/5 + 32',
+  };
+  return map[`${f}-${t}`] ?? '';
+}
+const formulaText = isTemp ? tempFormula(pair.from, pair.to) : `${from.symbol} × ${factorStr} = ${to.symbol}`;
+
+// Conversion table rows (both directions).
+const fwdAmounts = isTemp ? (TEMP_AMOUNTS[pair.from] ?? []) : TABLE_AMOUNTS[pair.category];
+const revAmounts = isTemp ? (TEMP_AMOUNTS[pair.to] ?? []) : TABLE_AMOUNTS[pair.category];
+const fwdRows = fwdAmounts.map((a) => ({ a, out: convert(a, pair.from, pair.to) }));
+const revRows = revAmounts.map((a) => ({ a, out: convert(a, pair.to, pair.from) }));
+
+// Meta
+const desc = isTemp
+  ? `Convert ${from.name} to ${to.name} (${from.symbol} to ${to.symbol}). ${formulaText}. Free instant converter with a reference table and worked examples.`.slice(0, 155)
+  : `Convert ${from.plural} to ${to.plural}: 1 ${from.symbol} = ${factorStr} ${to.symbol}. Free ${from.name}-to-${to.name} converter with a full conversion table and formula.`.slice(0, 155);
+
+const meta = {
+  slug: `${pair.slug}-converter`,
+  name: `${fromCap} to ${toCap} Converter`,
+  description: desc,
+  category: 'conversion' as const,
+  keywords: [
+    `${pair.from} to ${pair.to}`, `${from.name} to ${to.name}`, `convert ${from.plural} to ${to.plural}`,
+    `${from.symbol} to ${to.symbol}`, `${pair.from} to ${pair.to} converter`, `${pair.from} in ${pair.to}`,
+  ],
+  lastUpdated: '2026-07-19',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Conversions', url: '/conversions/' },
+  { name: 'Unit Converter', url: '/conversions/unit-converter/' },
+  { name: `${from.symbol} → ${to.symbol}`, url: path },
+];
+
+// FAQs — computed, unique per pair.
+const faqs = isTemp ? [
+  { q: `What is ${exIn} ${from.symbol} in ${to.name}?`, a: `${exIn} ${from.symbol} equals ${fmt(exOut)} ${to.symbol}. Using the formula ${formulaText}, you convert directly without a lookup table. The reference table on this page lists more common ${from.name} values converted to ${to.name}.` },
+  { q: `How do you convert ${from.name} to ${to.name}?`, a: `Apply the formula ${formulaText}. Temperature scales don't share a zero point, so you can't just multiply by a single factor the way you would for length or weight. You have to shift as well as scale. For example, ${exIn} ${from.symbol} works out to ${fmt(exOut)} ${to.symbol}.` },
+  { q: `Why isn't ${from.name} to ${to.name} a simple multiplication?`, a: `Because the two scales start at different points. ${cap(from.name)} is used for ${from.usage}, while ${to.name} is used for ${to.usage}. Converting between them means both rescaling the degree size and offsetting the zero, which is why the formula has both a multiply and an add or subtract.` },
+] : [
+  { q: `How many ${to.plural} are in a ${from.name}?`, a: `One ${from.name} equals ${factorStr} ${to.plural}. So to convert, multiply the number of ${from.plural} by ${factorStr}. For instance, ${exIn} ${from.plural} = ${fmt(exOut)} ${to.plural}.` },
+  { q: `How do I convert ${from.plural} to ${to.plural}?`, a: `Multiply the ${from.name} value by ${factorStr}. Worked example: ${exIn} ${from.symbol} × ${factorStr} = ${fmt(exOut)} ${to.symbol}. To go the other way, divide by ${factorStr} (or multiply by ${inverseStr}).` },
+  { q: `How many ${from.plural} are in a ${to.name}?`, a: `One ${to.name} = ${inverseStr} ${from.plural}. ${cap(from.plural)} are typically used for ${from.usage}, and ${to.plural} for ${to.usage}, so this reverse conversion comes up whenever you switch between the two systems.` },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: `How to convert ${from.plural} to ${to.plural}`,
+    description: isTemp ? `Convert ${from.name} to ${to.name} using ${formulaText}.` : `Convert ${from.plural} to ${to.plural} by multiplying by ${factorStr}.`,
+    totalTime: 'PT1M',
+    estimatedCost: { value: '0', currency: 'USD' },
+    steps: isTemp ? [
+      { name: `Enter the ${from.name} value`, text: `Type the temperature in ${from.plural}.` },
+      { name: 'Apply the formula', text: `Use ${formulaText} to get the ${to.name} value.` },
+    ] : [
+      { name: `Enter the ${from.name} amount`, text: `Type the number of ${from.plural} you want to convert.` },
+      { name: `Multiply by ${factorStr}`, text: `Multiply by the conversion factor to get ${to.plural}: 1 ${from.symbol} = ${factorStr} ${to.symbol}.` },
+      { name: 'Read the result', text: `The converter and the table show the exact ${to.name} value.` },
+    ],
+  }),
+];
+
+// Reverse + related pairs (internal linking for crawl + UX).
+const reversePair = unitPairs.find((p) => p.from === pair.to && p.to === pair.from) || null;
+const relatedPairs = unitPairs
+  .filter((p) => p.slug !== pair.slug && p.slug !== reversePair?.slug && p.category === pair.category)
+  .slice(0, 6);
+---
+
+<BaseLayout title={`${fromCap} to ${toCap} Converter (${from.symbol} to ${to.symbol})`} description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-yellow-accent text-ink-900">🔄 {cap(pair.category)}</span>
+          {pair.popular && <span class="chip-lime">⚡ Popular</span>}
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          {fromCap} to {toCap} <span class="text-gradient-brand">Converter.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              {isTemp ? (
+                <p class="speakable-answer text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                  To convert <strong>{from.name} to {to.name}</strong>, use <strong>{formulaText}</strong>. For example, <strong>{exIn} {from.symbol} = {fmt(exOut)} {to.symbol}</strong>. Type any value below and see all three scales.
+                </p>
+              ) : (
+                <p class="speakable-answer text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                  <strong>1 {from.name} = {factorStr} {to.plural}.</strong> To convert {from.plural} to {to.plural}, multiply by {factorStr}. So <strong>{exIn} {from.symbol} = {fmt(exOut)} {to.symbol}</strong>. The reverse: 1 {to.name} = {inverseStr} {from.plural}.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONVERTER -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      {isTemp ? (
+        <TemperatureConverter client:load />
+      ) : (
+        <UnitConverter client:load initialCategory={pair.category} initialFrom={from.symbol} initialTo={to.symbol} />
+      )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONVERSION TABLE (both directions) -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip bg-cyan-accent text-ink-900 mb-4">🔢 Quick reference</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">{fromCap} to {toCap} conversion table.</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+        <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl overflow-hidden shadow-sticker-sm">
+          <div class="bg-ink-900 text-white px-5 py-3 font-extrabold text-sm" style="font-family: 'Inter Tight', sans-serif;">{from.symbol} → {to.symbol}</div>
+          <table class="w-full text-sm">
+            <tbody>
+              {fwdRows.map((r, i) => (
+                <tr class={i % 2 === 0 ? 'bg-white' : 'bg-ink-50'}>
+                  <td class="px-5 py-2.5 font-semibold text-ink-900">{fmt(r.a)} {from.symbol}</td>
+                  <td class="px-5 py-2.5 text-right font-bold text-ink-900">{fmt(r.out)} {to.symbol}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl overflow-hidden shadow-sticker-sm">
+          <div class="bg-ink-900 text-white px-5 py-3 font-extrabold text-sm" style="font-family: 'Inter Tight', sans-serif;">{to.symbol} → {from.symbol}</div>
+          <table class="w-full text-sm">
+            <tbody>
+              {revRows.map((r, i) => (
+                <tr class={i % 2 === 0 ? 'bg-white' : 'bg-ink-50'}>
+                  <td class="px-5 py-2.5 font-semibold text-ink-900">{fmt(r.a)} {to.symbol}</td>
+                  <td class="px-5 py-2.5 text-right font-bold text-ink-900">{fmt(r.out)} {from.symbol}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">{from.symbol} to {to.symbol} FAQ.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVERSE PAIR -->
+  {reversePair && (
+    <section class="container-wide py-10 md:py-12">
+      <div class="max-w-4xl mx-auto">
+        <a href={`/conversions/unit-converter/${reversePair.slug}/`} class="group block bg-yellow-accent border-[2.5px] border-ink-900 rounded-3xl p-6 sm:p-7 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">↔ Convert the other way</div>
+          <div class="text-xl sm:text-2xl font-extrabold text-ink-900 leading-tight" style="font-family: 'Inter Tight', sans-serif;">{toCap} to {isTemp ? from.name : from.plural} converter</div>
+          <div class="text-sm text-ink-800 mt-1 font-semibold">{isTemp ? tempFormula(pair.to, pair.from) : `1 ${to.symbol} = ${inverseStr} ${from.symbol}`}</div>
+        </a>
+      </div>
+    </section>
+  )}
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related conversions</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">More {pair.category} conversions.</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-8">
+          {relatedPairs.map((other) => {
+            const of = UNITS[other.from], ot = UNITS[other.to];
+            return (
+              <a href={`/conversions/unit-converter/${other.slug}/`} class="group bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200">
+                <div class="font-extrabold text-ink-900 text-sm leading-tight" style="font-family: 'Inter Tight', sans-serif;">{of.symbol} → {ot.symbol}</div>
+                <div class="text-xs text-ink-600 mt-1 font-semibold">{cap(of.name)} to {ot.name}</div>
+              </a>
+            );
+          })}
+        </div>
+        <div class="mt-8">
+          <a href="/conversions/unit-converter/" class="font-bold underline decoration-2 underline-offset-4 decoration-lime-accent text-ink-900">← All unit converters</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

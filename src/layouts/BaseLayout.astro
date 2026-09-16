@@ -1,0 +1,430 @@
+---
+import '../styles/global.css';
+import { SITE, buildOrganizationSchema, buildWebsiteSchema } from '../lib/seo';
+import Logo from '../components/ui/Logo.astro';
+// Cookie banner removed 2026-05-25: replaced by Google-certified CMP (auto-injected
+// by adsbygoogle.js on EU/UK/Swiss visitors per AdSense requirement).
+
+export interface HreflangAlternate {
+  hreflang: string;    // e.g., 'en-IN', 'ar-AE', 'x-default'
+  href: string;        // absolute URL
+}
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  schemas?: object[];
+  publishedTime?: string;
+  modifiedTime?: string;
+  /** Override <html lang>. Default: 'en'. Use for localized country pages. */
+  htmlLang?: string;
+  /** Hreflang alternates for international SEO. Each page should include a self-referencing entry. */
+  hreflangs?: HreflangAlternate[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogImage = SITE.defaultOgImage,
+  noindex = false,
+  schemas = [],
+  publishedTime,
+  modifiedTime,
+  htmlLang = 'en',
+  hreflangs = [],
+} = Astro.props;
+
+const canonicalUrl = canonical || new URL(Astro.url.pathname, SITE.url).toString();
+
+// SEO: keep the rendered <title> within ~60 visible characters (Google's SERP
+// display width). Google shows the DECODED title, so budget by visible characters
+// — not HTML-entity-expanded length. The previous logic counted '&' as 5 chars and
+// forced " | Calctube" onto every title, truncating real keywords with an ellipsis.
+// Preference: keep the brand suffix if it fits; else keep the full keyword title
+// without the brand; only hard-truncate when the title itself exceeds 60 chars.
+const SITE_SUFFIX = ` | ${SITE.name}`;
+const TITLE_MAX = 60;
+let fullTitle: string;
+if (title.includes(SITE.name)) {
+  fullTitle = title;
+} else if (title.length + SITE_SUFFIX.length <= TITLE_MAX) {
+  fullTitle = `${title}${SITE_SUFFIX}`;
+} else if (title.length <= TITLE_MAX) {
+  fullTitle = title;
+} else {
+  fullTitle = title.slice(0, TITLE_MAX - 1).trimEnd() + '…';
+}
+
+const trimmedDescription = description.length > 155
+  ? description.slice(0, 154).trimEnd() + '…'
+  : description;
+
+const allSchemas = [buildOrganizationSchema(), buildWebsiteSchema(), ...schemas];
+
+const navLinks = [
+  { label: 'Finance', href: '/finance/' },
+  { label: 'Health', href: '/health/' },
+  { label: 'Math', href: '/math/' },
+  { label: 'Conversions', href: '/conversions/' },
+  { label: 'Guides', href: '/guides/' },
+  { label: 'About', href: '/about/' },
+];
+---
+
+<!doctype html>
+<html lang={htmlLang}>
+  <head>
+    <!-- Google Consent Mode v2 — REGION-SCOPED defaults. Must come BEFORE any tracker.
+         GDPR/UK-GDPR/Swiss-FADP require prior consent, so the EEA + UK + CH default to
+         DENIED until Google's certified CMP collects consent. Everywhere else (India,
+         US, Gulf, etc. — the bulk of Calctube traffic) defaults to GRANTED so GA4
+         receives full analytics immediately. Previously this defaulted DENIED globally,
+         which meant non-EU visitors only sent cookieless pings → GA4 showed ~no data. -->
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // 1) Global default — grant (covers India, US, UAE, and all non-GDPR regions).
+      gtag('consent', 'default', {
+        ad_storage: 'granted',
+        ad_user_data: 'granted',
+        ad_personalization: 'granted',
+        analytics_storage: 'granted',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+      });
+      // 2) Region override — DENY by default across the EEA + UK + Switzerland until the
+      //    CMP records consent (legally required there). The certified CMP flips these.
+      gtag('consent', 'default', {
+        region: [
+          'AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT',
+          'LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO',
+          'GB','CH'
+        ],
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        wait_for_update: 500,
+      });
+      // Consent updates for EEA/UK/CH are handled by Google's certified CMP
+      // (auto-injected by adsbygoogle.js) — it flips the region defaults on user accept.
+    </script>
+
+    <!-- GTM + GA4 loader — DEFERRED until after first paint to free the main thread.
+         Loads on 'load' event or after 3s idle, whichever comes first. Saves ~270KB
+         on critical path. Consent Mode v2 above guards against tracking before consent. -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <script is:inline>
+      (function () {
+        function loadAnalytics() {
+          if (window.__calctubeAnalyticsLoaded) return;
+          window.__calctubeAnalyticsLoaded = true;
+
+          // GTM container
+          (function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+            var f = d.getElementsByTagName(s)[0],
+              j = d.createElement(s),
+              dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+          })(window, document, 'script', 'dataLayer', 'GTM-NJXW686X');
+
+          // GA4 (gtag.js)
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-PVB5YV8KFP';
+          document.head.appendChild(s);
+          gtag('js', new Date());
+          gtag('config', 'G-PVB5YV8KFP', { transport_type: 'beacon' });
+        }
+
+        // Load after window 'load' or after 3s idle — whichever first
+        if (document.readyState === 'complete') {
+          setTimeout(loadAnalytics, 0);
+        } else {
+          window.addEventListener('load', function () { setTimeout(loadAnalytics, 100); }, { once: true });
+        }
+        // Hard fallback so analytics fires even on slow loads
+        setTimeout(loadAnalytics, 3500);
+      })();
+    </script>
+
+    <!-- Google AdSense — Consent Mode v2 above gates personalization until user opts in. -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1115172981829710"
+            crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-1115172981829710" />
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#1b73f5" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={trimmedDescription} />
+    <link rel="canonical" href={canonicalUrl} />
+    {hreflangs.map((alt) => (
+      <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
+    ))}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={trimmedDescription} />
+    <meta property="og:image" content={new URL(ogImage, SITE.url).toString()} />
+    <meta property="og:site_name" content={SITE.name} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={SITE.twitter} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={trimmedDescription} />
+    <meta name="twitter:image" content={new URL(ogImage, SITE.url).toString()} />
+
+    <!-- Favicons — full suite generated from public/logo-mark.svg via `npm run logos` -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="msapplication-TileColor" content="#a3e635" />
+    <meta name="msapplication-TileImage" content="/mstile-150x150.png" />
+
+    <!-- Fonts — trimmed to 3 weights per family (was 5 + 4 = 9 woff2 files, saves ~180KB).
+         Loaded non-render-blocking via media swap trick: browser fetches in parallel, applies
+         once loaded. Fallback in <noscript> for users without JS (font swap still works). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Inter+Tight:wght@700;800;900&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Inter+Tight:wght@700;800;900&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Inter+Tight:wght@700;800;900&display=swap"
+      />
+    </noscript>
+
+    <!-- Schemas -->
+    {
+      allSchemas.map((schema) => (
+        <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+      ))
+    }
+
+  </head>
+  <body class="min-h-screen flex flex-col bg-white">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NJXW686X"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <!-- HEADER -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200/80" data-print-hide>
+      <div class="container-wide flex items-center justify-between h-16">
+        <Logo variant="light" size="md" />
+
+        <!-- Desktop nav -->
+        <nav class="hidden md:flex items-center gap-1 text-sm font-medium" aria-label="Main">
+          {
+            navLinks.map((link) => (
+              <a
+                href={link.href}
+                class="px-3 py-2 rounded-lg text-slate-700 hover:text-brand-600 hover:bg-brand-50 no-underline transition-colors"
+              >
+                {link.label}
+              </a>
+            ))
+          }
+        </nav>
+
+        <!-- Mobile menu button -->
+        <button
+          id="mobile-menu-button"
+          type="button"
+          class="md:hidden w-10 h-10 inline-flex items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
+          aria-label="Open menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <svg class="w-6 h-6 icon-open" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg class="w-6 h-6 icon-close hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile menu -->
+      <nav
+        id="mobile-menu"
+        class="hidden md:hidden border-t border-slate-200 bg-white"
+        aria-label="Mobile menu"
+      >
+        <div class="container-wide py-3 space-y-1">
+          {
+            navLinks.map((link) => (
+              <a
+                href={link.href}
+                class="block px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-brand-50 no-underline"
+              >
+                {link.label}
+              </a>
+            ))
+          }
+        </div>
+      </nav>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-300 mt-16" data-print-hide>
+      <div class="container-wide py-12 md:py-16">
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-8 text-sm">
+          <div class="col-span-2">
+            <div class="mb-4">
+              <Logo variant="dark" size="md" />
+            </div>
+            <p class="text-slate-400 max-w-xs leading-relaxed">
+              Free online calculators for everyday needs. Fast, accurate, mobile-first, no signups.
+            </p>
+            <div class="flex items-center gap-3 mt-5">
+              <a
+                href="https://twitter.com/calctube"
+                target="_blank"
+                rel="noopener"
+                class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 hover:text-white no-underline transition-colors"
+                aria-label="Twitter"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+              <a
+                href="https://www.linkedin.com/company/calctube/"
+                target="_blank"
+                rel="noopener"
+                class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 hover:text-white no-underline transition-colors"
+                aria-label="LinkedIn"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </a>
+              <a
+                href="mailto:hello@calctube.com"
+                class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 hover:text-white no-underline transition-colors"
+                aria-label="Email"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div>
+            <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wide">Calculators</h4>
+            <ul class="space-y-2 text-slate-400">
+              <li><a href="/finance/mortgage-calculator/" class="hover:text-white no-underline">Mortgage Calculator</a></li>
+              <li><a href="/finance/emi-calculator/" class="hover:text-white no-underline">Home Loan EMI</a></li>
+              <li><a href="/finance/sip-calculator/" class="hover:text-white no-underline">SIP Calculator</a></li>
+              <li><a href="/finance/fd-calculator/" class="hover:text-white no-underline">FD Calculator</a></li>
+              <li><a href="/finance/gst-calculator/" class="hover:text-white no-underline">GST Calculator</a></li>
+              <li><a href="/finance/compound-interest-calculator/" class="hover:text-white no-underline">Compound Interest</a></li>
+              <li><a href="/finance/retirement-calculator/" class="hover:text-white no-underline">Retirement Calculator</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wide">Popular</h4>
+            <ul class="space-y-2 text-slate-400">
+              <li><a href="/guides/" class="hover:text-white no-underline">Money Guides</a></li>
+              <li><a href="/conversions/currency/" class="hover:text-white no-underline">Currency Converter</a></li>
+              <li><a href="/finance/mortgage-calculator/cities/" class="hover:text-white no-underline">India City EMI</a></li>
+              <li><a href="/finance/loan-calculator/" class="hover:text-white no-underline">Loan Calculator</a></li>
+              <li><a href="/finance/hra-calculator/" class="hover:text-white no-underline">HRA Calculator</a></li>
+              <li><a href="/finance/income-tax-india/" class="hover:text-white no-underline">Income Tax India</a></li>
+              <li><a href="/finance/old-vs-new-tax-regime-india/" class="hover:text-white no-underline">Old vs New Tax Regime</a></li>
+              <li><a href="/conversions/unit-converter/" class="hover:text-white no-underline">Unit Converter</a></li>
+              <li><a href="/conversions/time-zone-converter/" class="hover:text-white no-underline">Time Zone Converter</a></li>
+              <li><a href="/tools/word-counter/" class="hover:text-white no-underline">Word Counter</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wide">Categories</h4>
+            <ul class="space-y-2 text-slate-400">
+              <li><a href="/finance/" class="hover:text-white no-underline">Finance</a></li>
+              <li><a href="/health/" class="hover:text-white no-underline">Health</a></li>
+              <li><a href="/math/" class="hover:text-white no-underline">Math</a></li>
+              <li><a href="/conversions/" class="hover:text-white no-underline">Conversions</a></li>
+              <li><a href="/date-time/" class="hover:text-white no-underline">Date & Time</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wide">Company</h4>
+            <ul class="space-y-2 text-slate-400">
+              <li><a href="/about/" class="hover:text-white no-underline">About</a></li>
+              <li><a href="/embed/" class="hover:text-white no-underline">Embed a calculator</a></li>
+              <li><a href="/contact/" class="hover:text-white no-underline">Contact</a></li>
+              <li><a href="/sitemap-index.xml" class="hover:text-white no-underline">Sitemap</a></li>
+              <li><a href="/legal/privacy/" class="hover:text-white no-underline">Privacy</a></li>
+              <li><a href="/legal/terms/" class="hover:text-white no-underline">Terms</a></li>
+              <li><a href="/legal/cookies/" class="hover:text-white no-underline">Cookies</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-10 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <div>© {new Date().getFullYear()} Calctube. All rights reserved.</div>
+          <div class="text-center md:text-right max-w-md">
+            Calculators are provided for informational purposes only and do not constitute financial, medical, or legal advice.
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script is:inline>
+      // Mobile menu toggle
+      (function () {
+        const btn = document.getElementById('mobile-menu-button');
+        const menu = document.getElementById('mobile-menu');
+        if (!btn || !menu) return;
+        btn.addEventListener('click', () => {
+          const isOpen = !menu.classList.contains('hidden');
+          if (isOpen) {
+            menu.classList.add('hidden');
+            btn.setAttribute('aria-expanded', 'false');
+            btn.querySelector('.icon-open').classList.remove('hidden');
+            btn.querySelector('.icon-close').classList.add('hidden');
+          } else {
+            menu.classList.remove('hidden');
+            btn.setAttribute('aria-expanded', 'true');
+            btn.querySelector('.icon-open').classList.add('hidden');
+            btn.querySelector('.icon-close').classList.remove('hidden');
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

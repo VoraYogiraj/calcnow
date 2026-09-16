@@ -1,0 +1,236 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import UnitConverter from '../../components/calculators/UnitConverter.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema, buildHowToSchema, buildSpeakableSchema } from '../../lib/seo';
+import { unitPairs, UNITS } from '../../data/unit-pairs';
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+// Group every pair by category so all 48 are one click from the hub.
+const CAT_ORDER = ['length', 'weight', 'volume', 'speed', 'area', 'data', 'temperature'];
+const pairsByCat = CAT_ORDER
+  .map((c) => ({ cat: c, pairs: unitPairs.filter((p) => p.category === c) }))
+  .filter((g) => g.pairs.length);
+
+const meta = {
+  slug: 'unit-converter', name: 'Unit Converter',
+  description: 'Free online unit converter for length, weight, volume, area, speed and data. Convert km to miles, kg to lbs, cm to inches, litres to gallons and more, instantly, with reference tables.',
+  category: 'conversion' as const,
+  keywords: ['unit converter', 'km to miles', 'kg to lbs', 'cm to inches', 'metric converter', 'length converter', 'weight converter'],
+  lastUpdated: '2026-07-18',
+};
+const path = '/conversions/unit-converter';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Conversions', url: '/conversions/' }, { name: 'Unit Converter', url: path },
+];
+
+// Build-time reference tables for the most-searched conversions.
+const lengthTable = [
+  { from: '1 cm', to: '0.3937 in' },
+  { from: '1 inch', to: '2.54 cm' },
+  { from: '1 foot', to: '30.48 cm' },
+  { from: '1 metre', to: '3.2808 ft' },
+  { from: '1 km', to: '0.6214 mi' },
+  { from: '1 mile', to: '1.6093 km' },
+];
+const weightTable = [
+  { from: '1 kg', to: '2.2046 lb' },
+  { from: '1 pound', to: '0.4536 kg' },
+  { from: '1 ounce', to: '28.35 g' },
+  { from: '1 stone', to: '6.3503 kg' },
+  { from: '1 tonne', to: '1000 kg' },
+  { from: '1 gram', to: '0.0353 oz' },
+];
+
+const faqs = [
+  { q: 'How do you convert km to miles?', a: 'Multiply kilometres by 0.6214 (or divide by 1.6093). So 5 km = 5 × 0.6214 = 3.107 miles, and 10 km ≈ 6.21 miles. Going the other way, multiply miles by 1.6093 to get kilometres. A quick mental shortcut: miles are roughly km × 0.6, which is close enough for a rough estimate.' },
+  { q: 'How do you convert kg to lbs?', a: 'Multiply kilograms by 2.2046 to get pounds. So 70 kg = 70 × 2.2046 = 154.3 lb. To reverse it, multiply pounds by 0.4536 to get kilograms. For a fast estimate, doubling the kilograms and adding 10% gets you very close (70 → 140 + 14 = 154).' },
+  { q: 'How do you convert cm to inches?', a: 'Divide centimetres by 2.54 (since 1 inch = 2.54 cm exactly). So 30 cm = 30 ÷ 2.54 = 11.81 inches. To go from inches to cm, multiply by 2.54. Height example: 170 cm = 66.9 inches = 5 feet 6.9 inches.' },
+  { q: 'Are US and UK (imperial) units the same?', a: 'For length and weight, yes. An inch, foot, mile, ounce and pound are identical in both systems. But volume differs: a US gallon is 3.785 litres while a UK/imperial gallon is 4.546 litres, and US and UK pints, cups and fluid ounces differ too. This converter uses US customary volumes; adjust if you\'re working with imperial recipes.' },
+  { q: 'What is the difference between KB and KiB (data units)?', a: 'A kilobyte (KB) is 1,000 bytes, using the decimal (SI) system, which is how storage and network speeds are usually marketed. A kibibyte (KiB) is 1,024 bytes, the binary system operating systems often use. That 2.4% gap grows with size: a "1 TB" drive (1,000,000,000,000 bytes) shows as about 931 GiB in Windows. This converter includes both.' },
+];
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to convert between units',
+    description: 'Convert between metric and imperial units of length, weight, volume, area, speed and data.',
+    totalTime: 'PT1M',
+    estimatedCost: { value: '0', currency: 'USD' },
+    steps: [
+      { name: 'Pick a category', text: 'Choose length, weight, volume, area, speed or data.' },
+      { name: 'Choose the units', text: 'Select the unit to convert from and the unit to convert to.' },
+      { name: 'Enter a value', text: 'Type the amount. The converted result and the per-unit rate appear instantly.' },
+    ],
+  }),
+];
+const relatedCalcs = [
+  { name: 'Temperature Converter', href: '/conversions/temperature-converter/', desc: 'Celsius, Fahrenheit, Kelvin.', icon: '🌡️', color: 'bg-cyan-accent' },
+  { name: 'Currency Converter', href: '/conversions/currency/', desc: '240+ live currency pairs.', icon: '💱', color: 'bg-lime-accent' },
+  { name: 'BMI Calculator', href: '/health/bmi-calculator/', desc: 'Metric & imperial BMI.', icon: '⚖️', color: 'bg-rose-300' },
+  { name: 'Percentage Calculator', href: '/math/percentage-calculator/', desc: 'X% of Y, % change.', icon: '🧮', color: 'bg-yellow-accent' },
+];
+---
+
+<BaseLayout title="Unit Converter: Length, Weight, Volume, Speed & Data" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-yellow-accent text-ink-900">🔄 Conversions</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Unit <span class="text-gradient-brand">Converter.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="speakable-answer text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Convert across <strong>length, weight, volume, area, speed and data</strong>. Common ones: <strong>1 km = 0.621 miles</strong>, <strong>1 kg = 2.205 lb</strong>, <strong>1 inch = 2.54 cm</strong>, <strong>1 US gallon = 3.785 L</strong>. Pick a category and units below.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <UnitConverter client:load />
+    </div>
+  </section>
+
+  <!-- REFERENCE TABLES -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-yellow-accent text-ink-900 mb-4">📊 Quick reference</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">The conversions people look up most.</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <div>
+            <h3 class="!text-lg !font-extrabold text-ink-900 mb-3">Length</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+                <tbody>
+                  {lengthTable.map((r, i) => (
+                    <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                      <td class="p-3 font-extrabold text-ink-900">{r.from}</td>
+                      <td class="p-3 text-right font-mono font-bold text-ink-900">{r.to}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3 class="!text-lg !font-extrabold text-ink-900 mb-3">Weight</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+                <tbody>
+                  {weightTable.map((r, i) => (
+                    <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                      <td class="p-3 font-extrabold text-ink-900">{r.from}</td>
+                      <td class="p-3 text-right font-mono font-bold text-ink-900">{r.to}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALL PAIR PAGES (grouped by category) -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip bg-yellow-accent text-ink-900 mb-4">⚡ All conversions</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Jump to a specific conversion.</h2>
+      <p class="mt-3 text-ink-700 font-medium">Every conversion has its own page with the formula, worked examples and a full two-way table.</p>
+      <div class="mt-8 space-y-8">
+        {pairsByCat.map((g) => (
+          <div>
+            <h3 class="!text-lg !font-extrabold text-ink-900 mb-3 capitalize">{g.cat}</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {g.pairs.map((p) => {
+                const f = UNITS[p.from], t = UNITS[p.to];
+                return (
+                  <a href={`/conversions/unit-converter/${p.slug}/`} class="group bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200">
+                    <div class="font-extrabold text-ink-900 text-sm leading-tight" style="font-family: 'Inter Tight', sans-serif;">{f.symbol} → {t.symbol}</div>
+                    <div class="text-xs text-ink-600 mt-1 font-semibold">{cap(f.name)} to {t.name}</div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-yellow-accent text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,175 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/sip-step-up-vs-flat';
+const lastUpdated = '2026-07-21';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Step-Up vs Flat SIP', url: path },
+];
+
+// Build-time simulation: ₹10,000/month SIP over 20 years at 12% p.a.
+// compared flat vs a 10%-annual-step-up, using a monthly annuity-due loop
+// (each SIP invested at the start of the month, then compounds).
+const MONTHLY = 10000;         // ₹10,000 starting monthly SIP
+const YEARS = 20;
+const ANNUAL_RETURN = 12;      // % per annum
+const i = ANNUAL_RETURN / 100 / 12;  // monthly rate
+
+function simulate(stepUpPct: number) {
+  let balance = 0, invested = 0, monthly = MONTHLY;
+  for (let y = 0; y < YEARS; y++) {
+    if (y > 0) monthly *= (1 + stepUpPct / 100);  // raise the SIP each year
+    for (let m = 0; m < 12; m++) {
+      balance = (balance + monthly) * (1 + i);     // invest, then a month's growth
+      invested += monthly;
+    }
+  }
+  return { corpus: balance, invested, gain: balance - invested };
+}
+
+const stepUpRates = [0, 5, 10, 15];
+const rows = stepUpRates.map((s) => ({ stepUp: s, ...simulate(s) }));
+const flat = rows.find((r) => r.stepUp === 0)!;
+const step10 = rows.find((r) => r.stepUp === 10)!;
+const extra10 = step10.corpus - flat.corpus;
+const rowsWithExtra = rows.map((r) => ({ ...r, vsFlat: r.corpus - flat.corpus }));
+// Final-year monthly SIP under the 10% step-up (₹10k grown 10%/yr for 19 years)
+const finalMonthly10 = MONTHLY * Math.pow(1.1, YEARS - 1);
+
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+const cr = (v: number) => `₹${(v / 1e7).toFixed(2)} Cr`;
+const lakh = (v: number) => `₹${(v / 1e5).toFixed(1)} L`;
+
+const faqs = [
+  { q: 'What is a step-up (or top-up) SIP?', a: `A step-up SIP automatically raises your monthly investment by a fixed percentage every year, instead of keeping it flat for life. The logic is simple: your income rises over time, so your investing should too. Starting at ${fmtINR(MONTHLY)}/month with a 10% annual step-up means you invest ${fmtINR(MONTHLY)} in year one, ${fmtINR(MONTHLY * 1.1)} in year two, and so on, reaching about ${fmtINR(finalMonthly10)}/month by year ${YEARS}. Over ${YEARS} years at ${ANNUAL_RETURN}% that grows to roughly ${cr(step10.corpus)}, versus ${cr(flat.corpus)} if you'd never increased the amount.` },
+  { q: 'How much more does a step-up SIP actually earn?', a: `A lot, because the extra money you add early also gets decades to compound. In our example a flat ${fmtINR(MONTHLY)}/month SIP over ${YEARS} years at ${ANNUAL_RETURN}% builds ${cr(flat.corpus)} from ${lakh(flat.invested)} invested. The same SIP stepped up 10% a year builds ${cr(step10.corpus)} from ${lakh(step10.invested)} invested, about ${lakh(extra10)} more in your pocket. You put in more, yes, but the corpus grows faster than the contributions because the early increases compound the longest.` },
+  { q: 'Should I step up my SIP or just start with a bigger amount?', a: `If you can genuinely afford a bigger SIP today, starting high always wins. Money invested earliest compounds longest. Step-up SIPs exist for the far more common situation: you can't afford ₹25,000/month now, but you know your salary will grow. Rather than staying stuck at your starting amount for 20 years, a step-up lets you begin at what you can afford and scale automatically as your income rises. It's the realistic middle path between "invest a fortune now" (you can't) and "never increase" (you'll under-save).` },
+  { q: 'Is a 10% annual step-up realistic?', a: `For most salaried investors, yes. It's roughly matched to typical annual salary hikes and inflation, so the SIP stays about the same share of your take-home pay each year. If your raises are smaller, a 5% step-up still meaningfully beats a flat SIP; in our table it lifts the corpus to ${cr(rowsWithExtra.find((r) => r.stepUp === 5)!.corpus)} versus ${cr(flat.corpus)} flat. The key discipline is to actually pre-commit the step-up (most platforms let you set it once), so the increase happens automatically instead of relying on you to remember to raise it.` },
+  { q: 'Does a step-up SIP require a bigger total commitment?', a: `Yes. That's the point, and it's why it works. Over ${YEARS} years the flat plan invests ${lakh(flat.invested)} total; the 10% step-up invests ${lakh(step10.invested)}. But because your income is also growing, each year's higher SIP stays affordable as a percentage of what you earn. The extra ${lakh(step10.invested - flat.invested)} you contribute turns into an extra ${lakh(extra10)} of corpus. The gap is wider than the extra you put in, which is compounding doing the heavy lifting on money you added early.` },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`Step-Up SIP vs Flat SIP: ₹10k/mo Over 20 Years Is ${lakh(extra10)} More`} description={`A flat ₹10,000/mo SIP over 20 years at 12% builds ${cr(flat.corpus)}; stepping it up 10% a year builds ${cr(step10.corpus)}, about ${lakh(extra10)} more. Full table by step-up rate, every figure computed.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">📚 Guide</span>
+          <span class="chip-cyan">📈 Investing</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          The 10% raise that <span class="text-gradient-brand">doubles your SIP.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                A flat <strong>{fmtINR(MONTHLY)}/month</strong> SIP for {YEARS} years at {ANNUAL_RETURN}% builds <strong>{cr(flat.corpus)}</strong>. Raise it just <strong>10% a year</strong> (roughly your annual salary hike) and it builds <strong>{cr(step10.corpus)}</strong>, about <strong>{lakh(extra10)} more</strong>. You invest {lakh(step10.invested)} instead of {lakh(flat.invested)}, but the extra also compounds for decades.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Same start, wildly different finish</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Most people set a SIP amount once and leave it untouched for years, but their salary doesn't stay flat, so the SIP quietly shrinks as a share of income. A step-up SIP fixes that by raising the monthly amount a set percentage each year. Both plans below start at the same {fmtINR(MONTHLY)}/month and earn the same {ANNUAL_RETURN}%; the only difference is how fast the contribution grows. Here's {fmtINR(MONTHLY)}/month over {YEARS} years at four step-up rates, every figure computed:
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Annual step-up</th>
+            <th class="text-right p-3 font-extrabold">Total invested</th>
+            <th class="text-right p-3 font-extrabold">Final corpus</th>
+            <th class="text-right p-3 font-extrabold">Extra vs flat</th>
+          </tr></thead>
+          <tbody>
+            {rowsWithExtra.map((row, idx) => (
+              <tr class={`border-b-2 border-ink-100 ${row.stepUp === 0 ? 'bg-pink-accent/15' : row.stepUp === 10 ? 'bg-lime-accent/25' : idx % 2 ? 'bg-ink-50' : ''}`}>
+                <td class="p-3 font-bold text-ink-900">{row.stepUp === 0 ? 'None (flat)' : `${row.stepUp}% / year`}</td>
+                <td class="p-3 text-right font-mono text-ink-700">{fmtINR(row.invested)}</td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{fmtINR(row.corpus)}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{row.stepUp === 0 ? '–' : `+${fmtINR(row.vsFlat)}`}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">Monthly SIP invested at the start of each month, compounded at {ANNUAL_RETURN}% p.a. (1% monthly). Step-up applied at the start of each year. Illustrative. Actual returns vary. Not investment advice.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Why the gap is bigger than the extra you invest</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Look closely at the 10% row: you invest {lakh(step10.invested - flat.invested)} more than the flat plan, but you end up with {lakh(extra10)} more. That's not a rounding quirk. It's compounding rewarding money that arrives early. A step-up front-loads your extra contributions into the early-to-middle years, exactly when there's still a decade or two of growth ahead. By the final year your SIP has climbed to about {fmtINR(finalMonthly10)}/month, but those late contributions barely have time to grow; it's the raises in years 3 through 10 that do the real work. The takeaway is simple and powerful: <em>step up early and pre-commit it,</em> so the increase happens automatically instead of depending on you to remember. Even a modest 5% step-up beats a flat SIP by {lakh(rowsWithExtra.find((r) => r.stepUp === 5)!.vsFlat)} here. The direction matters more than the exact number.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Run the numbers</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'SIP Calculator', href: '/finance/sip-calculator/', icon: '📈', color: 'bg-cyan-accent' },
+          { name: 'SIP vs Lump Sum', href: '/finance/sip-vs-lump-sum-investment/', icon: '⚖️', color: 'bg-lime-accent' },
+          { name: 'The Rule of 72', href: '/guides/rule-of-72/', icon: '🧮', color: 'bg-yellow-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

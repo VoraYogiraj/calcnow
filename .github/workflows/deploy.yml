@@ -1,0 +1,52 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Force node24 runtime for any action still declaring node20.
+# GitHub starts enforcing node24 from 2026-06-16; node20 fully removed 2026-09-16.
+# FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 is the official runner escape hatch
+# (ForceNode24Variable in Runner.Common/Constants.cs) — acts as a safety net
+# for any transitive third-party actions that haven't yet migrated.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Build & Deploy
+    steps:
+      - name: Checkout
+        # Upgraded v4 → v5: actions/checkout@v4 (latest patch v4.3.1) declares
+        # "using: node20" and will NOT be updated within the v4 major.
+        # v5.0.0 (Aug 2024) is the official node24 release for this action.
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        # Upgraded v4 → v5: actions/setup-node@v4 (latest patch v4.4.0) declares
+        # "using: node20" and will NOT be updated within the v4 major.
+        # v5.0.0 (Sep 2024) is the official node24 release for this action.
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        # wrangler-action@v4 already migrated to node24 on 2026-05-12 — no change.
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=calctube --branch=main --commit-dirty=true

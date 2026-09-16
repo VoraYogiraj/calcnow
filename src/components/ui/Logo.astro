@@ -1,0 +1,142 @@
+---
+/**
+ * Calctube logo — multiple sticker-style theme variants.
+ *
+ * Props:
+ *   theme:    one of 'divide' | 'equal' | 'multiply' | 'percent' | 'letter-c' | 'play' | 'wordmark' | 'mono'
+ *   variant:  'light' | 'dark' — controls wordmark color
+ *   size:     'sm' | 'md' | 'lg'
+ *   markOnly: hide wordmark
+ *   href:     wraps in anchor; pass false to render plain
+ */
+export interface Props {
+  theme?: 'divide' | 'equal' | 'multiply' | 'percent' | 'letter-c' | 'play' | 'wordmark' | 'mono';
+  variant?: 'light' | 'dark';
+  size?: 'sm' | 'md' | 'lg';
+  markOnly?: boolean;
+  href?: string | false;
+  class?: string;
+}
+
+const {
+  theme = 'divide',
+  variant = 'light',
+  size = 'md',
+  markOnly = false,
+  href = '/',
+  class: className = '',
+} = Astro.props;
+
+const sizeMap = {
+  sm: { mark: 'w-7 h-7', icon: 22, text: 'text-lg', gap: 'gap-2' },
+  md: { mark: 'w-9 h-9', icon: 26, text: 'text-xl', gap: 'gap-2.5' },
+  lg: { mark: 'w-14 h-14', icon: 38, text: 'text-3xl md:text-4xl', gap: 'gap-3' },
+};
+const s = sizeMap[size];
+
+// Theme config maps each theme to its sticker color
+const themeConfig: Record<string, { bg: string; iconFill: string; accentClass: string }> = {
+  divide:     { bg: 'bg-lime-accent',  iconFill: '#0f172a', accentClass: 'text-brand-600' },
+  equal:      { bg: 'bg-pink-accent',  iconFill: '#ffffff', accentClass: 'text-pink-accent' },
+  multiply:   { bg: 'bg-yellow-accent',iconFill: '#0f172a', accentClass: 'text-amber-600' },
+  percent:    { bg: 'bg-cyan-accent',  iconFill: '#0f172a', accentClass: 'text-cyan-600' },
+  'letter-c': { bg: 'bg-lime-accent',  iconFill: '#0f172a', accentClass: 'text-brand-600' },
+  play:       { bg: 'bg-ink-900',      iconFill: '#a3e635', accentClass: 'text-lime-accent' },
+  wordmark:   { bg: '',                iconFill: '',        accentClass: 'text-brand-600' },
+  mono:       { bg: 'bg-white',        iconFill: '#0f172a', accentClass: 'text-ink-900' },
+};
+const t = themeConfig[theme];
+
+const wordColorClass = variant === 'dark' ? 'text-white' : 'text-ink-900';
+const wordAccentClass = variant === 'dark' && theme === 'play' ? 'text-lime-accent' : t.accentClass;
+const monoBorder = theme === 'mono' ? 'border-ink-900' : 'border-ink-900';
+
+const Wrapper = href ? 'a' : 'div';
+const wrapperProps = href ? { href } : {};
+---
+
+<Wrapper
+  {...wrapperProps}
+  class={`inline-flex items-center ${s.gap} no-underline group ${className}`}
+  aria-label="Calctube, home"
+>
+  {
+    theme !== 'wordmark' && (
+      <div
+        class={`relative ${s.mark} rounded-xl ${t.bg} border-[2.5px] ${monoBorder} shadow-sticker-sm
+                flex items-center justify-center flex-shrink-0
+                group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-sticker transition-all duration-150`}
+        aria-hidden="true"
+      >
+        {theme === 'divide' && (
+          <svg width={s.icon} height={s.icon} viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="8" r="2.6" fill={t.iconFill} />
+            <rect x="6" y="12.5" width="16" height="3" rx="1.5" fill={t.iconFill} />
+            <circle cx="14" cy="20" r="2.6" fill={t.iconFill} />
+          </svg>
+        )}
+
+        {theme === 'equal' && (
+          <svg width={s.icon} height={s.icon} viewBox="0 0 28 28" fill="none">
+            <rect x="6" y="10" width="16" height="3" rx="1.5" fill={t.iconFill} />
+            <rect x="6" y="16" width="16" height="3" rx="1.5" fill={t.iconFill} />
+          </svg>
+        )}
+
+        {theme === 'multiply' && (
+          <svg width={s.icon} height={s.icon} viewBox="0 0 28 28" fill="none">
+            <rect x="6" y="12.5" width="16" height="3" rx="1.5" fill={t.iconFill} transform="rotate(45 14 14)" />
+            <rect x="6" y="12.5" width="16" height="3" rx="1.5" fill={t.iconFill} transform="rotate(-45 14 14)" />
+          </svg>
+        )}
+
+        {theme === 'percent' && (
+          <svg width={s.icon} height={s.icon} viewBox="0 0 28 28" fill="none">
+            <circle cx="9" cy="9" r="3" stroke={t.iconFill} stroke-width="2.5" fill="none" />
+            <circle cx="19" cy="19" r="3" stroke={t.iconFill} stroke-width="2.5" fill="none" />
+            <line x1="7" y1="22" x2="22" y2="6" stroke={t.iconFill} stroke-width="2.5" stroke-linecap="round" />
+          </svg>
+        )}
+
+        {theme === 'letter-c' && (
+          <svg width={s.icon} height={s.icon} viewBox="0 0 28 28" fill="none">
+            <path d="M21 9 a7 7 0 1 0 0 10" stroke={t.iconFill} stroke-width="4" stroke-linecap="round" fill="none" />
+          </svg>
+        )}
+
+        {theme === 'play' && (
+          <svg width={s.icon} height={s.icon} viewBox="0 0 28 28" fill="none">
+            <path d="M10 7 L21 14 L10 21 Z" fill={t.iconFill} />
+          </svg>
+        )}
+
+        {theme === 'mono' && (
+          <svg width={s.icon} height={s.icon} viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="8" r="2.6" fill={t.iconFill} />
+            <rect x="6" y="12.5" width="16" height="3" rx="1.5" fill={t.iconFill} />
+            <circle cx="14" cy="20" r="2.6" fill={t.iconFill} />
+          </svg>
+        )}
+      </div>
+    )
+  }
+
+  {
+    !markOnly && (
+      <span
+        class={`font-extrabold ${s.text} ${wordColorClass} tracking-tight leading-none`}
+        style="font-family: 'Inter Tight', 'Inter', sans-serif; letter-spacing: -0.04em;"
+      >
+        {theme === 'wordmark' ? (
+          <span>
+            c<span class={wordAccentClass}>÷</span>lctube
+          </span>
+        ) : (
+          <span>
+            calc<span class={wordAccentClass}>tube</span>
+          </span>
+        )}
+      </span>
+    )
+  }
+</Wrapper>

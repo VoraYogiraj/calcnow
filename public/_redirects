@@ -1,0 +1,21 @@
+# Map common sitemap URLs to the actual sitemap index.
+# Google Search Console + Bing Webmaster Tools default to /sitemap.xml when validating;
+# without this, Cloudflare Pages serves the SPA 404 (HTML, 200) and the fetch fails.
+
+/sitemap.xml          /sitemap-index.xml          301
+/sitemap_index.xml    /sitemap-index.xml          301
+
+# Soft-404 cleanup — old/aspirational URLs that don't have pages yet
+# Redirect to nearest live equivalent so Google sees a clean 301 instead of a homepage canonical clash.
+/conversions/currency-converter/         /conversions/currency/                  301
+/finance/tax-calculator-india/           /finance/old-vs-new-tax-regime-india/   301
+# Bajaj Housing slug consolidation (was duplicate of bajaj-housing-finance)
+/finance/emi-calculator/bajaj-housing/*           /finance/emi-calculator/bajaj-housing-finance/:splat   301
+
+# Saint Lucia slug consolidation (st-lucia -> saint-lucia)
+/finance/mortgage-calculator/st-lucia             /finance/mortgage-calculator/saint-lucia               301
+/finance/mortgage-calculator/st-lucia/            /finance/mortgage-calculator/saint-lucia/              301
+
+# Fabricated reviewer personas removed 2026-07-22 — 301 old author URLs to the honest About page
+/authors            /about/    301
+/authors/*          /about/    301

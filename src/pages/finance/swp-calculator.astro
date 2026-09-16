@@ -1,0 +1,177 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SwpCalculator from '../../components/calculators/SwpCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/swp-calculator';
+
+const meta = {
+  slug: 'swp-calculator',
+  name: 'SWP Calculator',
+  description: 'Free SWP (Systematic Withdrawal Plan) calculator for Indian mutual fund investors. See total withdrawn, balance left, return earned, and the exact month a corpus runs out. Live, month-by-month.',
+  category: 'finance' as const,
+  keywords: ['swp calculator', 'systematic withdrawal plan calculator', 'mutual fund withdrawal calculator', 'swp return calculator', 'retirement income calculator'],
+  lastUpdated: '2026-08-26',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'SWP Calculator', url: path },
+];
+
+const faqs = [
+  {
+    q: 'What is an SWP and how is it different from a dividend or IDCW plan?',
+    a: 'An SWP (Systematic Withdrawal Plan) is a standing instruction to your mutual fund to redeem a fixed rupee amount, usually monthly, from a lump sum you have already invested. The fund sells just enough units at the current NAV to pay you, and the rest stays invested and keeps compounding. This differs from a dividend or IDCW (Income Distribution cum Capital Withdrawal) plan, where the fund house, not you, decides whether to pay, when, and how much, so the payout is irregular and outside your control. An SWP gives you a predictable, self-set income while keeping the corpus working, which is why most planners now prefer it over IDCW for regular cash flow.',
+  },
+  {
+    q: 'How are SWP withdrawals taxed in India?',
+    a: 'Every SWP withdrawal is treated as a partial redemption of units, so it is part return of your own capital and part capital gain. Only the gain portion is taxable, not the whole amount you receive, which is the core tax advantage over a fixed deposit where the entire interest is taxed. As of 26 August 2026, equity fund gains on units held over 12 months are long-term, taxed at 12.5% above a ₹1.25 lakh yearly exemption; units held 12 months or less are short-term at 20%. Debt fund gains on units bought after April 2023 are added to income and taxed at your slab rate. Tax law changes often, so verify the current rules with the Income Tax Department or a qualified tax adviser before acting.',
+  },
+  {
+    q: 'How do I choose a withdrawal rate that makes the corpus last?',
+    a: 'A withdrawal is sustainable only when it stays below what the corpus earns; otherwise you eat into capital every month and the fund eventually runs dry. The well-known 4% rule, from US retirement research, suggests withdrawing about 4% of the starting corpus a year (rising with inflation) so the money lasts roughly 30 years. In India, with higher inflation and higher equity returns, many planners use a 4% to 6% starting band. The default on this calculator, ₹10,000 a month on ₹10 lakh, is a 12% annual rate, far above the assumed return, which is exactly why that corpus shrinks. Lower the withdrawal, or raise the corpus, until the yearly rate sits near or below your expected return.',
+  },
+  {
+    q: 'Is an SWP a good way to draw a retirement income?',
+    a: 'Yes, an SWP is a popular way to turn a retirement corpus into a monthly, pension-like income. You keep the money invested, often in a hybrid or conservative equity fund, and draw a fixed amount each month for expenses. Two ideas make it durable: keep the withdrawal rate modest (near or below the expected return) so the corpus is not depleted too fast, and hold one to two years of withdrawals in a liquid or debt fund so you are not forced to sell equity units during a market crash. Reviewing the withdrawal amount every year against the remaining balance keeps the plan on track through a long retirement.',
+  },
+  {
+    q: 'Can I change, pause, or stop the withdrawal amount later?',
+    a: 'Yes. An SWP is fully in your control, unlike an annuity. You can increase or decrease the monthly amount, pause it, or stop it entirely at any time by instructing the fund house or your platform, usually with no penalty beyond ordinary exit load and capital gains tax on the units sold. Many investors raise the amount each year to keep pace with inflation, or dial it down in a bad market year to protect the corpus. You can also run more than one SWP from the same folio. This flexibility is a big reason SWPs suit retirees who want an income they can adjust as life and markets change.',
+  },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate a Systematic Withdrawal Plan (SWP)',
+    description: 'Step-by-step instructions for estimating the income, remaining balance, and depletion point of a mutual fund SWP using corpus, expected return, monthly withdrawal, and tenure.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter your invested corpus', text: 'Type the lump sum already invested that you want to draw an income from, for example ₹10,00,000. No monthly contributions are assumed.' },
+      { name: 'Set a realistic expected annual return', text: 'Use 10 to 12% for diversified equity funds, 8 to 10% for hybrid funds, and 6 to 8% for debt funds. The balance grows at this rate each month before the withdrawal.' },
+      { name: 'Enter the fixed monthly withdrawal', text: 'Type the income you want to take out every month. Keep it near or below the monthly growth if you want the corpus to last.' },
+      { name: 'Choose the tenure and read the result', text: 'Pick the number of years. The calculator shows total withdrawn, balance left, return earned, and, if the withdrawal is too large, the exact month the corpus runs out.' },
+    ],
+  }),
+];
+
+const relatedCalculators = [
+  { label: 'SIP calculator', href: '/finance/sip-calculator/' },
+  { label: 'Lumpsum calculator', href: '/finance/lumpsum-calculator/' },
+  { label: 'Retirement calculator', href: '/finance/retirement-calculator/' },
+  { label: 'FD calculator', href: '/finance/fd-calculator/' },
+  { label: 'NPS calculator', href: '/finance/nps-calculator/' },
+];
+
+---
+
+<BaseLayout title="SWP Calculator 📉" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-500/20 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/20 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">📉 Withdrawal plan</span>
+          <span class="chip-cyan">🧮 Month-by-month</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          SWP Calculator.
+          <span class="text-gradient-brand">A monthly income from your corpus.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                An SWP draws a fixed monthly income from a lump sum you have already invested. A <strong>₹10,00,000</strong> corpus earning <strong>8% a year</strong>, with <strong>₹10,000 withdrawn every month for 5 years</strong>, pays out <strong>₹6,00,000</strong> in total and still leaves <strong>₹7,55,077</strong> invested at the end. The corpus does not run out here: early monthly growth (about ₹6,667) is below the ₹10,000 withdrawal, so the balance drifts down gently from ₹10 lakh to ₹7.55 lakh rather than being exhausted.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><SwpCalculator client:visible /></div></section>
+
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">📊 How it works</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          How an SWP actually works, month by month.
+        </h2>
+        <div class="mt-8 prose prose-lg max-w-none">
+          <p class="text-ink-700 leading-relaxed font-medium">
+            An SWP runs the same two steps every month. First the whole remaining balance grows at your expected return divided by twelve, then a fixed rupee amount is redeemed and paid to you. This calculator simulates all sixty months (for a five-year plan) one at a time rather than using a single formula, because the interesting cases are the ones where the money runs out partway through, and only a month-by-month loop can tell you the exact month that happens.
+          </p>
+          <p class="text-ink-700 leading-relaxed font-medium">
+            The single number that decides everything is whether your withdrawal is larger than the growth. On ₹10 lakh at 8%, the first month adds roughly ₹6,667, so a ₹10,000 withdrawal takes out about ₹3,333 more than the fund earned, and the balance edges down. As the balance falls, the growth in rupees falls with it, so a plan that looks fine early can accelerate toward zero later. When a withdrawal is <strong>smaller</strong> than the growth, the opposite happens: the corpus keeps rising even while it pays you, which is the sweet spot for a long retirement income.
+          </p>
+          <p class="text-ink-700 leading-relaxed font-medium">
+            If the balance ever cannot fund a full withdrawal, the calculator pays out whatever is left, marks the corpus as exhausted, and stops. It never shows a negative balance pretending the plan continues. That depletion month is the honest headline of any SWP: change the withdrawal, the corpus, or the tenure until the plan lasts as long as you need it to.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-pink mb-4">⚖️ Honest comparison</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        SWP vs simply keeping the money in an FD.
+      </h2>
+      <div class="mt-8 prose prose-lg max-w-none">
+        <p class="text-ink-700 leading-relaxed font-medium">
+          A fixed deposit or savings account can also pay you a regular income, and it does so with no market risk, which genuinely matters for money you cannot afford to see fall. But an SWP has two structural edges. First, the corpus stays invested and keeps compounding at a potentially higher return while it pays you, whereas FD interest is locked to the deposit rate. Second, and often larger, is tax. Each SWP withdrawal is part your own capital coming back and part capital gain, and only the gain is taxed. In an FD, the entire interest is taxed at your slab rate every year, even the part that merely offsets inflation.
+        </p>
+        <p class="text-ink-700 leading-relaxed font-medium">
+          The trade-off is real: an SWP rides market ups and downs, so a bad first few years can shrink the corpus faster than the model above suggests, since it assumes a steady return. Many retirees split the difference, keeping an emergency and near-term buffer in FDs or liquid funds and running an SWP on the rest. To see the other side of the same coin, model how the corpus was built with the <a href="/finance/sip-calculator/">SIP calculator</a> or a one-time investment with the <a href="/finance/lumpsum-calculator/">lumpsum calculator</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-cyan mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        SWP calculator FAQ.
+      </h2>
+      <div class="mt-8 space-y-4">
+        {faqs.map((faq) => (
+          <details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group">
+            <summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4">
+              <span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p>
+          </details>
+        ))}
+      </div>
+      <div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+        <div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related calculators</div>
+        <div class="flex flex-wrap gap-2">
+          {relatedCalculators.map((item) => (
+            <a href={item.href} class="chip-white no-underline hover:bg-lime-accent transition-colors">{item.label}</a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

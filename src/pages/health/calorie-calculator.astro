@@ -1,0 +1,213 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CalorieDeficitCalculator from '../../components/calculators/CalorieDeficitCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'calorie-calculator',
+  name: 'Calorie Deficit Calculator',
+  description: 'Free calorie deficit calculator. Enter your current weight, target weight, and activity level to get your daily calorie target and weeks to reach your goal.',
+  category: 'health' as const,
+  keywords: ['calorie deficit calculator', 'calorie calculator', 'weight loss calories', 'how many calories to lose weight', 'calorie target'],
+  lastUpdated: '2026-05-25',
+  ratingValue: '4.8',
+  ratingCount: '278',
+};
+const path = '/health/calorie-calculator';
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Health', url: '/health/' },
+  { name: 'Calorie Calculator', url: path },
+];
+const faqs = [
+  {
+    q: 'How many calories do I need to lose weight?',
+    a: 'You need to eat fewer calories than you burn (your TDEE). A deficit of 500 kcal/day leads to roughly 0.45 kg (1 lb) of fat loss per week. This calculator computes your personal TDEE via the Mifflin-St Jeor equation, then subtracts your chosen deficit to give you a daily calorie target.',
+  },
+  {
+    q: 'How long will it take to reach my target weight?',
+    a: 'Time to goal depends on how much weight you want to lose and the size of your daily deficit. The formula is: Weeks = (weight to lose in kg × 7,700 kcal) ÷ (daily deficit × 7). A 500 kcal/day deficit burns roughly 0.45 kg/week, so losing 10 kg takes about 22 weeks at a moderate pace.',
+  },
+  {
+    q: 'Is a 1,000 kcal/day deficit safe?',
+    a: 'A 1,000 kcal/day deficit is considered aggressive and may lead to muscle loss, nutrient deficiencies, and metabolic slowdown. Most health authorities recommend a maximum deficit of 500–750 kcal/day for sustainable fat loss. The calculator flags this and recommends a moderate pace.',
+  },
+  {
+    q: 'Why does the calculator enforce a 1,200 kcal minimum?',
+    a: 'Eating below 1,200 kcal/day (for women) or 1,500 kcal/day (for men) makes it nearly impossible to meet daily nutritional needs, regardless of deficit. This calculator caps the result at 1,200 kcal to prevent dangerously low targets. Consult a doctor or dietitian if your TDEE minus your desired deficit falls below this.',
+  },
+  {
+    q: 'What is the difference between TDEE and BMR?',
+    a: 'BMR (Basal Metabolic Rate) is the calories burned at complete rest: no movement at all. TDEE (Total Daily Energy Expenditure) multiplies BMR by your activity level to account for exercise and daily movement. You should always base a calorie deficit on TDEE, not BMR.',
+  },
+];
+const schemas = [buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+const relatedCalcs = [
+  { name: 'TDEE Calculator', href: '/health/tdee-calculator/', desc: 'Maintenance calories + macros.', icon: '⚡', color: 'bg-lime-accent' },
+  { name: 'BMR Calculator', href: '/health/bmr-calculator/', desc: 'Calories burned at rest.', icon: '🔥', color: 'bg-yellow-accent' },
+  { name: 'BMI Calculator', href: '/health/bmi-calculator/', desc: 'Body Mass Index & category.', icon: '⚖️', color: 'bg-cyan-accent' },
+  { name: 'Compound Interest', href: '/finance/compound-interest-calculator/', desc: 'Grow savings over time.', icon: '💹', color: 'bg-pink-accent text-white' },
+];
+
+---
+
+<BaseLayout
+  title="Calorie Deficit Calculator: Daily Target & Weeks to Goal"
+  description={meta.description}
+  schemas={schemas}
+  publishedTime={meta.lastUpdated}
+  modifiedTime={meta.lastUpdated}
+>
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-yellow-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-cyan-accent text-ink-900">🍎 Health</span>
+          <span class="chip-white"><span class="text-ink-500">Last tested</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Calorie Deficit <span class="text-gradient-brand">Calculator.</span>
+        </h1>
+        <div class="mt-7 bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                A 500 kcal/day deficit burns roughly <strong>0.45 kg (1 lb) of fat per week</strong>. Enter your details below to get your personal daily calorie target and a timeline to your goal weight.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <CalorieDeficitCalculator client:visible />
+    </div>
+  </section>
+
+  <!-- HOW TO USE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">📖 How to use</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Your path to goal weight.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 mt-8">
+          {[
+            { num: '1', text: 'Enter your sex, age, height, and current weight', color: 'bg-cyan-accent' },
+            { num: '2', text: 'Enter your target weight and select your activity level', color: 'bg-lime-accent' },
+            { num: '3', text: 'Choose a weight loss pace (Slow to Aggressive)', color: 'bg-yellow-accent' },
+            { num: '4', text: 'Get your daily calorie target and estimated weeks to reach goal', color: 'bg-pink-accent' },
+          ].map((step) => (
+            <div class={`${step.color} border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm`}>
+              <div class="text-3xl font-extrabold mb-3 leading-none" style="font-family: 'Inter Tight', sans-serif;">{step.num}</div>
+              <p class="text-sm font-semibold leading-snug !m-0 !text-current">{step.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE MATH -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-pink mb-4">🧮 The formula</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">The calorie-deficit equation.</h2>
+      <div class="mt-8 bg-ink-900 text-white border-[2.5px] border-ink-900 rounded-3xl p-6 md:p-8 shadow-sticker">
+        <div class="text-xs font-extrabold uppercase tracking-wider text-lime-accent mb-3">Step 1: Find TDEE</div>
+        <div class="font-mono text-sm md:text-base font-bold mb-6">
+          <span class="text-cyan-accent">TDEE</span> = BMR × Activity Multiplier
+        </div>
+        <div class="text-xs font-extrabold uppercase tracking-wider text-lime-accent mb-3">Step 2: Set Daily Target</div>
+        <div class="font-mono text-sm md:text-base font-bold mb-6">
+          <span class="text-pink-accent">Daily Calories</span> = <span class="text-cyan-accent">TDEE</span> − <span class="text-yellow-accent">Deficit</span>
+        </div>
+        <div class="text-xs font-extrabold uppercase tracking-wider text-lime-accent mb-3">Step 3: Estimate Timeline</div>
+        <div class="font-mono text-sm md:text-base font-bold">
+          <span class="text-lime-accent">Weeks</span> = (weight to lose × 7,700 kcal) ÷ (<span class="text-yellow-accent">Deficit</span> × 7)
+        </div>
+        <p class="mt-6 text-sm text-ink-300">
+          1 kg of body fat ≈ 7,700 kcal (≈ 3,500 kcal per lb). Timeline is an estimate. Real-world results vary with water retention, muscle gain, and metabolic adaptation.
+        </p>
+      </div>
+      <div class="mt-8 prose prose-lg max-w-none">
+        <p>
+          A <strong>calorie deficit</strong> is the foundation of all weight loss strategies, regardless of which diet you follow. Whether it's low-carb, intermittent fasting, or keto, the common mechanism is eating fewer calories than you burn.
+        </p>
+        <p>
+          The calculator uses the <strong>Mifflin-St Jeor equation</strong> to estimate your BMR, then multiplies by an activity factor to get TDEE. Your daily calorie target is TDEE minus your chosen deficit, with a hard floor of 1,200 kcal/day to prevent dangerously low intake.
+        </p>
+        <p>
+          <strong>Pace matters:</strong> A slow pace (−250 kcal/day) is sustainable for months but takes longer. An aggressive pace (−1,000 kcal/day) reaches the goal faster but increases the risk of muscle loss and rebound. Most nutrition professionals recommend −500 kcal/day as the sweet spot.
+        </p>
+        <p class="text-xs text-ink-500 mt-6 font-medium">Sources: <a href="https://www.nhlbi.nih.gov/health/educational/lose_wt/index.htm" rel="noopener noreferrer" target="_blank" class="underline hover:text-ink-700">NIH Practical Guide to Obesity (2000)</a> · <a href="https://www.cdc.gov/healthyweight/calories/index.html" rel="noopener noreferrer" target="_blank" class="underline hover:text-ink-700">CDC Healthy Weight: Calories</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+        {relatedCalcs.map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+            <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

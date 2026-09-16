@@ -1,0 +1,400 @@
+---
+import BaseLayout from '../../../../../layouts/BaseLayout.astro';
+import MortgageCalculator from '../../../../../components/calculators/MortgageCalculator.tsx';
+import BankIcon from '../../../../../components/ui/BankIcon.astro';
+import { indiaCities, type IndiaCityData } from '../../../../../data/india-cities';
+import { emiBanks, type BankData } from '../../../../../data/emi-banks';
+import { cityBankCombos, type CityBankCombo } from '../../../../../data/city-bank-grid';
+import {
+  buildCalculatorSchema,
+  buildBreadcrumbSchema,
+  buildFAQSchema,
+  buildSpeakableSchema,
+  buildHowToSchema,
+} from '../../../../../lib/seo';
+
+export async function getStaticPaths() {
+  return cityBankCombos.map((combo) => {
+    const city = indiaCities.find((c) => c.slug === combo.citySlug)!;
+    const bank = emiBanks.find((b) => b.slug === combo.bankSlug)!;
+    return {
+      params: { city: combo.citySlug, bank: combo.bankSlug },
+      props: { combo, city, bank },
+    };
+  });
+}
+
+interface Props {
+  combo: CityBankCombo;
+  city: IndiaCityData;
+  bank: BankData;
+}
+
+const { combo, city, bank } = Astro.props;
+
+function emi(p: number, r: number, years: number): number {
+  const m = r / 100 / 12;
+  const n = years * 12;
+  return m === 0 ? p / n : (p * m * Math.pow(1 + m, n)) / (Math.pow(1 + m, n) - 1);
+}
+const cityBankEmi = Math.round(emi(city.typicalLoanAmount, bank.homeLoanRate.typical, 20));
+const totalPayment = cityBankEmi * 20 * 12;
+const totalInterest = totalPayment - city.typicalLoanAmount;
+const stampDutyAmount = Math.round(city.typicalLoanAmount * (city.stampDutyPct + city.registrationPct) / 100);
+
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+function formatINRShort(value: number): string {
+  if (value >= 10000000) return `₹${(value / 10000000).toFixed(2)} Cr`;
+  if (value >= 100000) return `₹${(value / 100000).toFixed(2)} L`;
+  return `₹${value.toLocaleString('en-IN')}`;
+}
+
+const path = `/finance/mortgage-calculator/cities/${city.slug}/${bank.slug}`;
+
+const meta = {
+  slug: `mortgage-${city.slug}-${bank.slug}`,
+  name: `${bank.bankName} Home Loan ${city.name} EMI Calculator`,
+  description: `${bank.bankName} home loan EMI calculator for ${city.name}. Current rate ${bank.homeLoanRate.typical}%, average ticket ${formatINRShort(city.typicalLoanAmount)}, EMI ~${fmtINR(cityBankEmi)}/month. ${combo.bankBranchesInCity}+ branches in ${city.name}.`,
+  category: 'finance' as const,
+  keywords: [
+    `${bank.bankName.toLowerCase()} home loan ${city.name.toLowerCase()}`,
+    `${bank.bankName.toLowerCase()} emi calculator ${city.name.toLowerCase()}`,
+    `${bank.bankName.toLowerCase()} mortgage ${city.name.toLowerCase()}`,
+    `home loan ${city.name.toLowerCase()} ${bank.bankName.toLowerCase()}`,
+  ],
+  lastUpdated: '2026-05-17',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'Mortgage Calculator', url: '/finance/mortgage-calculator/' },
+  { name: city.name, url: `/finance/mortgage-calculator/cities/${city.slug}/` },
+  { name: bank.bankName, url: path },
+];
+
+const allFaqs = [...combo.cityFAQs, ...bank.faqs.slice(0, 1)];
+
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(allFaqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: `How to calculate your ${bank.bankName} home loan EMI in ${city.name}`,
+    description: `Step-by-step instructions for estimating ${bank.bankName} home loan EMI in ${city.name} at ${bank.homeLoanRate.typical}% typical rate, ${formatINRShort(city.typicalLoanAmount)} ticket size, including ${city.stampDutyPct + city.registrationPct}% stamp duty financing.`,
+    totalTime: 'PT3M',
+    estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter the loan amount', text: `${city.name} average mid-segment ticket is ${formatINRShort(city.typicalLoanAmount)}. Adjust based on your specific purchase price minus down payment.` },
+      { name: `Use ${bank.bankName}'s current rate`, text: `${bank.bankName} home loan rate range is ${bank.homeLoanRate.min}-${bank.homeLoanRate.max}% (typical ${bank.homeLoanRate.typical}%). For pre-approved ${city.name} customers, exact rate depends on credit profile.` },
+      { name: 'Choose your tenure', text: `${bank.bankName} offers terms up to 30 years. 20-year tenure balances EMI affordability and total interest cost.` },
+      { name: `Factor in ${city.stateName} stamp duty`, text: `${city.stateName} stamp duty ${city.stampDutyPct}% + registration ${city.registrationPct}% = ${city.stampDutyPct + city.registrationPct}% combined. On ${formatINRShort(city.typicalLoanAmount)} property, ~${formatINRShort(stampDutyAmount)} upfront cost. ${bank.bankName} top-up loan can finance this at 25-50 bps premium.` },
+      { name: 'Read the EMI breakdown', text: `For ${formatINRShort(city.typicalLoanAmount)} at ${bank.homeLoanRate.typical}% over 20 years: EMI ~${fmtINR(cityBankEmi)}/month, total interest ${formatINRShort(totalInterest)}.` },
+    ],
+  }),
+];
+
+// Related city×bank combos for internal linking
+const otherCombosForThisCity = cityBankCombos.filter(
+  (c) => c.citySlug === city.slug && c.bankSlug !== bank.slug
+);
+const otherCombosForThisBank = cityBankCombos.filter(
+  (c) => c.bankSlug === bank.slug && c.citySlug !== city.slug
+);
+
+---
+
+<BaseLayout
+  title={`${bank.bankName} Home Loan ${city.name}: EMI Calculator ${city.flag} | ${bank.homeLoanRate.typical}%`}
+  description={meta.description}
+  schemas={schemas}
+  publishedTime={meta.lastUpdated}
+  modifiedTime={meta.lastUpdated}
+  noindex={true}
+>
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime inline-flex items-center gap-1.5"><BankIcon slug={bank.slug} size={18} alt={bank.bankName} /> {bank.bankName}</span>
+          <span class="chip-cyan">{city.flag} {city.name}</span>
+          <span class="chip-white"><span class="text-ink-500">Rate</span><span>{bank.homeLoanRate.typical}%</span></span>
+          <span class="chip-white"><span class="text-ink-500">Branches</span><span>{combo.bankBranchesInCity}+</span></span>
+        </div>
+
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          {bank.bankName} Home Loan
+          <span class="text-gradient-brand">in {city.name} {city.flag}</span>
+        </h1>
+
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer ({bank.bankName} {city.name})</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                {bank.bankName} home loan in {city.name}: <strong>{bank.homeLoanRate.min}-{bank.homeLoanRate.max}%</strong> (typical {bank.homeLoanRate.typical}%) with {combo.bankBranchesInCity}+ city branches. {city.name} average ticket {formatINRShort(city.typicalLoanAmount)} at {bank.homeLoanRate.typical}% over 20 years = <strong>{fmtINR(cityBankEmi)}/month EMI</strong>. {city.stateName} stamp duty: ~<strong>{formatINRShort(stampDutyAmount)}</strong>. Disbursal: {combo.disbursalDays}.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <MortgageCalculator client:load />
+    </div>
+  </section>
+
+  <!-- CITY+BANK CONTEXT -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4 inline-flex items-center gap-1.5"><BankIcon slug={bank.slug} size={18} alt={bank.bankName} /> {bank.bankName} in {city.name}</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          {bank.bankName}'s {city.name} position.
+        </h2>
+
+        <div class="mt-6 prose prose-lg max-w-none">
+          <p class="text-ink-800 leading-relaxed font-medium">{combo.cityAngle}</p>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">Branches in {city.name}</div>
+            <div class="text-2xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {combo.bankBranchesInCity}+
+            </div>
+            <div class="text-xs text-ink-800 mt-2 font-semibold">2026 estimate</div>
+          </div>
+          <div class="bg-pink-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-white mb-2">Typical rate</div>
+            <div class="text-2xl font-extrabold text-white leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {bank.homeLoanRate.typical}%
+            </div>
+            <div class="text-xs text-white/90 mt-2 font-semibold">{bank.homeLoanRate.min}-{bank.homeLoanRate.max}% repo-linked range</div>
+          </div>
+          <div class="bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">Disbursal speed</div>
+            <div class="text-2xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {combo.disbursalDays.split(',')[0]}
+            </div>
+            <div class="text-xs text-ink-800 mt-2 font-semibold">pre-approved customers</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOP EMPLOYERS PRE-APPROVAL -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-pink mb-4">🏢 Pre-approval pipeline</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        {bank.bankName}'s top employers in {city.name}.
+      </h2>
+
+      <p class="mt-4 text-ink-700 font-medium">
+        For salary account holders at these {city.name} employers, {bank.bankName} typically offers pre-approved home loan offers within 30-45 days of consistent credit. Disbursal: {combo.disbursalDays}.
+      </p>
+
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {combo.preApprovalEmployers.map((employer) => (
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 shadow-sticker-sm flex items-center gap-3">
+            <span class="text-xl">✓</span>
+            <span class="font-bold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{employer}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKED EXAMPLE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-lime mb-4">🧮 Worked example</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          {formatINRShort(city.typicalLoanAmount)} {bank.bankName} home loan in {city.name} at {bank.homeLoanRate.typical}% over 20 years
+        </h2>
+
+        <div class="mt-6 bg-white border-2 border-ink-900 rounded-2xl divide-y-2 divide-ink-100 shadow-sticker-sm overflow-hidden">
+          <div class="flex items-center justify-between gap-4 p-4">
+            <div class="text-sm font-semibold text-ink-700">Loan amount</div>
+            <code class="font-mono font-bold text-ink-900">{formatINRShort(city.typicalLoanAmount)}</code>
+          </div>
+          <div class="flex items-center justify-between gap-4 p-4">
+            <div class="text-sm font-semibold text-ink-700">{bank.bankName} typical rate</div>
+            <code class="font-mono font-bold text-ink-900">{bank.homeLoanRate.typical}%</code>
+          </div>
+          <div class="flex items-center justify-between gap-4 p-4">
+            <div class="text-sm font-semibold text-ink-700">Term</div>
+            <code class="font-mono font-bold text-ink-900">20 years (240 months)</code>
+          </div>
+          <div class="flex items-center justify-between gap-4 p-4 bg-lime-accent/30">
+            <div class="text-sm font-semibold text-ink-700">Monthly EMI</div>
+            <code class="font-mono font-extrabold text-ink-900 text-base">{fmtINR(cityBankEmi)}</code>
+          </div>
+          <div class="flex items-center justify-between gap-4 p-4 bg-pink-accent/20">
+            <div class="text-sm font-semibold text-ink-700">Total interest paid</div>
+            <code class="font-mono font-bold text-ink-900">{formatINRShort(totalInterest)}</code>
+          </div>
+          <div class="flex items-center justify-between gap-4 p-4 bg-cyan-accent/20">
+            <div class="text-sm font-semibold text-ink-700">Total paid (principal + interest)</div>
+            <code class="font-mono font-bold text-ink-900">{formatINRShort(totalPayment)}</code>
+          </div>
+          <div class="flex items-center justify-between gap-4 p-4 bg-yellow-accent/40">
+            <div class="text-sm font-semibold text-ink-700">+ {city.stateName} stamp duty ({city.stampDutyPct + city.registrationPct}%)</div>
+            <code class="font-mono font-bold text-ink-900">{formatINRShort(stampDutyAmount)}</code>
+          </div>
+        </div>
+
+        <div class="mt-6 bg-white border-2 border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">{bank.bankName} processing fee</div>
+          <p class="text-ink-700 font-medium leading-relaxed !m-0">{bank.processingFee}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUYER'S ANALYSIS — unique synthesis prose + E-A-T byline -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-yellow mb-4">🧭 Buyer's take</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        Is {bank.bankName} the right home loan in {city.name}?
+      </h2>
+
+      <div class="mt-6 space-y-4 text-ink-800 leading-relaxed font-medium">
+        <p>
+          {bank.uniqueAngle}
+        </p>
+        <p>
+          For a {city.name} buyer specifically, the practical math looks like this: on the city's typical
+          {formatINRShort(city.typicalLoanAmount)} ticket at {bank.bankName}'s {bank.homeLoanRate.typical}% rate over 20 years,
+          you're looking at roughly <strong>{fmtINR(cityBankEmi)}/month</strong> and <strong>{formatINRShort(totalInterest)}</strong>
+          in total interest. Add {city.stateName}'s {city.stampDutyPct + city.registrationPct}% stamp duty and registration
+          (about {formatINRShort(stampDutyAmount)} upfront), and the real cash you need at signing climbs well above the down payment alone.
+          Budget for it early; many {city.name} first-time buyers underestimate this line item.
+        </p>
+        <p>
+          <strong>On prepayment:</strong> {bank.prepaymentPolicy} That matters most for {city.name} professionals expecting
+          variable income (bonuses, ESOPs, appraisal jumps). The ability to part-prepay without penalty on a floating-rate loan
+          can shave years off the tenure. If your employer is on {bank.bankName}'s {city.name} pre-approval list above, you also
+          get the disbursal-speed edge ({combo.disbursalDays.split(',')[0]}), which is decisive when you're competing for a
+          property in a fast-moving {city.name} micro-market.
+        </p>
+        <p class="text-sm text-ink-600">
+          Compare against at least one public-sector lender (SBI, Canara, or PNB) and one other private bank before committing.
+          The rate gap between the cheapest and most expensive mainstream {city.name} lender on the same profile is often
+          20–40 basis points, which compounds into lakhs over a 20-year term. Use the calculator above with each bank's rate to see your own numbers.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-cyan mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        {bank.bankName} {city.name} home loan FAQ.
+      </h2>
+
+      <div class="mt-8 space-y-4">
+        {allFaqs.map((faq) => (
+          <details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group">
+            <summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4">
+              <span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED COMBOS -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related options</span>
+        <h2 class="!text-2xl sm:!text-3xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          Other banks in {city.name} & other {bank.bankName} cities.
+        </h2>
+
+        {otherCombosForThisCity.length > 0 && (
+          <div class="mt-8">
+            <h3 class="text-base font-bold text-ink-900 mb-3 uppercase tracking-wider">Other banks in {city.name}</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {otherCombosForThisCity.map((other) => {
+                const otherBank = emiBanks.find((b) => b.slug === other.bankSlug)!;
+                return (
+                  <a href={`/finance/mortgage-calculator/cities/${city.slug}/${other.bankSlug}/`}
+                     class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker-sm hover:shadow-[6px_6px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
+                    <BankIcon slug={otherBank.slug} size={28} alt={otherBank.bankName} class="mb-1" />
+                    <div class="font-bold text-ink-900 text-sm" style="font-family: 'Inter Tight', sans-serif;">{otherBank.bankName} {city.name}</div>
+                    <div class="text-xs text-ink-600 mt-1">~{otherBank.homeLoanRate.typical}%</div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {otherCombosForThisBank.length > 0 && (
+          <div class="mt-8">
+            <h3 class="text-base font-bold text-ink-900 mb-3 uppercase tracking-wider">{bank.bankName} in other cities</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {otherCombosForThisBank.map((other) => {
+                const otherCity = indiaCities.find((c) => c.slug === other.citySlug)!;
+                return (
+                  <a href={`/finance/mortgage-calculator/cities/${other.citySlug}/${bank.slug}/`}
+                     class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker-sm hover:shadow-[6px_6px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
+                    <div class="text-2xl mb-1">{otherCity.flag}</div>
+                    <div class="font-bold text-ink-900 text-sm" style="font-family: 'Inter Tight', sans-serif;">{bank.bankName} {otherCity.name}</div>
+                    <div class="text-xs text-ink-600 mt-1">{formatINRShort(otherCity.typicalLoanAmount)} avg</div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <div class="mt-8">
+          <a href={`/finance/mortgage-calculator/cities/${city.slug}/`} class="font-bold underline decoration-2 underline-offset-4 decoration-lime-accent">
+            ← Back to {city.name} home loan calculator
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

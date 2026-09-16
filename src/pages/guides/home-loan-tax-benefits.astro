@@ -1,0 +1,158 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/home-loan-tax-benefits';
+const lastUpdated = '2026-07-10';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Home Loan Tax Benefits', url: path },
+];
+
+// Build-time: value of the deductions by income-tax slab (old regime).
+const SEC_24B = 200000;   // interest, self-occupied
+const SEC_80C = 150000;   // principal within 80C ceiling
+const totalDeduction = SEC_24B + SEC_80C;
+const slabs = [5, 20, 30];
+const rows = slabs.map((slab) => ({
+  slab,
+  interestSaved: SEC_24B * slab / 100,
+  principalSaved: SEC_80C * slab / 100,
+  total: totalDeduction * slab / 100,
+}));
+const topSaving = rows[rows.length - 1].total;
+
+const fmtL = (v: number) => `₹${(v / 100000).toFixed(2)} L`;
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+const faqs = [
+  { q: 'What tax benefits do I get on a home loan?', a: `Under the OLD tax regime, two main deductions: Section 24(b) lets you deduct up to ${fmtINR(SEC_24B)} of home-loan interest per year on a self-occupied property, and Section 80C lets you deduct principal repayment (plus stamp duty in the purchase year) within the overall ${fmtINR(SEC_80C)} 80C ceiling. Together that's up to ${fmtINR(totalDeduction)} of income shielded, worth up to ${fmtINR(topSaving)} in tax for a 30%-slab earner. Under the NEW regime (now the default), these deductions are gone.` },
+  { q: 'Do home loan tax benefits apply in the new tax regime?', a: 'Mostly no, and this is the single biggest change most borrowers miss. The new regime (default from FY 2023-24, with lower slab rates and a ₹75,000 standard deduction) removes Section 80C and the Section 24(b) interest deduction for self-occupied homes. So if you\'ve moved to the new regime for its lower rates, your home loan gives you no direct income-tax break. The old regime still offers them, which is exactly why some home-loan borrowers with large deductions stay on the old regime.' },
+  { q: 'How much tax can a home loan actually save me?', a: `It scales with your slab. At the 30% slab, the full ${fmtINR(totalDeduction)} of deductions saves ${fmtINR(topSaving)} a year; at 20% it's ${fmtINR(rows[1].total)}; at 5% just ${fmtINR(rows[0].total)}. And there's a catch on the 80C side: EPF, ELSS, PPF and life insurance also compete for the same ${fmtINR(SEC_80C)} ceiling. If those already fill it, your loan principal adds nothing. The interest deduction under 24(b) is separate and usually the more valuable of the two.` },
+  { q: 'Can I claim tax benefit on an under-construction home?', a: 'Yes, but the interest deduction is delayed. Interest paid during the construction period ("pre-construction interest") can\'t be claimed while the home is being built. Instead you claim it in five equal instalments starting the year construction completes, on top of that year\'s regular interest (still within the ₹2 lakh self-occupied cap). Principal repayment under 80C, however, can only be claimed after construction is complete and possession is taken.' },
+  { q: 'Is the tax benefit different for a let-out (rented) property?', a: 'Yes, and it used to be more generous. For a rented-out property there was historically no ₹2 lakh cap on the interest deduction under Section 24(b). You could set the full interest against rental income. However, the overall "loss from house property" you can set off against other income is now capped at ₹2 lakh a year, with the excess carried forward for up to 8 years. It\'s more complex than the self-occupied case; consult a CA for a second property.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`Home Loan Tax Benefits 2026: Sections 80C & 24(b), Worth Up to ${fmtINR(topSaving)}/Year`} description={`Home-loan tax deductions explained: ₹2L interest (24b) + ₹1.5L principal (80C) under the old regime = up to ${fmtINR(topSaving)} saved at the 30% slab. Why the new regime removes them, and the by-slab table.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-yellow">📚 Guide</span>
+          <span class="chip-cyan">🪙 Tax</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Your home loan's <span class="text-gradient-brand">tax breaks.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Under the <strong>old regime</strong>: deduct up to <strong>{fmtINR(SEC_24B)} interest</strong> (Sec 24b) + <strong>{fmtINR(SEC_80C)} principal</strong> (Sec 80C) = up to <strong>{fmtINR(topSaving)} tax saved</strong> at the 30% slab. Under the <strong>new regime (default), these are gone</strong>, the reason many home-loan borrowers deliberately stay on the old regime.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Two sections, one big asterisk</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        A home loan comes with two well-known income-tax deductions in India, but both live entirely inside the <strong>old</strong> tax regime, and the new regime (now the default) strips them away. That single fact changes the maths for millions of borrowers, so start there before counting any savings. If you're on the old regime, here's what the two deductions are worth at each slab:
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Tax slab</th>
+            <th class="text-right p-3 font-extrabold">24(b) interest saved</th>
+            <th class="text-right p-3 font-extrabold">80C principal saved</th>
+            <th class="text-right p-3 font-extrabold">Total / year</th>
+          </tr></thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr class={`border-b-2 border-ink-100 ${i === rows.length - 1 ? 'bg-lime-accent/25' : i % 2 ? 'bg-ink-50' : ''}`}>
+                <td class="p-3 font-bold text-ink-900">{row.slab}%</td>
+                <td class="p-3 text-right font-mono text-ink-800">{fmtINR(row.interestSaved)}</td>
+                <td class="p-3 text-right font-mono text-ink-800">{fmtINR(row.principalSaved)}</td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{fmtINR(row.total)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">Old-regime deductions, FY 2025-26. Assumes annual interest ≥ ₹2L and principal ≥ ₹1.5L, and that 80C isn't already filled by EPF/ELSS/insurance. Not tax advice. Confirm with a CA.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The decision the tax break really drives</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        The home-loan deductions aren't just a rebate. For many borrowers they're the deciding factor in the <em>old-vs-new regime</em> choice itself. If your loan generates the full ₹2 lakh interest deduction and your 80C isn't already maxed, the old regime's deductions can outweigh the new regime's lower rates. But run the actual numbers both ways: for someone whose 80C is already full with EPF and whose interest is well under ₹2 lakh, the new regime's simpler, lower-rate structure usually wins outright. Don't assume the loan "saves tax": it only does under the old regime, and only if you have the deduction headroom to use.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'Income Tax India', href: '/finance/income-tax-india/', icon: '🪙', color: 'bg-yellow-accent' },
+          { name: 'Old vs New Regime', href: '/finance/old-vs-new-tax-regime-india/', icon: '⚖️', color: 'bg-cyan-accent' },
+          { name: 'EMI Calculator', href: '/finance/emi-calculator/', icon: '🇮🇳', color: 'bg-rose-300' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

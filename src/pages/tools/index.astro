@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HubHero from '../../components/ui/HubHero.astro';
+import HubCard from '../../components/ui/HubCard.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+import { buildHubCards } from '../../lib/category-hub';
+
+// Derived from the calculators registry. See src/lib/category-hub.ts.
+const liveCalcs = buildHubCards('tools', {
+  copy: {
+    'word-counter': { desc: 'Count words, characters, sentences, paragraphs and reading time as you type, nothing is uploaded.' },
+  },
+});
+
+const upcomingCalcs = [
+  { name: 'Character Counter', desc: 'Live character count against tweet, SMS and meta-tag limits.', icon: '🔤' },
+  { name: 'Case Converter', desc: 'Convert text to UPPER, lower, Title and sentence case.', icon: '🔠' },
+];
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Tools', url: '/tools/' },
+];
+
+const faqs = [
+  { q: 'Do the text tools upload or store my text?', a: 'No. Every text tool runs entirely in your browser using JavaScript: your text never leaves your device and nothing is saved to a server. You can safely paste private drafts, essays or confidential documents; closing the tab clears everything.' },
+  { q: 'Are the tools free to use?', a: 'Yes, completely free with no signup, no account and no limits. Paste as much text as you like, as often as you like.' },
+];
+
+const schemas = [
+  buildBreadcrumbSchema(breadcrumbs),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Text Tools | Calctube',
+    description: 'Free browser-based text tools: word counter, character counter and more.',
+    url: 'https://calctube.com/tools/',
+    isPartOf: { '@id': 'https://calctube.com/#website' },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.com${c.href}`, name: c.name })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  },
+];
+---
+
+<BaseLayout
+  title="Text Tools: Word Counter & More"
+  description="Free browser-based text tools: word counter, character counter, reading-time estimator and more. Everything runs locally, nothing is uploaded. No signup."
+  schemas={schemas}
+>
+  <HubHero
+    breadcrumbs={breadcrumbs}
+    chip="📝 Text Tools"
+    chipClass="chip-lime"
+    stats={[{ label: 'Tools', value: String(liveCalcs.length) }]}
+    titleLead="Text Tools."
+    titleAccent="Fast and private."
+    intro="Fast, private text utilities that run entirely in your browser: no uploads, no signup. Count words, characters and reading time in a click."
+  />
+
+  <section class="container-wide pb-16 md:pb-24">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Available now</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {liveCalcs.map((c) => (
+          <HubCard href={c.href} name={c.name} desc={c.desc} icon={c.icon} />
+        ))}
+      </div>
+
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Coming soon</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {upcomingCalcs.map((c) => (
+          <HubCard name={c.name} desc={c.desc} icon={c.icon} soon />
+        ))}
+      </div>
+
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Frequently asked questions</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card">
+            <summary class="cursor-pointer font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{f.q}</summary>
+            <p class="text-sm text-ink-700 mt-2 !leading-relaxed">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

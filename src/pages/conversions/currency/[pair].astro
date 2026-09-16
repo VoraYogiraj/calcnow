@@ -1,0 +1,440 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import CurrencyConverter from '../../../components/calculators/CurrencyConverter.tsx';
+import FlagIcon from '../../../components/ui/FlagIcon.astro';
+import { currencyPairs, currencies, type CurrencyPair } from '../../../data/currency-pairs';
+import { flagSlugForCurrency } from '../../../lib/flag-helpers';
+import { SITE } from '../../../lib/seo';
+import {
+  buildCalculatorSchema,
+  buildBreadcrumbSchema,
+  buildFAQSchema,
+  buildSpeakableSchema,
+  buildHowToSchema,
+} from '../../../lib/seo';
+
+export async function getStaticPaths() {
+  return currencyPairs.map((pair) => ({
+    params: { pair: pair.slug },
+    props: { pair },
+  }));
+}
+
+interface Props {
+  pair: CurrencyPair;
+}
+
+const { pair } = Astro.props;
+const fromCurr = currencies[pair.from];
+const toCurr = currencies[pair.to];
+
+const path = `/conversions/currency/${pair.slug}`;
+
+const meta = {
+  slug: `${pair.slug}-converter`,
+  name: `${pair.from} to ${pair.to} Converter`,
+  // No baked-in rate here: FX moves daily and a build-time number goes stale in
+  // the SERP snippet. The live rate renders client-side in the converter.
+  description: (`${pair.from} to ${pair.to} converter with live mid-market rate, historical trend & conversion table. ${pair.context.slice(0, 80)}`).slice(0, 155),
+  category: 'conversion' as const,
+  keywords: pair.metaKeywords,
+  lastUpdated: pair.lastUpdated,
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Conversions', url: '/conversions/' },
+  { name: 'Currency', url: '/conversions/currency/' },
+  { name: `${pair.from} → ${pair.to}`, url: path },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(pair.faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: `How to convert ${pair.from} to ${pair.to}`,
+    description: `Step-by-step instructions to convert ${fromCurr.name} to ${toCurr.name} using the latest 2026 exchange rate of 1 ${pair.from} = ${pair.rate} ${pair.to}.`,
+    totalTime: 'PT1M',
+    estimatedCost: { value: '0', currency: 'USD' },
+    steps: [
+      {
+        name: `Enter the ${pair.from} amount`,
+        text: `Type the number of ${fromCurr.name} (${pair.from}) you want to convert. The calculator accepts any positive number.`,
+      },
+      {
+        name: `See the live ${pair.to} value`,
+        text: `The converter applies the current 2026 mid-market rate of 1 ${pair.from} = ${pair.rate} ${pair.to}. For example, 100 ${pair.from} converts to ${(100 * pair.rate).toFixed(2)} ${pair.to}.`,
+      },
+      {
+        name: 'Compare to historical rates',
+        text: `The page shows the rate today (${pair.rate}), 1 year ago (${pair.yearAgoRate}), and 5 years ago (${pair.fiveYearAgoRate}). This context helps you decide whether to convert now or wait.`,
+      },
+      {
+        name: 'Choose a remittance channel',
+        text: `Bank wires are typically 1-3% worse than the mid-market rate shown here. For better rates use Wise, Remitly, or an exchange-house corridor. See the FAQ section for pair-specific recommendations.`,
+      },
+    ],
+  }),
+];
+
+const fiveYearChange = (((pair.rate - pair.fiveYearAgoRate) / pair.fiveYearAgoRate) * 100).toFixed(1);
+const yearChange = (((pair.rate - pair.yearAgoRate) / pair.yearAgoRate) * 100).toFixed(1);
+const fiveYearDirection = pair.rate > pair.fiveYearAgoRate ? 'up' : 'down';
+const yearDirection = pair.rate > pair.yearAgoRate ? 'up' : 'down';
+
+// Quick-reference conversion table — genuinely useful, unique per pair, and matches
+// the way people actually search ("100 usd to inr", "5000 aed to inr").
+const tableAmounts = [1, 5, 10, 25, 50, 100, 500, 1000, 5000, 10000];
+const inverseRate = 1 / pair.rate;
+// Format a converted value with sensible precision (more decimals for tiny rates).
+function fmtConverted(v: number): string {
+  if (v >= 1000) return v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  if (v >= 1) return v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  return v.toLocaleString('en-US', { maximumFractionDigits: 4 });
+}
+// Build a human-readable "why people convert this pair" line from each currency's real uses.
+const fromUses = fromCurr.popularUses;
+const toUses = toCurr.popularUses;
+// 5-year trend in plain words for the explanatory paragraph.
+const trendWord = fiveYearDirection === 'up'
+  ? `strengthened about ${fiveYearChange.replace('-', '')}%`
+  : `weakened about ${fiveYearChange.replace('-', '')}%`;
+const yearTrendWord = yearDirection === 'up'
+  ? `up ${yearChange.replace('-', '')}%`
+  : `down ${yearChange.replace('-', '')}%`;
+
+// Hreflang — self-referencing with the dominant locale(s) for this corridor.
+// Currency pairs are English-language pages. We attach x-default + 'en' + any
+// non-English locale from the FROM or TO currency to capture in-country signals.
+const selfUrl = `${SITE.url}${path}/`;
+const hreflangLocales = new Set<string>(['en']);
+const fromLocale = fromCurr.locale.split('-')[0] !== 'en' ? fromCurr.locale : null;
+const toLocale = toCurr.locale.split('-')[0] !== 'en' ? toCurr.locale : null;
+// Also include English locale variants for English-speaking currency countries
+if (fromCurr.locale !== 'en' && fromCurr.locale.startsWith('en-')) hreflangLocales.add(fromCurr.locale);
+if (toCurr.locale !== 'en' && toCurr.locale.startsWith('en-')) hreflangLocales.add(toCurr.locale);
+if (fromLocale) hreflangLocales.add(fromLocale);
+if (toLocale) hreflangLocales.add(toLocale);
+const hreflangs = [
+  ...Array.from(hreflangLocales).map((hl) => ({ hreflang: hl, href: selfUrl })),
+  { hreflang: 'x-default', href: selfUrl },
+];
+
+// Reverse pair (the same conversion in the other direction — strong UX + SEO signal)
+// e.g., usd-to-aed → aed-to-usd. Surfaced as a featured card so users can flip direction.
+const reversePair = currencyPairs.find((p) => p.from === pair.to && p.to === pair.from) || null;
+
+// Related pairs (find others that share the FROM or TO currency, EXCLUDING the reverse pair
+// since it gets its own dedicated card above)
+const relatedPairs = currencyPairs
+  .filter((p) => p.slug !== pair.slug && p.slug !== reversePair?.slug && (p.from === pair.from || p.to === pair.to || p.from === pair.to || p.to === pair.from))
+  .slice(0, 6);
+---
+
+<BaseLayout
+  title={`${pair.from} to ${pair.to} Converter: Live ${toCurr.name} Rate`}
+  description={meta.description}
+  schemas={schemas}
+  publishedTime={meta.lastUpdated}
+  modifiedTime={meta.lastUpdated}
+  hreflangs={hreflangs}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-yellow-accent/20 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan inline-flex items-center gap-1.5">{flagSlugForCurrency(pair.from) ? <FlagIcon slug={flagSlugForCurrency(pair.from)!} size={18} alt={pair.from} /> : <span>{fromCurr.flag}</span>} {pair.from}</span>
+          <span class="text-xl font-bold text-ink-500">→</span>
+          <span class="chip-cyan inline-flex items-center gap-1.5">{flagSlugForCurrency(pair.to) ? <FlagIcon slug={flagSlugForCurrency(pair.to)!} size={18} alt={pair.to} /> : <span>{toCurr.flag}</span>} {pair.to}</span>
+          {pair.popularity === 'huge' && <span class="chip-yellow">🔥 Most searched</span>}
+          {pair.popularity === 'high' && <span class="chip-lime">⚡ Popular</span>}
+          <span class="chip-white"><span class="text-ink-500">Rate as of</span><span>{pair.lastUpdated}</span></span>
+        </div>
+
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          {pair.from} to {pair.to}
+          <span class="text-gradient-brand">Converter.</span>
+        </h1>
+
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Current rate</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                <strong>1 {pair.from} = {pair.rate} {pair.to}</strong> as of {pair.lastUpdated}. {pair.context}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONVERTER -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <CurrencyConverter
+        client:load
+        fromCode={pair.from}
+        fromSymbol={fromCurr.symbol}
+        fromName={fromCurr.name}
+        fromFlag={fromCurr.flag}
+        toCode={pair.to}
+        toSymbol={toCurr.symbol}
+        toName={toCurr.name}
+        toFlag={toCurr.flag}
+        rate={pair.rate}
+        lastUpdated={pair.lastUpdated}
+      />
+    </div>
+  </section>
+
+  <!-- TREND CONTEXT -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-pink mb-4">📈 Trend</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          {pair.from} {pair.to === 'INR' && pair.from === 'USD' ? 'depreciation' : 'trend'} over time.
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
+          <div class="bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">Today</div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {pair.rate}
+            </div>
+            <div class="text-xs text-ink-800 mt-2 font-semibold">1 {pair.from} = {pair.to}</div>
+          </div>
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-2">1 year ago</div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {pair.yearAgoRate}
+            </div>
+            <div class={`text-xs mt-2 font-semibold ${yearDirection === 'up' ? 'text-emerald-700' : 'text-pink-accent'}`}>
+              {yearDirection === 'up' ? '↑' : '↓'} {yearChange.replace('-', '')}% in 12 months
+            </div>
+          </div>
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-2">5 years ago</div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {pair.fiveYearAgoRate}
+            </div>
+            <div class={`text-xs mt-2 font-semibold ${fiveYearDirection === 'up' ? 'text-emerald-700' : 'text-pink-accent'}`}>
+              {fiveYearDirection === 'up' ? '↑' : '↓'} {fiveYearChange.replace('-', '')}% in 5 years
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK CONVERSION TABLE — unique, high-utility content per pair -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-cyan mb-4">🔢 Quick reference</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        {pair.from} to {pair.to} conversion table.
+      </h2>
+      <p class="text-ink-700 mt-3 text-lg font-medium max-w-2xl">
+        Common {fromCurr.name} amounts converted to {toCurr.name} at today's rate of
+        <strong>1 {pair.from} = {pair.rate} {pair.to}</strong>. The reverse holds too:
+        <strong>1 {pair.to} = {fmtConverted(inverseRate)} {pair.from}</strong>.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+        <!-- from → to -->
+        <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl overflow-hidden shadow-sticker-sm">
+          <div class="bg-ink-900 text-white px-5 py-3 font-extrabold text-sm" style="font-family: 'Inter Tight', sans-serif;">
+            {pair.from} → {pair.to}
+          </div>
+          <table class="w-full text-sm">
+            <tbody>
+              {tableAmounts.map((amt, i) => (
+                <tr class={i % 2 === 0 ? 'bg-white' : 'bg-ink-50'}>
+                  <td class="px-5 py-2.5 font-semibold text-ink-900">{fmtConverted(amt)} {pair.from}</td>
+                  <td class="px-5 py-2.5 text-right font-bold text-ink-900">{fmtConverted(amt * pair.rate)} {pair.to}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <!-- to → from -->
+        <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl overflow-hidden shadow-sticker-sm">
+          <div class="bg-ink-900 text-white px-5 py-3 font-extrabold text-sm" style="font-family: 'Inter Tight', sans-serif;">
+            {pair.to} → {pair.from}
+          </div>
+          <table class="w-full text-sm">
+            <tbody>
+              {tableAmounts.map((amt, i) => (
+                <tr class={i % 2 === 0 ? 'bg-white' : 'bg-ink-50'}>
+                  <td class="px-5 py-2.5 font-semibold text-ink-900">{fmtConverted(amt)} {pair.to}</td>
+                  <td class="px-5 py-2.5 text-right font-bold text-ink-900">{fmtConverted(amt * inverseRate)} {pair.from}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY CONVERT + RATE CONTEXT — unique prose per pair -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-lime mb-4">💡 About this corridor</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          Why people convert {pair.from} to {pair.to}.
+        </h2>
+
+        <div class="prose-custom mt-6 space-y-4 text-ink-800 leading-relaxed font-medium">
+          <p>
+            The {pair.from}/{pair.to} corridor is driven mostly by {fromUses[0]}{fromUses[1] ? ` and ${fromUses[1]}` : ''}.
+            On the {toCurr.name} side, demand comes from {toUses[0]}{toUses[1] ? `, ${toUses[1]}` : ''}{toUses[2] ? `, and ${toUses[2]}` : ''}.
+            Because both sides see steady two-way flow, {pair.from}/{pair.to} is one of the more liquid pairs in this region, which usually means
+            tighter spreads and smaller markups than thinly-traded exotic pairs.
+          </p>
+          <p>
+            Over the past 12 months the {fromCurr.name} has moved <strong>{yearTrendWord}</strong> against the {toCurr.name},
+            and over five years it has <strong>{trendWord}</strong> (from {pair.fiveYearAgoRate} to {pair.rate}).
+            If you're sending money on this corridor, that trend matters: a {fiveYearDirection === 'up' ? 'rising' : 'falling'} rate
+            means timing your transfer (or locking a rate with a forward contract for large amounts) can change the {toCurr.name} you receive by a meaningful margin.
+          </p>
+          <p>
+            <strong>Getting the best {pair.from} → {pair.to} rate.</strong> The figure above is the mid-market rate, the
+            "true" rate banks and brokers reference. Most banks add a 1–3% margin on top and may charge a flat wire fee.
+            Specialist services (Wise, Remitly, and regional exchange houses on this corridor) typically convert closer to mid-market.
+            Always compare the <em>effective rate after all fees</em>, not just the headline rate. On a large {pair.from} transfer,
+            a 2% difference is real money.
+          </p>
+        </div>
+
+        <p class="text-xs text-ink-500 mt-6 italic">
+          Rates shown are indicative mid-market rates as of {pair.lastUpdated} and are for informational purposes only,
+          not a quote or financial advice. Confirm the live rate with your provider before transacting.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        {pair.from} to {pair.to} FAQ.
+      </h2>
+
+      <div class="space-y-3 mt-8">
+        {pair.faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- REVERSE PAIR (featured) — direct link to convert the other way -->
+  {reversePair && (
+    <section class="container-wide py-10 md:py-12">
+      <div class="max-w-4xl mx-auto">
+        <a
+          href={`/conversions/currency/${reversePair.slug}/`}
+          class="group block bg-yellow-accent border-[2.5px] border-ink-900 rounded-3xl p-6 sm:p-7 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200"
+        >
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-3">
+              {flagSlugForCurrency(reversePair.from) ? <FlagIcon slug={flagSlugForCurrency(reversePair.from)!} size={40} alt={reversePair.from} /> : <span class="text-3xl sm:text-4xl">{toCurr.flag}</span>}
+              <span class="text-ink-900 text-3xl">→</span>
+              {flagSlugForCurrency(reversePair.to) ? <FlagIcon slug={flagSlugForCurrency(reversePair.to)!} size={40} alt={reversePair.to} /> : <span class="text-3xl sm:text-4xl">{fromCurr.flag}</span>}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">↔ Convert the other way</div>
+              <div class="text-xl sm:text-2xl font-extrabold text-ink-900 leading-tight" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.02em;">
+                {reversePair.from} to {reversePair.to} converter
+              </div>
+              <div class="text-sm text-ink-800 mt-1 font-semibold">
+                1 {reversePair.from} = {reversePair.rate} {reversePair.to}
+              </div>
+            </div>
+            <div class="text-ink-900 font-extrabold group-hover:translate-x-1 transition-transform">→</div>
+          </div>
+        </a>
+      </div>
+    </section>
+  )}
+
+  <!-- RELATED PAIRS -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">💱 Related pairs</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          Other {pair.from} or {pair.to} pairs.
+        </h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-8">
+          {relatedPairs.map((other) => {
+            const oFrom = currencies[other.from];
+            const oTo = currencies[other.to];
+            return (
+              <a
+                href={`/conversions/currency/${other.slug}/`}
+                class="group bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200"
+              >
+                <div class="mb-2 flex items-center gap-2">
+                  {flagSlugForCurrency(other.from) ? <FlagIcon slug={flagSlugForCurrency(other.from)!} size={20} alt={other.from} /> : <span class="text-xl">{oFrom.flag}</span>}
+                  <span class="text-ink-400">→</span>
+                  {flagSlugForCurrency(other.to) ? <FlagIcon slug={flagSlugForCurrency(other.to)!} size={20} alt={other.to} /> : <span class="text-xl">{oTo.flag}</span>}
+                </div>
+                <div class="font-extrabold text-ink-900 text-sm leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+                  {other.from} to {other.to}
+                </div>
+                <div class="text-xs text-ink-600 mt-1 font-semibold">1 = {other.rate}</div>
+              </a>
+            );
+          })}
+        </div>
+
+        <div class="mt-8">
+          <a href="/conversions/currency/" class="font-bold underline decoration-2 underline-offset-4 decoration-lime-accent text-ink-900">
+            ← All currency converters
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

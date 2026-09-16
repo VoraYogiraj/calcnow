@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EpfCalculator from '../../components/calculators/EpfCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/epf-calculator';
+
+const meta = {
+  slug: 'epf-calculator',
+  name: 'EPF Calculator',
+  description: 'Free EPF calculator for Indian salaried employees. Project your Employees’ Provident Fund corpus at retirement with the 12% employee and 12% employer split, the 8.33% EPS diversion capped at ₹1,250, and 8.25% interest compounded monthly.',
+  category: 'finance' as const,
+  keywords: ['epf calculator', 'provident fund calculator india', 'epf interest rate 8.25', 'eps 1250 cap calculator', 'epf maturity amount calculator', 'employee provident fund calculator'],
+  lastUpdated: '2026-07-21',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'EPF Calculator', url: path },
+];
+
+const faqs = [
+  { q: 'Why does only part of my employer’s 12% reach my EPF account?', a: 'Your employer contributes 12% of Basic + DA, but that 12% is not all EPF. Under the Employees’ Pension Scheme, 1995, 8.33% of wages is diverted to EPS, and that diversion is calculated only on the statutory wage ceiling of ₹15,000 a month. 8.33% of ₹15,000 is ₹1,250, so the pension share freezes at ₹1,250 however high your salary climbs. On a ₹30,000 Basic + DA, the employer’s ₹3,600 splits into ₹1,250 to EPS and ₹2,350 to EPF. Your own 12% is never touched. All ₹3,600 of it goes into EPF. That is why the employer’s effective EPF rate rises toward 12% as your salary grows.' },
+  { q: 'Who decides the 8.25% EPF interest rate, and when is it credited?', a: 'The EPF interest rate is not a market rate and not fixed by your employer. The EPFO’s Central Board of Trustees recommends a rate for each financial year based on the scheme’s income from its debt portfolio and equity ETF holdings, and the Ministry of Finance ratifies it before EPFO credits it to member accounts. The rate is therefore notified annually rather than quarterly, unlike PPF. Because ratification often lags, a year’s interest usually appears in passbooks several months after the year ends. The delay is administrative, not a loss. Interest accrues on the monthly running balance and compounds, which is why the corpus curve steepens sharply in the last decade before retirement.' },
+  { q: 'When can I withdraw EPF, and when is the withdrawal taxed?', a: 'You can withdraw the full balance at 58, or after two months of continuous unemployment. Partial advances are permitted earlier for defined reasons: house purchase or construction, home loan repayment, marriage, higher education, medical treatment, and, from age 54, up to 90% as a pre-retirement advance. Tax depends on service length. With five years of continuous service the entire withdrawal, principal and interest, is tax-free. Withdraw before five years and it becomes taxable: EPFO deducts TDS under Section 192A when the payout exceeds ₹50,000, at 10% with a valid PAN and a higher rate without one. Service across employers counts as continuous provided you transfer the balance instead of withdrawing it.' },
+  { q: 'Can I contribute more than 12% through VPF?', a: 'Yes. The 12% employee contribution is a floor, not a ceiling. Voluntary Provident Fund lets you contribute any amount up to 100% of Basic + DA, and it earns exactly the same 8.25%, sits in the same account, and enjoys the same 80C deduction on the way in. Your employer is not obliged to match a single rupee of VPF. You set it up through your payroll team rather than the EPFO portal, and most employers only allow you to start or change it at the start of a financial year. The trade-off is liquidity: VPF money follows EPF withdrawal rules, so treat it as locked until you leave or retire.' },
+  { q: 'Is EPF interest still completely tax-free?', a: 'Not entirely. Budget 2021 ended the unlimited exemption. From FY 2021-22, interest earned on employee contributions above ₹2.5 lakh in a financial year is taxable at your slab rate. The threshold is ₹5 lakh where the employer makes no contribution, which mainly covers government employees. EPFO now maintains two sub-accounts per member (a taxable and a non-taxable one) and deducts TDS on the taxable interest. The ₹2.5 lakh limit applies only to your own contributions, including VPF, and not to the employer’s share. At the plain 12% rate you cross it once Basic + DA is around ₹1.74 lakh a month, or much sooner if you run a large VPF alongside.' },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate your EPF corpus at retirement',
+    description: 'Step-by-step instructions for projecting an Employees’ Provident Fund balance, including the EPS split and the ₹1,250 pension cap.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter your monthly Basic + DA', text: 'EPF is calculated on Basic pay plus Dearness Allowance, not on gross CTC. HRA, special allowance, and bonuses are excluded.' },
+      { name: 'Set your current age and retirement age', text: 'The calculator runs month by month from your current age to retirement. EPFO superannuation age is 58, so use 58 unless you plan to stop earlier or later.' },
+      { name: 'Add your existing balance and expected increment', text: 'Enter the current balance from your EPFO passbook and the annual increment you expect on Basic + DA. The increment is applied every 12 months.' },
+      { name: 'Read the corpus, interest, and EPS split', text: 'The calculator shows the EPF corpus at retirement, total interest at 8.25% compounded monthly, and the EPS pension pool separately, because EPS is never paid as a lump sum.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout title="EPF Calculator India 🏦" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">🏦 EPFO 2026</span>
+          <span class="chip-pink">📈 8.25% p.a.</span>
+          <span class="chip-white"><span class="text-ink-500">EPS cap</span><span>₹1,250/mo</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          EPF Calculator.
+          <span class="text-gradient-brand">See your corpus at 58.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                On a <strong>₹30,000</strong> monthly Basic + DA starting at age <strong>25</strong> and retiring at <strong>58</strong>, with a 5% annual increment and 8.25% interest, your EPF corpus reaches about <strong>₹2.29 crore</strong>, of which <strong>₹1.65 crore</strong> is interest and only ₹64.2 lakh is actual contributions. Month one credits <strong>₹5,950</strong> to EPF (your ₹3,600 plus your employer's ₹2,350); a separate <strong>₹1,250</strong> goes to EPS, adding up to <strong>₹4.95 lakh</strong> that funds a monthly pension rather than a lump sum.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><EpfCalculator client:visible /></div></section>
+  <section class="bg-ink-50 border-y-2 border-ink-900"><div class="container-wide py-12 md:py-16"><div class="max-w-4xl mx-auto"><span class="chip-lime mb-4">❓ FAQ</span><h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">EPF calculator FAQ.</h2><div class="mt-8 space-y-4">{faqs.map((faq) => (<details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group"><summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4"><span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span></summary><p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p></details>))}</div><div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm"><div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related India calculators</div><div class="flex flex-wrap gap-2"><a href="/finance/ppf-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">PPF</a><a href="/finance/salary-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Salary / take-home</a><a href="/finance/retirement-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Retirement</a><a href="/finance/gratuity-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Gratuity</a><a href="/finance/nps-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">NPS</a></div></div></div></div></section>
+</BaseLayout>

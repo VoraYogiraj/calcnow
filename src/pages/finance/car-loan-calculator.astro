@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LocalizeMoney from '../../components/ui/LocalizeMoney.astro';
+import CarLoanCalculator from '../../components/calculators/CarLoanCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'car-loan-calculator', name: 'Car Loan Calculator',
+  description: 'Free car loan EMI calculator (2026). Enter vehicle price, down payment, interest rate and tenure. Get monthly EMI, total interest, and the true total cost of the car with a year-by-year balance chart.',
+  category: 'finance' as const,
+  keywords: ['car loan calculator', 'car loan emi calculator', 'auto loan calculator', 'vehicle loan emi', 'car emi'],
+  lastUpdated: '2026-07-01', ratingValue: '4.8', ratingCount: '104',
+};
+const path = '/finance/car-loan-calculator';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Finance', url: '/finance/' }, { name: 'Car Loan', url: path },
+];
+const faqs = [
+  { q: 'How is car loan EMI calculated?', a: 'Car loans use the standard reducing-balance EMI formula: EMI = P × r × (1+r)ⁿ ÷ ((1+r)ⁿ − 1), where P is the loan amount (price minus down payment), r is the monthly rate (annual ÷ 12), and n is the number of months. A $20,000 loan at 9% for 5 years works out to about $415/month.' },
+  { q: 'What is a good down payment for a car?', a: 'A common rule is 20% for a new car and 10% minimum for used, enough to cover the instant depreciation that happens the moment you drive off, so you are never "underwater" (owing more than the car is worth). A larger down payment also reduces total interest and can qualify you for a better rate.' },
+  { q: 'What car loan tenure should I choose?', a: 'Shorter is cheaper: at 9%, a 5-year loan costs roughly 60% more total interest than a 3-year loan on the same amount. Longer tenures (6–8 years) lower the monthly EMI but you pay interest for longer and risk owing more than the car is worth mid-loan. The sweet spot for most buyers is 3–5 years.' },
+  { q: 'Do car loans use flat or reducing-balance interest?', a: 'Bank car loans are usually reducing-balance (interest charged on outstanding principal), which is what this calculator uses. Some dealers and NBFCs quote a "flat rate" that looks lower but is charged on the full original amount for the whole tenure. A 7% flat rate roughly equals a 12.5–13% reducing rate. Always ask which one is being quoted.' },
+  { q: 'What is the 20/4/10 rule for buying a car?', a: 'A popular affordability guideline: put at least 20% down, finance for no more than 4 years, and keep total monthly vehicle costs (EMI + insurance + fuel) under 10% of your gross monthly income. It keeps the car from crowding out savings and other goals.' },
+];
+const schemas = [buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+const relatedCalcs = [
+  { name: 'Loan Calculator', href: '/finance/loan-calculator/', desc: 'General loan payments.', icon: '💵', color: 'bg-cyan-accent' },
+  { name: 'EMI Calculator', href: '/finance/emi-calculator/', desc: 'Indian EMI for any loan.', icon: '🇮🇳', color: 'bg-rose-300' },
+  { name: 'Simple Interest', href: '/finance/simple-interest-calculator/', desc: 'Flat-rate interest math.', icon: '🧾', color: 'bg-lime-accent' },
+  { name: 'Salary Calculator', href: '/finance/salary-calculator/', desc: 'What EMI fits your take-home.', icon: '💼', color: 'bg-yellow-accent' },
+];
+---
+
+<BaseLayout title="Car Loan Calculator 2026: EMI, Interest & Cost" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-pink-accent/25 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-pink">🚗 Auto</span>
+          <span class="chip-cyan">💰 Finance</span>
+          <span class="chip-white"><span class="text-ink-500">Last tested</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Car Loan <span class="text-gradient-brand">EMI Calculator.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                A <strong><span data-money="25000">$25,000</span> car with 20% down at 9% for 5 years</strong> = a <span data-money="20000">$20,000</span> loan costing about <strong><span data-money="415.17">$415</span>/month</strong>, with total interest of roughly <strong><span data-money="4910.03">$4,910</span></strong>. Shortening to 3 years drops interest to ~<span data-money="2895.81">$2,896</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <CarLoanCalculator client:load />
+    </div>
+  </section>
+
+  <!-- INSIGHTS -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">💡 Insights</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">3 rules before you sign.</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mt-8">
+          <div class="bg-pink-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+            <div class="text-4xl font-extrabold mb-3" style="font-family: 'Inter Tight', sans-serif;">2️⃣0️⃣</div>
+            <h3 class="!text-lg !mt-0 !mb-2 !text-white" style="font-family: 'Inter Tight', sans-serif;">20/4/10 rule</h3>
+            <p class="text-sm text-white font-medium leading-snug !m-0">20% down, max 4-year loan, total car costs under 10% of gross income. If the numbers don't fit, the car doesn't fit.</p>
+          </div>
+          <div class="bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+            <div class="text-4xl font-extrabold mb-3" style="font-family: 'Inter Tight', sans-serif;">🚩</div>
+            <h3 class="!text-lg !mt-0 !mb-2 !text-ink-900" style="font-family: 'Inter Tight', sans-serif;">Ask "flat or reducing?"</h3>
+            <p class="text-sm text-ink-900 font-medium leading-snug !m-0">A 7% flat rate ≈ 12.5–13% reducing-balance. Dealers quote flat because it looks cheap. This calculator uses honest reducing-balance.</p>
+          </div>
+          <div class="bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+            <div class="text-4xl font-extrabold mb-3" style="font-family: 'Inter Tight', sans-serif;">📉</div>
+            <h3 class="!text-lg !mt-0 !mb-2 !text-ink-900" style="font-family: 'Inter Tight', sans-serif;">Depreciation is the real cost</h3>
+            <p class="text-sm text-ink-900 font-medium leading-snug !m-0">A new car loses ~15–20% of value in year one, often more than the interest. A bigger down payment keeps you above water.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+  <LocalizeMoney />
+</BaseLayout>

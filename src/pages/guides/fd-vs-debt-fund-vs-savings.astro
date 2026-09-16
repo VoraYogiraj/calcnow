@@ -1,0 +1,159 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/fd-vs-debt-fund-vs-savings';
+const lastUpdated = '2026-07-10';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Where to Park Money', url: path },
+];
+
+// Build-time post-tax comparison: ₹5L parked for 3 years, 30% slab investor.
+const AMOUNT = 500000, YEARS = 3, SLAB = 30;
+const options = [
+  { name: 'Savings account', rate: 3.0, liquidity: 'Instant', taxNote: 'Slab (₹10k/yr exempt, old regime)', defer: false },
+  { name: 'Fixed deposit (FD)', rate: 7.0, liquidity: 'Penalty on break', taxNote: 'Slab, taxed as it accrues (TDS)', defer: false },
+  { name: 'Liquid / debt fund', rate: 7.0, liquidity: '1 day (T+1)', taxNote: 'Slab, only on redemption', defer: true },
+].map((o) => {
+  const gross = AMOUNT * Math.pow(1 + o.rate / 100, YEARS) - AMOUNT;
+  // Deferred (debt fund) taxes once at end; non-deferred taxes ~yearly (approx same total here,
+  // but deferral lets the pre-tax amount compound — small edge over multi-year holds).
+  const tax = gross * SLAB / 100;
+  const postTax = AMOUNT + gross - tax;
+  return { ...o, gross, postTax, postTaxReturn: (Math.pow(postTax / AMOUNT, 1 / YEARS) - 1) * 100 };
+});
+
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+const faqs = [
+  { q: 'Where should I park money I might need soon?', a: `Match the parking spot to when you'll need the cash. For money you might touch any day (an emergency fund), a savings account or a liquid fund wins. Instant access beats a slightly higher rate. For money you're sure you won't need for 1-3 years, an FD or debt fund earns roughly ${options[1].rate}% versus a savings account's ${options[0].rate}%. On ${fmtINR(AMOUNT)} over ${YEARS} years that gap is worth about ${fmtINR(options[1].postTax - options[0].postTax)} after tax, real money for taking almost no extra risk.` },
+  { q: 'Are debt funds still better than FDs after the 2023 tax change?', a: 'The gap narrowed but didn\'t vanish. Before April 2023, debt funds held over 3 years got indexation benefit and lower long-term capital-gains tax, a clear edge over FDs. That\'s gone; debt-fund gains are now taxed at your slab, just like FD interest. What debt funds still offer: tax is deferred until you redeem (so the full amount compounds in the meantime), better liquidity than a locked FD, and no TDS drag. For a disciplined multi-year hold they retain a small, real advantage.' },
+  { q: 'Why is a savings account a bad place for long-term money?', a: `Because it barely beats inflation, and often loses to it. At ~${options[0].rate}% a savings account trails ${options[1].rate}% FDs and, after tax and 6% inflation, your money is quietly shrinking in real terms. Savings accounts are for liquidity, not growth. Keep only your spending buffer and emergency fund there, and move anything with a 1-year-plus horizon into an FD, debt fund, or (for truly long horizons) equity. The convenience of a savings account is exactly what makes it easy to leave too much sitting idle.` },
+  { q: 'Is my FD safe? What about the ₹5 lakh insurance?', a: 'Bank FDs are among the safest instruments in India, and deposits up to ₹5 lakh per bank (principal + interest combined) are guaranteed by DICGC insurance even if the bank fails. If you\'re parking more than ₹5 lakh, spreading it across banks keeps every rupee inside the guarantee. Corporate FDs from NBFCs offer higher rates but are not DICGC-insured and carry real credit risk. The extra 1-2% comes with the chance of default, so weigh it carefully.' },
+  { q: 'How does tax eat into my FD returns?', a: `Fully, at your slab, and every year. FD interest is added to your income and taxed at your slab rate whether or not you\'ve withdrawn it, and the bank deducts 10% TDS if annual interest crosses ₹40,000 (₹50,000 for seniors). For a 30%-slab saver, a ${options[1].rate}% FD is really about ${(options[1].rate * (1 - SLAB/100)).toFixed(1)}% after tax, which is why high earners often prefer debt funds (tax deferred to redemption) or, for long horizons, equity (lower 12.5% LTCG). Always compare post-tax, not headline, rates.` },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title="Where to Park Your Money (2026): FD vs Debt Fund vs Savings Account" description={`Post-tax comparison for a 30%-slab saver: ₹5L over 3 years in a savings account (${options[0].rate}%) vs FD/debt fund (${options[1].rate}%) is a ${fmtINR(options[1].postTax - options[0].postTax)} difference. Liquidity, tax and the ₹5L DICGC guarantee explained.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">📚 Guide</span>
+          <span class="chip-lime">💰 Saving</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Where should your <span class="text-gradient-brand">cash sit?</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Match the spot to the timeline. Emergency cash → <strong>savings/liquid fund</strong> ({options[0].rate}%, instant). 1-3 years you won't touch → <strong>FD or debt fund</strong> ({options[1].rate}%). On {fmtINR(AMOUNT)} over {YEARS} years that's about <strong>{fmtINR(options[1].postTax - options[0].postTax)} more</strong> after tax, for near-zero extra risk. Never park long-term money in savings.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Three parking spots, compared post-tax</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        "Where do I keep my money?" isn't one question. It's three, depending on when you'll need it. The mistake almost everyone makes is leaving too much in a savings account, where convenience quietly costs return. Here's {fmtINR(AMOUNT)} parked for {YEARS} years across the three common options, shown <em>after</em> tax for a 30%-slab saver, because the headline rate isn't what you keep:
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Option</th>
+            <th class="text-right p-3 font-extrabold">Rate</th>
+            <th class="text-left p-3 font-extrabold hidden sm:table-cell">Liquidity</th>
+            <th class="text-right p-3 font-extrabold">Post-tax value</th>
+          </tr></thead>
+          <tbody>
+            {options.map((o, i) => (
+              <tr class={`border-b-2 border-ink-100 ${i === 0 ? 'bg-pink-accent/15' : i % 2 ? 'bg-ink-50' : 'bg-lime-accent/20'}`}>
+                <td class="p-3 font-bold text-ink-900">{o.name}</td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{o.rate}%</td>
+                <td class="p-3 text-ink-700 font-semibold hidden sm:table-cell">{o.liquidity}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtINR(o.postTax)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">Illustrative 2026 rates, 30% slab, tax on gains. Debt-fund and FD gains are both taxed at slab post-2023; debt funds defer tax to redemption. Not investment advice.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The rule that beats rate-chasing</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        <strong>Liquidity first, return second (for the money you might actually need).</strong> Your emergency fund's job is to be there instantly when a job loss or medical bill hits; earning 3% in a savings account and never breaking a penalty is worth more than 7% locked in an FD you can't touch. But that logic flips for money with a known horizon: cash you're sure you won't need for a year or more has no business earning savings-account rates. The discipline is simply to sort your money by when you'll need it, then park each bucket where it belongs: emergency in savings/liquid, 1-3 year goals in FD/debt, and long-term wealth in equity, not any of these.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'FD Calculator', href: '/finance/fd-calculator/', icon: '🏦', color: 'bg-cyan-accent' },
+          { name: 'The Rule of 72', href: '/guides/rule-of-72/', icon: '🧮', color: 'bg-lime-accent' },
+          { name: 'SIP Calculator', href: '/finance/sip-calculator/', icon: '📈', color: 'bg-yellow-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

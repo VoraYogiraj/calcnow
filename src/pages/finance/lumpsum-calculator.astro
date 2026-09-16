@@ -1,0 +1,160 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LumpsumCalculator from '../../components/calculators/LumpsumCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/lumpsum-calculator';
+
+const meta = {
+  slug: 'lumpsum-calculator',
+  name: 'Lumpsum Calculator',
+  description: 'Free lumpsum calculator for one-time mutual fund investments. See future value, total gains, absolute return, and what the corpus is actually worth in today’s money after inflation.',
+  category: 'finance' as const,
+  keywords: ['lumpsum calculator', 'lump sum investment calculator', 'one time mutual fund calculator', 'lumpsum return calculator', 'inflation adjusted lumpsum'],
+  lastUpdated: '2026-07-21',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'Lumpsum Calculator', url: path },
+];
+
+const faqs = [
+  {
+    q: 'Should I invest a lumpsum or start a SIP?',
+    a: 'A lumpsum puts the entire amount to work on day one, so every rupee gets the full compounding period. That is mathematically superior in a market that rises steadily, and Indian equity has risen across most long windows. The catch is entry price: invest a large sum a month before a 30% drawdown and you carry that loss for years. A SIP spreads the entry across many NAVs, which lowers the average cost in choppy or falling markets and removes the need to time anything. Practical rule: use a lumpsum for a windfall you can leave untouched for seven years or more, and a SIP for money that arrives monthly from salary.',
+  },
+  {
+    q: 'What is a realistic expected return for a lumpsum in India?',
+    a: 'For planning, 10–12% a year is a defensible long-run assumption for diversified Indian equity funds; Nifty 50 rolling 15-year returns have historically clustered around that range. Large-cap and flexi-cap funds sit at the lower end, while mid- and small-cap funds have delivered more but with deeper drawdowns and far wider dispersion between schemes. Debt funds behave differently: short-duration and corporate bond funds have typically returned 6–8%, roughly tracking prevailing yields, and gilt funds swing with interest rates. Hybrid and balanced-advantage funds land in between at 8–10%. Anything above 15% as a base case is optimism rather than planning, so model 10–12% and treat a better outcome as a bonus.',
+  },
+  {
+    q: 'How is a lumpsum in equity mutual funds taxed?',
+    a: 'As of this page’s date, equity mutual fund units held for more than 12 months are long-term: gains above ₹1.25 lakh in a financial year are taxed at 12.5% without indexation, following the changes announced in the July 2024 Union Budget. Units sold within 12 months are short-term and taxed at 20%. The ₹1.25 lakh exemption is an annual aggregate across all equity funds and listed shares, not per scheme, which is why staggering redemptions across financial years can meaningfully reduce the bill on a large lumpsum. Debt funds follow separate rules. Tax law changes often, so verify the current rates with the Income Tax Department or a qualified tax adviser before acting.',
+  },
+  {
+    q: 'How much does the expense ratio really cost me?',
+    a: 'The expense ratio is deducted from the fund’s NAV every day, so the returns you see quoted are already net of it, but the drag compounds silently. Take a fund earning 12% a year before costs on a ₹1,00,000 lumpsum held for 10 years: at a 0.2% expense ratio you end with roughly ₹3,05,000, and at 1.5% with about ₹2,71,000. That is around ₹34,000 of difference on a single ₹1 lakh investment, and the gap widens sharply over 20 years or with larger sums. Direct plans cost less than regular plans because no distributor commission is embedded, and index funds usually cost less than active ones.',
+  },
+  {
+    q: 'Why does the inflation-adjusted figure matter?',
+    a: 'Nominal maturity values flatter long horizons. At 6% inflation prices roughly double every 12 years, so a ₹3.11 lakh corpus ten years out buys what about ₹1,73,000 buys today, and today’s number is what people actually plan around for school fees, rent, or a down payment. The gap widens with tenure: over 20 years, 6% inflation cuts purchasing power to roughly 31% of the nominal figure. That is why this calculator divides future value by (1 + inflation)^years and shows the result as a headline card. It is also why a 7% fixed deposit can feel safe while barely preserving purchasing power after tax.',
+  },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate lumpsum mutual fund returns',
+    description: 'Step-by-step instructions for estimating the future value of a one-time mutual fund investment, including the inflation-adjusted value.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter the amount you are investing once', text: 'Type the single upfront amount: a bonus, maturity proceeds, or sale money. No monthly instalments are assumed.' },
+      { name: 'Set a realistic expected annual return', text: 'Use 10–12% for diversified equity funds, 8–10% for hybrid funds, and 6–8% for debt funds. Returns compound annually here.' },
+      { name: 'Choose how long the money stays invested', text: 'Pick the tenure in years. Longer horizons let the compounding curve steepen and reduce the impact of a poorly timed entry.' },
+      { name: 'Set inflation and read the real value', text: 'Enter an inflation rate to see what the corpus is worth in today’s money, alongside future value, total gains, and absolute return.' },
+    ],
+  }),
+];
+
+const relatedCalculators = [
+  { label: 'SIP calculator', href: '/finance/sip-calculator/' },
+  { label: 'Compound interest', href: '/finance/compound-interest-calculator/' },
+  { label: 'CAGR', href: '/finance/cagr-calculator/' },
+  { label: 'Inflation', href: '/finance/inflation-calculator/' },
+  { label: 'PPF', href: '/finance/ppf-calculator/' },
+];
+
+---
+
+<BaseLayout title="Lumpsum Calculator 📈" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-pink-accent/20 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">💰 One-time investment</span>
+          <span class="chip-cyan">🧮 Inflation-adjusted</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Lumpsum Calculator.
+          <span class="text-gradient-brand">Invest once, compound for years.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Lumpsum future value = <strong>amount × (1 + return)<sup>years</sup></strong>. A <strong>₹1,00,000</strong> one-time investment at <strong>12% a year for 10 years</strong> grows to <strong>₹3,10,585</strong>: gains of <strong>₹2,10,585</strong>, an absolute return of <strong>210.6%</strong>, or 3.11× your money. Adjust for <strong>6% inflation</strong> and that corpus is worth about <strong>₹1,73,429</strong> in today's money.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><LumpsumCalculator client:visible /></div></section>
+
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-pink mb-4">⚖️ Honest comparison</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          Where a lumpsum beats a SIP, and where it doesn't.
+        </h2>
+        <div class="mt-8 prose prose-lg max-w-none">
+          <p class="text-ink-700 leading-relaxed font-medium">
+            The whole advantage of a lumpsum is <strong>time in the market</strong>. Because the full amount is invested on day one, every rupee earns the full tenure of compounding instead of an average of roughly half of it. In a market that trends upward, that is a real mathematical edge over rupee-cost averaging, and it grows with tenure.
+          </p>
+          <p class="text-ink-700 leading-relaxed font-medium">
+            The cost of that edge is <strong>timing risk</strong>, concentrated in a single day. Invest at a market low and a lumpsum is close to unbeatable; invest just before a sharp drawdown and you spend years recovering ground a staggered entry would never have lost. A SIP does not eliminate risk, it simply spreads the entry price across many NAVs so no single day dominates the outcome. That is a fair trade for money you cannot afford to see fall 30% in the first year.
+          </p>
+          <p class="text-ink-700 leading-relaxed font-medium">
+            A middle path many investors use for large sums is a <strong>staggered lumpsum</strong>: park the money in a liquid fund and move it into equity over six to twelve months via a systematic transfer plan. You give up some compounding time in exchange for a smoother entry. Compare the two approaches side by side with the <a href="/finance/sip-calculator/">SIP calculator</a>, or read the longer breakdown in <a href="/finance/sip-vs-lump-sum-investment/">SIP vs lump sum investment</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-cyan mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        Lumpsum calculator FAQ.
+      </h2>
+      <div class="mt-8 space-y-4">
+        {faqs.map((faq) => (
+          <details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group">
+            <summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4">
+              <span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p>
+          </details>
+        ))}
+      </div>
+      <div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+        <div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related calculators</div>
+        <div class="flex flex-wrap gap-2">
+          {relatedCalculators.map((item) => (
+            <a href={item.href} class="chip-white no-underline hover:bg-lime-accent transition-colors">{item.label}</a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

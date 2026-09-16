@@ -1,0 +1,149 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SalaryCalculator from '../../components/calculators/SalaryCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'salary-calculator', name: 'Salary Calculator (India)',
+  description: 'Free India salary calculator (FY 2025-26). Convert CTC to in-hand monthly take-home: EPF, professional tax, and income tax under both old & new regimes, with the better regime picked automatically.',
+  category: 'finance' as const,
+  keywords: ['salary calculator', 'ctc to in hand', 'take home salary calculator', 'in hand salary', 'ctc calculator india'],
+  lastUpdated: '2026-07-01', ratingValue: '4.8', ratingCount: '119',
+};
+const path = '/finance/salary-calculator';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Finance', url: '/finance/' }, { name: 'Salary Calculator', url: path },
+];
+const faqs = [
+  { q: 'Why is my in-hand salary so much lower than my CTC?', a: 'CTC (cost to company) includes things you never see in your bank account: the employer\'s EPF contribution (12% of basic), gratuity provision, insurance premiums, and sometimes one-time joining bonuses or ESOPs. From the remaining gross salary, your own EPF (another 12% of basic), professional tax, and income tax (TDS) are deducted. A ₹12 lakh CTC typically lands around ₹80,000–85,000/month in hand.' },
+  { q: 'What is a typical CTC structure in India?', a: 'A common structure: Basic salary 40–50% of CTC, HRA 40–50% of basic, employer EPF 12% of basic, and the rest as special allowance plus flexi benefits (LTA, meal cards, fuel). Basic matters most. EPF, gratuity, and HRA exemption are all computed from it. A low basic means higher in-hand today but lower retirement savings.' },
+  { q: 'Which regime should I pick, old or new?', a: 'For FY 2025-26, the new regime is default and better for most salaried people because of the ₹75,000 standard deduction and zero tax up to ₹12 lakh taxable income (Section 87A rebate). The old regime only wins if your combined deductions (80C ₹1.5L, HRA exemption, home-loan interest up to ₹2L, 80D, NPS) are large, typically above ₹4–4.5 lakh a year. This calculator computes both and picks the cheaper one.' },
+  { q: 'Is EPF deducted from CTC or gross salary?', a: 'Both sides. The employer\'s 12% of basic is part of your CTC (money you never receive as salary), and your own 12% of basic is deducted from gross pay. Both go to your EPF account, so it is forced savings rather than a loss, but it does reduce the monthly credit to your bank.' },
+  { q: 'What is professional tax and why does it differ by state?', a: 'Professional tax is a state-level tax on employment, capped at ₹2,500 per year by the Constitution. Karnataka and Maharashtra charge ₹200/month, West Bengal ₹208 in some slabs, while Delhi, UP, and Haryana charge none. Your employer deducts it and it is fully deductible from taxable income in the old regime.' },
+];
+const schemas = [buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+const relatedCalcs = [
+  { name: 'Income Tax India', href: '/finance/income-tax-india/', desc: 'Full old vs new regime breakdown.', icon: '🪙', color: 'bg-yellow-accent' },
+  { name: 'HRA Calculator', href: '/finance/hra-calculator/', desc: 'HRA exemption for the old regime.', icon: '🏠', color: 'bg-lime-accent' },
+  { name: 'EMI Calculator', href: '/finance/emi-calculator/', desc: 'What EMI fits your take-home.', icon: '🇮🇳', color: 'bg-rose-300' },
+  { name: 'SIP Calculator', href: '/finance/sip-calculator/', desc: 'Invest the salary you keep.', icon: '📈', color: 'bg-cyan-accent' },
+];
+---
+
+<BaseLayout title="Salary Calculator India 2026: CTC to In-Hand Take-Home" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/35 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-yellow">💼 Salary</span>
+          <span class="chip-lime">🇮🇳 FY 2025-26</span>
+          <span class="chip-white"><span class="text-ink-500">Last tested</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          CTC → <span class="text-gradient-brand">in-hand salary.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                A <strong>₹12 lakh CTC</strong> (40% basic, new regime) is about <strong>₹90,200/month in hand</strong>, after employer + employee EPF (₹57,600 each) and professional tax, with <strong>zero income tax</strong> thanks to the Section 87A rebate up to ₹12L taxable income.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <SalaryCalculator client:load />
+    </div>
+  </section>
+
+  <!-- HOW CTC BREAKS DOWN -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-pink mb-4">🧮 The math</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">How CTC becomes take-home.</h2>
+        <div class="mt-8 bg-ink-900 text-white border-[2.5px] border-ink-900 rounded-3xl p-6 md:p-8 shadow-sticker">
+          <ol class="space-y-4 text-sm md:text-base font-medium !m-0 list-none !p-0">
+            <li><span class="font-extrabold text-yellow-accent">1. CTC</span> − employer EPF (12% of basic) − gratuity provision = <span class="font-extrabold text-cyan-accent">Gross salary</span></li>
+            <li><span class="font-extrabold text-cyan-accent">2. Gross</span> − standard deduction (₹75K new / ₹50K old) − old-regime deductions = <span class="font-extrabold text-lime-accent">Taxable income</span></li>
+            <li><span class="font-extrabold text-lime-accent">3. Taxable</span> → slab tax + 4% cess (87A rebate: zero tax ≤ ₹12L new / ≤ ₹5L old) = <span class="font-extrabold text-pink-accent">Income tax</span></li>
+            <li><span class="font-extrabold text-pink-accent">4. Gross</span> − employee EPF − professional tax − income tax = <span class="font-extrabold text-white">Take-home</span></li>
+          </ol>
+          <p class="text-sm text-ink-300 mt-6">
+            FY 2025-26 new-regime slabs: 0% to ₹4L · 5% to ₹8L · 10% to ₹12L · 15% to ₹16L · 20% to ₹20L · 25% to ₹24L · 30% above.
+          </p>
+        </div>
+        <p class="text-xs text-ink-500 mt-6 font-medium">Sources: <a href="https://incometaxindia.gov.in/" rel="noopener noreferrer" target="_blank" class="underline hover:text-ink-700">Income Tax Department of India</a> · <a href="https://www.epfindia.gov.in/" rel="noopener noreferrer" target="_blank" class="underline hover:text-ink-700">EPFO</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

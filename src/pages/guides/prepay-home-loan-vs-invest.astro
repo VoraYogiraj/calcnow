@@ -1,0 +1,193 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/prepay-home-loan-vs-invest';
+const lastUpdated = '2026-07-10';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Prepay Loan vs Invest', url: path },
+];
+
+// Build-time: what a one-time ₹5L prepayment saves on a ₹50L / 8.5% / 20yr loan
+// with 15 years left, vs investing that ₹5L.
+const OUTSTANDING = 5000000;
+const RATE = 8.5;
+const YEARS_LEFT = 15;
+const PREPAY = 500000;
+const r = RATE / 100 / 12;
+const n = YEARS_LEFT * 12;
+const emi = (OUTSTANDING * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+
+function payoff(startBal: number) {
+  let bal = startBal, months = 0, interest = 0;
+  while (bal > 0 && months < 600) {
+    months++;
+    const i = bal * r;
+    interest += i;
+    bal = bal + i - emi;
+    if (bal < 0) bal = 0;
+  }
+  return { months, interest };
+}
+const base = payoff(OUTSTANDING);
+const afterPrepay = payoff(OUTSTANDING - PREPAY);
+const monthsSaved = base.months - afterPrepay.months;
+const interestSaved = base.interest - afterPrepay.interest;
+
+// Compare: investing the same ₹5L for the base tenure at various returns.
+const invReturns = [6, 8, 10, 12];
+const invRows = invReturns.map((ret) => {
+  const fv = PREPAY * Math.pow(1 + ret / 100, YEARS_LEFT);
+  return { ret, fv, gain: fv - PREPAY };
+});
+// Break-even: prepaying an 8.5% loan is a guaranteed 8.5% tax-free return.
+
+const fmtL = (v: number) => v >= 10000000 ? `₹${(v / 10000000).toFixed(2)} Cr` : `₹${(v / 100000).toFixed(1)} L`;
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+const faqs = [
+  { q: 'Should I prepay my home loan or invest the money?', a: `Compare your loan rate with your realistic post-tax investment return. Prepaying a ${RATE}% loan is a guaranteed, risk-free, tax-free ${RATE}% return. You can't lose it. Investing might beat that (equity has historically returned 11-12% in India over long periods) but with real volatility and no guarantee. The clean rule: prepay if your loan rate is higher than what you'd confidently earn after tax; invest if you're confident of beating it and can stomach the risk. A ${fmtL(PREPAY)} prepayment on a ${fmtL(OUTSTANDING)} loan saves ${fmtL(interestSaved)} in interest and clears it ${Math.floor(monthsSaved / 12)} years ${monthsSaved % 12} months early.` },
+  { q: 'Why is prepaying called a "guaranteed return"?', a: `Because every rupee you prepay stops accruing interest at your loan rate for the entire remaining tenure. That avoided interest is money you keep, with zero risk. Prepaying an ${RATE}% loan is mathematically identical to earning ${RATE}% on that money, tax-free (there's no tax on interest you didn't pay). Very few risk-free investments (FDs, PPF, bonds) match ${RATE}% after tax today, which is why prepaying a home loan is often the best "investment" a borrower can make.` },
+  { q: 'What return would investing need to beat prepaying?', a: `More than your loan rate, after tax. If your loan is ${RATE}% and your equity gains are taxed at ~12.5% LTCG, you'd need roughly ${(RATE / (1 - 0.125)).toFixed(1)}%+ pre-tax just to match prepayment. Over ${YEARS_LEFT} years, ${fmtL(PREPAY)} invested grows to ${fmtL(invRows[1].fv)} at 8% or ${fmtL(invRows[3].fv)} at 12%, but only the 12% scenario clearly beats the certainty of prepaying. Prepayment removes the "if" entirely.` },
+  { q: 'Are there reasons NOT to prepay even if the maths favours it?', a: 'Yes. Keep the money liquid instead of prepaying if: you don\'t yet have a 6-month emergency fund, you\'re carrying costlier debt (credit cards at 36%, personal loans at 14%; always kill those first), you\'d lose a valuable old-regime tax deduction on the interest, or you\'d be emptying your only savings. Prepayment is illiquid. Once it\'s in the house, you can\'t easily get it back without a fresh loan.' },
+  { q: 'Is it better to prepay early or late in the loan?', a: 'Early, decisively. Because interest is front-loaded, a prepayment in year 2 cancels far more future interest than the same amount in year 12. The early rupee has more years left to stop compounding against you. If you\'re going to prepay at all, the best time is as soon as you have surplus beyond your emergency fund. And on Indian floating-rate loans there\'s no prepayment penalty, so nothing holds you back.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`Prepay Home Loan vs Invest (2026): Which Wins? The Guaranteed-Return Rule`} description={`Prepaying an ${RATE}% loan is a guaranteed tax-free ${RATE}% return. A ₹5L prepayment on a ₹50L loan saves ${fmtL(interestSaved)} and clears it ${Math.floor(monthsSaved / 12)}yr early, vs investing the same ₹5L. Full break-even maths.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-pink-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">📚 Guide</span>
+          <span class="chip-pink">⚖️ Decision</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Prepay the loan, <span class="text-gradient-brand">or invest?</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Prepaying an <strong>{RATE}% loan is a guaranteed, tax-free {RATE}% return</strong>. A <strong>{fmtL(PREPAY)}</strong> prepayment on a {fmtL(OUTSTANDING)} loan saves <strong>{fmtL(interestSaved)}</strong> and clears it <strong>{Math.floor(monthsSaved / 12)}yr {monthsSaved % 12}mo early</strong>. Invest instead only if you're confident of beating {RATE}% after tax, and always kill costlier debt first.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The comparison, both ways</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        You have a lump sum (a bonus, a maturity, savings you've built up) and a running home loan. Every rupee can go one of two ways: into the loan (killing future interest) or into investments (chasing future returns). The trap is comparing the loan rate to the <em>headline</em> investment return; the fair comparison is loan rate versus <em>post-tax, risk-adjusted</em> return. Here's what a {fmtL(PREPAY)} decision looks like on a {fmtL(OUTSTANDING)} loan at {RATE}% with {YEARS_LEFT} years left.
+      </p>
+
+      <div class="not-prose grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+        <div class="bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">🏦 Prepay {fmtL(PREPAY)}</div>
+          <div class="text-2xl font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">Save {fmtL(interestSaved)}</div>
+          <p class="text-sm text-ink-800 mt-2 font-medium !m-0">Guaranteed, tax-free. Loan clears {Math.floor(monthsSaved / 12)}yr {monthsSaved % 12}mo early. Equivalent to a certain {RATE}% return, zero risk.</p>
+        </div>
+        <div class="bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">📈 Invest {fmtL(PREPAY)} ({YEARS_LEFT}yr)</div>
+          <div class="text-2xl font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{fmtL(invRows[1].fv)}–{fmtL(invRows[3].fv)}</div>
+          <p class="text-sm text-ink-800 mt-2 font-medium !m-0">At 8%–12% before tax and volatility. Only the upper end clearly beats the certainty of prepaying.</p>
+        </div>
+      </div>
+
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">If you invest {fmtL(PREPAY)} at…</th>
+            <th class="text-right p-3 font-extrabold">Value in {YEARS_LEFT} yrs</th>
+            <th class="text-right p-3 font-extrabold">Gain</th>
+            <th class="text-right p-3 font-extrabold">vs prepaying?</th>
+          </tr></thead>
+          <tbody>
+            {invRows.map((row) => (
+              <tr class="border-b-2 border-ink-100">
+                <td class="p-3 font-bold text-ink-900">{row.ret}% p.a.</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtL(row.fv)}</td>
+                <td class="p-3 text-right font-mono text-ink-800">{fmtL(row.gain)}</td>
+                <td class={`p-3 text-right font-extrabold ${row.ret > RATE ? 'text-green-700' : 'text-pink-600'}`}>{row.ret > RATE ? 'may beat (risky)' : 'prepay wins'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">Investment values are illustrative and pre-tax; equity gains attract ~12.5% LTCG, which raises the return you'd need to truly beat a tax-free {RATE}% prepayment.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The order that actually matters</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Before either choice, a fixed priority list beats any spreadsheet. <strong>First</strong>, clear high-cost debt. Credit cards (~36%) and personal loans (~14%) dwarf any home-loan or investment maths. <strong>Second</strong>, hold a 6-month emergency fund; prepayment is illiquid, and being cash-poor with a paid-down house is a real risk. <strong>Third</strong>, capture any free money: employer EPF match, old-regime 80C/24b deductions you'd otherwise waste. <strong>Only then</strong> does the prepay-vs-invest question apply, and at that point the honest default for most people is: prepay unless you're genuinely confident of beating your loan rate after tax. Certainty is worth a lot.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Run the numbers</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'EMI Calculator', href: '/finance/emi-calculator/', icon: '🇮🇳', color: 'bg-rose-300' },
+          { name: 'How EMI amortization works', href: '/guides/how-emi-amortization-works/', icon: '🏠', color: 'bg-cyan-accent' },
+          { name: 'SIP Calculator', href: '/finance/sip-calculator/', icon: '📈', color: 'bg-lime-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

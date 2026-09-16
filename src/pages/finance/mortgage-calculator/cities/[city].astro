@@ -1,0 +1,416 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import MortgageCalculator from '../../../../components/calculators/MortgageCalculator.tsx';
+import {
+  indiaCities,
+  type IndiaCityData,
+} from '../../../../data/india-cities';
+import {
+  buildCalculatorSchema,
+  buildBreadcrumbSchema,
+  buildFAQSchema,
+  buildSpeakableSchema,
+  buildHowToSchema,
+} from '../../../../lib/seo';
+
+export async function getStaticPaths() {
+  return indiaCities.map((city) => ({
+    params: { city: city.slug },
+    props: { city },
+  }));
+}
+
+interface Props {
+  city: IndiaCityData;
+}
+
+const { city } = Astro.props;
+
+function emi(p: number, r: number, years: number): number {
+  const m = r / 100 / 12;
+  const n = years * 12;
+  return m === 0 ? p / n : (p * m * Math.pow(1 + m, n)) / (Math.pow(1 + m, n) - 1);
+}
+const cityEmi = Math.round(emi(city.typicalLoanAmount, city.typicalRate, city.typicalTerm));
+const totalPayment = cityEmi * city.typicalTerm * 12;
+const totalInterest = totalPayment - city.typicalLoanAmount;
+const stampDutyAmount = Math.round(city.typicalLoanAmount * (city.stampDutyPct + city.registrationPct) / 100);
+const womenStampDutyAmount = Math.round(city.typicalLoanAmount * (city.stampDutyPct - city.womenStampDutyDiscount + city.registrationPct) / 100);
+
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+function formatINRShort(value: number): string {
+  if (value >= 10000000) return `₹${(value / 10000000).toFixed(2)} Cr`;
+  if (value >= 100000) return `₹${(value / 100000).toFixed(2)} L`;
+  return `₹${value.toLocaleString('en-IN')}`;
+}
+
+const path = `/finance/mortgage-calculator/cities/${city.slug}`;
+
+const meta = {
+  slug: `mortgage-calculator-${city.slug}`,
+  name: `${city.name} Home Loan EMI Calculator`,
+  description: `Free home loan EMI calculator for ${city.name}. Rate ~${city.typicalRate}%, ${formatINRShort(city.typicalLoanAmount)} avg ticket, ${city.stampDutyPct}% stamp duty. Top lenders + worked example.`,
+  category: 'finance' as const,
+  keywords: city.metaKeywords,
+  lastUpdated: '2026-05-17',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'Mortgage Calculator', url: '/finance/mortgage-calculator/' },
+  { name: city.name, url: path },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(city.faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: `How to calculate your ${city.name} home loan EMI`,
+    description: `Step-by-step instructions to estimate your monthly home loan EMI in ${city.name} using the typical ${city.typicalRate}% rate, ${formatINRShort(city.typicalLoanAmount)} average ticket, and ${city.stampDutyPct + city.registrationPct}% combined stamp duty + registration.`,
+    totalTime: 'PT3M',
+    estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      {
+        name: 'Enter your loan amount',
+        text: `The average mid-segment home loan in ${city.name} is around ${formatINRShort(city.typicalLoanAmount)}. Typical micromarkets include ${city.micromarkets.slice(0, 3).join(', ')}.`,
+      },
+      {
+        name: 'Enter the interest rate',
+        text: `Use your bank's quoted rate or the typical 2026 rate. Most ${city.name} lenders quote 8.4-9.5% range, with ${city.typicalRate}% being the median for prime salaried borrowers.`,
+      },
+      {
+        name: 'Choose the tenure',
+        text: `${city.typicalTerm} years is the most common term in ${city.name}. Longer terms reduce monthly EMI but increase total interest paid.`,
+      },
+      {
+        name: `Factor in ${city.name} stamp duty`,
+        text: `${city.name} stamp duty (${city.stampDutyPct}%) + registration (${city.registrationPct}%) = ${city.stampDutyPct + city.registrationPct}% combined. On a ${formatINRShort(city.typicalLoanAmount)} property, this adds ~${formatINRShort(stampDutyAmount)} upfront cost.${city.womenStampDutyDiscount > 0 ? ` Women buyers get ${city.womenStampDutyDiscount}% stamp duty discount.` : ''}`,
+      },
+      {
+        name: 'Read the EMI and amortization split',
+        text: `The calculator shows monthly EMI, total interest, and principal-vs-interest split. For ${formatINRShort(city.typicalLoanAmount)} at ${city.typicalRate}% over ${city.typicalTerm} years, EMI is approximately ${fmtINR(cityEmi)}/month.`,
+      },
+    ],
+  }),
+];
+
+// Related cities for internal linking.
+//
+// This used to dump all 272 other cities onto every page. That block alone was
+// ~2,000 words — 72-78% of each page — byte-identical across all 273 cities, so
+// the pages read as near-duplicates and the lower-demand ones were landing in
+// GSC's "Crawled - currently not indexed" bucket. Linking a focused, genuinely
+// related set instead keeps the unique city content dominant.
+//
+// Same state first: stamp duty, registration and the women-buyer discount are all
+// state-level, so those are the genuinely comparable cities. The full city index
+// at ../cities/ is linked below and from the breadcrumbs, so no city loses its
+// crawl path.
+//
+// The state list is walked as a ring starting just after this city rather than
+// from the top. A plain .slice(0, 7) would point every city in a state at the same
+// handful of big ones, leaving the tier-3 cities — exactly the ones Google is
+// declining to index — with a single inbound link. The ring gives every city in a
+// state as many inbound links as it emits.
+const RELATED_LIMIT = 11;
+const SAME_STATE_LIMIT = 7;
+const stateRing = indiaCities.filter((c) => c.stateSlug === city.stateSlug);
+const cityIndex = stateRing.findIndex((c) => c.slug === city.slug);
+const sameStateCities = [];
+for (let i = 1; i < stateRing.length && sameStateCities.length < SAME_STATE_LIMIT; i++) {
+  sameStateCities.push(stateRing[(cityIndex + i) % stateRing.length]);
+}
+// A few metros for cross-state context — useful to readers comparing against the
+// big markets, and capped so they don't soak up every page's outbound links.
+const picked = new Set([city.slug, ...sameStateCities.map((c) => c.slug)]);
+const metroCities = indiaCities
+  .filter((c) => c.hraTier === 'metro' && !picked.has(c.slug))
+  .slice(0, 3);
+metroCities.forEach((c) => picked.add(c.slug));
+
+// Fill any remainder from a ring over the full city list. Cities in single-city
+// states (Meghalaya, Manipur, Tripura…) have no state peers, so without this they
+// would emit links but receive only the one from the /cities/ index. The ring is
+// reciprocal by construction: every city is the fill target of the cities behind it.
+const globalIndex = indiaCities.findIndex((c) => c.slug === city.slug);
+const ringFill = [];
+for (
+  let i = 1;
+  i < indiaCities.length && sameStateCities.length + metroCities.length + ringFill.length < RELATED_LIMIT;
+  i++
+) {
+  const candidate = indiaCities[(globalIndex + i) % indiaCities.length];
+  if (picked.has(candidate.slug)) continue;
+  picked.add(candidate.slug);
+  ringFill.push(candidate);
+}
+
+const relatedCities = [...sameStateCities, ...metroCities, ...ringFill];
+---
+
+<BaseLayout
+  title={`${city.name} Home Loan EMI Calculator ${city.flag} | ${city.typicalRate}% Rate`}
+  description={meta.description}
+  schemas={schemas}
+  publishedTime={meta.lastUpdated}
+  modifiedTime={meta.lastUpdated}
+>
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-brand-400/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">{city.flag} {city.name}</span>
+          <span class="chip-cyan">📍 {city.stateName}</span>
+          <span class="chip-white"><span class="text-ink-500">HRA tier</span><span>{city.hraTier}</span></span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          {city.name} Home Loan
+          <span class="text-gradient-brand">EMI Calculator {city.flag}</span>
+        </h1>
+
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer ({city.name})</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Typical {city.name} home loan: <strong>{formatINRShort(city.typicalLoanAmount)}</strong> at <strong>{city.typicalRate}%</strong> over {city.typicalTerm} years
+                = <strong>{fmtINR(cityEmi)}/month EMI</strong>. Total interest <strong>{formatINRShort(totalInterest)}</strong>. {city.stateName} stamp duty: {city.stampDutyPct}% + {city.registrationPct}% registration
+                = ~<strong>{formatINRShort(stampDutyAmount)}</strong> extra.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <MortgageCalculator client:load />
+    </div>
+  </section>
+
+  <!-- CITY-SPECIFIC CONTEXT -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">{city.flag} {city.name} home loan landscape</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          Home loans in {city.name}.
+        </h2>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">Typical ticket</div>
+            <div class="text-2xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {formatINRShort(city.typicalLoanAmount)}
+            </div>
+            <div class="text-xs text-ink-800 mt-2 font-semibold">mid-segment 2026</div>
+          </div>
+          <div class="bg-pink-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-white mb-2">Typical rate</div>
+            <div class="text-2xl font-extrabold text-white leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {city.typicalRate}%
+            </div>
+            <div class="text-xs text-white/90 mt-2 font-semibold">prime borrower repo-linked</div>
+          </div>
+          <div class="bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">Stamp duty</div>
+            <div class="text-2xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              {city.stampDutyPct + city.registrationPct}%
+            </div>
+            <div class="text-xs text-ink-800 mt-2 font-semibold">{city.stampDutyPct}% duty + {city.registrationPct}% reg{city.womenStampDutyDiscount > 0 ? ` (${city.womenStampDutyDiscount}% women off)` : ''}</div>
+          </div>
+        </div>
+
+        <div class="mt-8 prose prose-lg max-w-none">
+          <h3 class="!text-xl !mt-0">Market overview</h3>
+          <p class="text-ink-700 leading-relaxed font-medium">{city.marketContext}</p>
+
+          <h3 class="!text-xl">What makes {city.name} distinct</h3>
+          <p class="text-ink-700 leading-relaxed font-medium">{city.uniqueAngle}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MICROMARKETS -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-pink mb-4">🏘️ Top micromarkets</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        Popular residential zones in {city.name}.
+      </h2>
+
+      <div class="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {city.micromarkets.map((zone) => (
+          <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 shadow-sticker-sm">
+            <div class="font-bold text-ink-900 text-sm leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+              {zone}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- TOP LENDERS -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-lime mb-4">🏦 Top lenders</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          Banks dominating {city.name} home loans.
+        </h2>
+
+        <div class="mt-8 space-y-3">
+          {city.topLenders.map((lender) => (
+            <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+              <p class="text-ink-800 font-medium !m-0 leading-relaxed">{lender}</p>
+            </div>
+          ))}
+        </div>
+
+        <div class="mt-6 text-sm text-ink-600 font-medium">
+          Top employers driving pre-approved home loan flows: {city.topEmployers.slice(0, 6).join(', ')}.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKED EXAMPLE -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-pink mb-4">🧮 Worked example</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        {formatINRShort(city.typicalLoanAmount)} home loan in {city.name} at {city.typicalRate}% over {city.typicalTerm} years
+      </h2>
+
+      <div class="mt-6 bg-white border-2 border-ink-900 rounded-2xl divide-y-2 divide-ink-100 shadow-sticker-sm overflow-hidden">
+        <div class="flex items-center justify-between gap-4 p-4">
+          <div class="text-sm font-semibold text-ink-700">Loan amount</div>
+          <code class="font-mono font-bold text-ink-900">{formatINRShort(city.typicalLoanAmount)}</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4">
+          <div class="text-sm font-semibold text-ink-700">Annual interest rate</div>
+          <code class="font-mono font-bold text-ink-900">{city.typicalRate}%</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4">
+          <div class="text-sm font-semibold text-ink-700">Term</div>
+          <code class="font-mono font-bold text-ink-900">{city.typicalTerm} years ({city.typicalTerm * 12} months)</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4 bg-lime-accent/30">
+          <div class="text-sm font-semibold text-ink-700">Monthly EMI</div>
+          <code class="font-mono font-extrabold text-ink-900 text-base">{fmtINR(cityEmi)}</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4 bg-pink-accent/20">
+          <div class="text-sm font-semibold text-ink-700">Total interest paid</div>
+          <code class="font-mono font-bold text-ink-900">{formatINRShort(totalInterest)}</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4 bg-cyan-accent/20">
+          <div class="text-sm font-semibold text-ink-700">Total paid (principal + interest)</div>
+          <code class="font-mono font-bold text-ink-900">{formatINRShort(totalPayment)}</code>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4 bg-yellow-accent/40">
+          <div class="text-sm font-semibold text-ink-700">+ Stamp duty & registration ({city.stampDutyPct + city.registrationPct}%)</div>
+          <code class="font-mono font-bold text-ink-900">{formatINRShort(stampDutyAmount)}{city.womenStampDutyDiscount > 0 ? ` (women: ${formatINRShort(womenStampDutyAmount)})` : ''}</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          {city.name} home loan questions.
+        </h2>
+
+        <div class="mt-8 space-y-4">
+          {city.faqs.map((faq) => (
+            <details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group">
+              <summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4">
+                <span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED CITIES -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🌆 Related cities</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        {sameStateCities.length > 0
+          ? `Home loan calculators near ${city.name}.`
+          : `Home loan calculators in other cities.`}
+      </h2>
+      {sameStateCities.length > 0 && (
+        <p class="text-ink-700 font-medium mt-3">
+          {city.stateName} shares {city.name}'s {city.stampDutyPct}% stamp duty and {city.registrationPct}% registration charge, so these are directly comparable.
+        </p>
+      )}
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-8">
+        {relatedCities.map((other) => (
+          <a
+            href={`/finance/mortgage-calculator/cities/${other.slug}/`}
+            class="group bg-white border-[2.5px] border-ink-900 rounded-3xl p-4 sm:p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200"
+          >
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{other.flag}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+              {other.name}
+            </div>
+            <div class="text-xs text-ink-600 mt-1 font-semibold">~{other.typicalRate}% · {formatINRShort(other.typicalLoanAmount)} avg</div>
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-6 flex flex-wrap gap-x-6 gap-y-2">
+        <a href="/finance/mortgage-calculator/cities/" class="font-bold underline decoration-2 underline-offset-4 decoration-violet-300">
+          Browse all {indiaCities.length} Indian cities →
+        </a>
+        <a href="/finance/mortgage-calculator/" class="font-bold underline decoration-2 underline-offset-4 decoration-lime-accent">
+          ← Back to main mortgage calculator
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

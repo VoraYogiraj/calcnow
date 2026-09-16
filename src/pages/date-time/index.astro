@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HubHero from '../../components/ui/HubHero.astro';
+import HubCard from '../../components/ui/HubCard.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+import { buildHubCards } from '../../lib/category-hub';
+
+// Derived from the calculators registry. See src/lib/category-hub.ts.
+// The time zone converter lives under /conversions/ but belongs on this hub too.
+const liveCalcs = buildHubCards('date-time', {
+  alsoInclude: ['time-zone-converter'],
+  order: [
+    'age-calculator',
+    'date-difference-calculator',
+    'countdown-timer',
+    'time-zone-converter',
+  ],
+  copy: {
+    'age-calculator': { desc: 'Exact age in years, months, and days from any birth date, plus next birthday countdown.' },
+    'date-difference-calculator': { name: 'Date Difference Calculator', desc: 'Days, weeks, and months between any two dates, with estimated working days.' },
+    'countdown-timer': { desc: 'Live countdown to any date: days, hours, minutes and seconds to birthdays, exams or launches.' },
+    'time-zone-converter': { desc: 'Convert a time between world zones (EST, IST, GMT, PST) with daylight saving handled.' },
+  },
+});
+
+const upcomingCalcs = [
+  { name: 'Business Days Calculator', desc: 'Working days between dates excluding weekends and country-specific public holidays.', icon: '📆' },
+  { name: 'Time Card Calculator', desc: 'Weekly timecard hours and pay including overtime at custom rates.', icon: '⏰' },
+];
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Date & Time', url: '/date-time/' },
+];
+
+const faqs = [
+  {
+    q: 'Does the age calculator handle leap years?',
+    a: 'Yes. The age calculator uses calendar arithmetic: it counts full years by comparing the month and day, then counts remaining months, then remaining days. Leap years are handled correctly so February 29th birthdays get the right result.',
+  },
+  {
+    q: 'How is the date difference calculator different from just subtracting dates?',
+    a: "Plain subtraction gives you total days. Our date difference calculator also breaks the result down into years, months, and days (accounting for months of different lengths), and estimates working days by removing weekends, giving you a more useful answer for project planning.",
+  },
+  {
+    q: 'Will the business days calculator support public holidays?',
+    a: 'Yes. The next version will include built-in public holiday lists for the US, UK, India, UAE, Saudi Arabia, Australia, Canada, and the EU, with an option to add custom holidays.',
+  },
+];
+
+const schemas = [
+  buildBreadcrumbSchema(breadcrumbs),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Date & Time Calculators | Calctube',
+    description: 'Free age, date difference, countdown, and business day calculators. Fast, accurate, no signup.',
+    url: 'https://calctube.com/date-time/',
+    isPartOf: { '@id': 'https://calctube.com/#website' },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: liveCalcs.map((c, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `https://calctube.com${c.href}`,
+        name: c.name,
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="Date & Time Calculators: Age, Date Difference, Countdown"
+  description="Free date & time calculators. Age calculator, date difference (days between dates), countdown timer, and business day tools. No signup."
+  schemas={schemas}
+>
+  <HubHero
+    breadcrumbs={breadcrumbs}
+    chip="📅 Date & Time"
+    chipClass="chip-cyan"
+    stats={[{ label: 'Tools', value: String(liveCalcs.length) }]}
+    titleLead="Date & Time Calculators."
+    titleAccent="Down to the day."
+    intro="Age, date difference, countdown, and business day calculators. All handle leap years, month-end edge cases, and varying month lengths correctly. Free, no signup."
+  />
+
+  <section class="container-wide pb-16 md:pb-24">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Available now</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {liveCalcs.map((c) => (
+          <HubCard href={c.href} name={c.name} desc={c.desc} icon={c.icon} />
+        ))}
+      </div>
+
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Coming soon</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {upcomingCalcs.map((c) => (
+          <HubCard name={c.name} desc={c.desc} icon={c.icon} soon />
+        ))}
+      </div>
+
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Frequently asked questions</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card">
+            <summary class="cursor-pointer font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{f.q}</summary>
+            <p class="text-sm text-ink-700 mt-2 !leading-relaxed">{f.a}</p>
+          </details>
+        ))}
+      </div>
+
+      <div class="card bg-lime-accent/20 mt-12">
+        <h3 class="!mt-0 !text-xl !font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">Need a calculator we haven't built yet?</h3>
+        <p class="text-sm text-ink-700 mt-2 leading-relaxed">
+          Email <a href="mailto:ideas@calctube.com" class="text-brand-600 font-semibold">ideas@calctube.com</a> with the specific tool you need. Requested calculators ship within 7 days.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

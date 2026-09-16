@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.local
+.env.production
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# Internal backlink/outreach kit — local only, not for public repo
+BACKLINK_KIT/
+
+# Debug/audit logs — local only
+logs/

@@ -1,0 +1,159 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/rule-of-72';
+const lastUpdated = '2026-07-10';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'The Rule of 72', url: path },
+];
+
+// Build-time: Rule-of-72 estimate vs the exact doubling time, across rates.
+const rates = [4, 6, 7, 8, 10, 12, 15];
+const rows = rates.map((rate) => {
+  const rule72 = 72 / rate;
+  const exact = Math.log(2) / Math.log(1 + rate / 100);
+  return { rate, rule72, exact, errorPct: Math.abs(rule72 - exact) / exact * 100 };
+});
+// Illustration: ₹1 lakh doubling at 12% (equity-ish) — how many doublings in 30 years
+const equityRate = 12;
+const doublingYears = 72 / equityRate;
+const doublings30 = Math.floor(30 / doublingYears);
+const multiple30 = Math.pow(2, 30 / doublingYears);
+
+const faqs = [
+  { q: 'What is the Rule of 72?', a: 'The Rule of 72 is a mental-maths shortcut for how long an investment takes to double: divide 72 by the annual return percentage. At 8% a year, money doubles in about 72÷8 = 9 years; at 12%, about 6 years; at 6%, about 12 years. It works because of the maths of compound growth, and it\'s accurate enough for quick decisions without a calculator. The estimate is within a few months of the exact answer for typical rates.' },
+  { q: 'How accurate is the Rule of 72?', a: `Surprisingly accurate for everyday rates. Between about 6% and 10% the estimate is within roughly 2-3% of the true doubling time. For example at 8% the rule says 9.0 years and the exact figure is ${rows.find(r=>r.rate===8)!.exact.toFixed(1)} years. It drifts a little at very high or very low rates, but for the returns most people deal with (savings, FDs, equity), 72 divided by the rate is close enough to make decisions on.` },
+  { q: 'Why divide by 72 and not another number?', a: '72 is chosen for convenience: it divides cleanly by 2, 3, 4, 6, 8, 9 and 12, so the mental arithmetic is easy for common rates. The mathematically "purest" number is about 69.3 (from the natural logarithm of 2), which is most accurate for continuous compounding. 72 is a slightly rounded-up version that trades a hair of accuracy for arithmetic that you can do in your head, the whole point of the rule.' },
+  { q: 'Can I use the Rule of 72 for inflation too?', a: `Yes, and it\'s sobering. Run it on inflation to see how fast your money loses half its value. At 6% inflation, prices double (and your cash halves in purchasing power) in about 12 years. At 4% it\'s 18 years. This is why money sitting in a low-interest account is quietly shrinking: if it earns 3% while inflation runs 6%, the real value is being eroded faster than it grows. The rule works both ways, for compounding wealth and compounding erosion.` },
+  { q: 'How many times will my money double over a lifetime?', a: `That\'s where the rule gets exciting. At an equity-like ${equityRate}% return, money doubles about every ${doublingYears} years, so over a 30-year investing life it doubles roughly ${doublings30} times, turning ₹1 into about ₹${Math.round(multiple30)}. Each doubling is bigger than all the previous growth combined, which is why the last decade of a long investment does the heaviest lifting, and why starting early beats investing more later.` },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title="The Rule of 72: How Fast Your Money Doubles (With the Exact Maths)" description="Divide 72 by your return to find the doubling time: 8% → 9 years, 12% → 6 years. Full table comparing the shortcut to the exact figure, plus using it on inflation and over a lifetime." schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-pink-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">📚 Guide</span>
+          <span class="chip-cyan">🧮 Mental maths</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          When does your money <span class="text-gradient-brand">double?</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Divide <strong>72 by your annual return</strong>. At 8% money doubles in ~<strong>9 years</strong>; at 12%, ~<strong>6 years</strong>; at 6%, ~<strong>12 years</strong>. It's a mental shortcut that lands within a few months of the exact answer, no calculator needed. It works on inflation too: at 6% inflation your cash halves in ~12 years.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">One division, decades of insight</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Compound growth is hard to feel intuitively. Our brains think in straight lines, but money grows in curves. The Rule of 72 is the bridge: a single division that turns any return rate into a doubling time you can reason about. It's not magic, just a neat consequence of the compounding formula, and it's accurate enough that professional investors use it for back-of-envelope decisions. Here's the shortcut checked against the exact doubling time at each rate:
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Annual return</th>
+            <th class="text-right p-3 font-extrabold">Rule of 72</th>
+            <th class="text-right p-3 font-extrabold">Exact</th>
+            <th class="text-right p-3 font-extrabold hidden sm:table-cell">Typical of</th>
+          </tr></thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                <td class="p-3 font-bold text-ink-900">{row.rate}%</td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{row.rule72.toFixed(1)} yrs</td>
+                <td class="p-3 text-right font-mono text-ink-700">{row.exact.toFixed(1)} yrs</td>
+                <td class="p-3 text-right text-ink-600 font-semibold hidden sm:table-cell">
+                  {row.rate <= 4 ? 'Savings account' : row.rate <= 7 ? 'FD / bonds' : row.rate <= 8 ? 'Home-loan rate' : row.rate <= 12 ? 'Equity (long-run)' : 'Aggressive equity'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The doubling that changes everything</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Here's the insight the rule unlocks: doublings stack, and each one is enormous. At an equity-like {equityRate}% return, money doubles every ~{doublingYears} years, so across a 30-year investing life it doubles about {doublings30} times, turning ₹1 lakh into roughly {'₹'}{(multiple30/10).toFixed(1)} lakh. The catch that trips everyone up is that <em>the last doubling is bigger than all the earlier growth put together.</em> A portfolio going from ₹40L to ₹80L in its final stretch gains more than it did in its entire first two decades. That's why the strongest lever in investing isn't picking winners: it's time, and why every year you delay starting costs you a doubling at the far end.
+      </p>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        And run it the other way for a reality check: at 6% inflation, the rule says your rupee halves in purchasing power in about 12 years. Money earning less than inflation isn't "safe": it's shrinking on a schedule you can now calculate in your head.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 See it compound</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'Compound Interest', href: '/finance/compound-interest-calculator/', icon: '💹', color: 'bg-lime-accent' },
+          { name: 'SIP Calculator', href: '/finance/sip-calculator/', icon: '📈', color: 'bg-cyan-accent' },
+          { name: 'Inflation Calculator', href: '/finance/inflation-calculator/', icon: '📉', color: 'bg-yellow-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

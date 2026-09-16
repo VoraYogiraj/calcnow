@@ -1,0 +1,177 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BudgetCalculator from '../../components/calculators/BudgetCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema, buildHowToSchema, buildSpeakableSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'budget-calculator', name: 'Budget Calculator',
+  description: 'Free 50/30/20 budget calculator. Split your monthly take-home pay into needs, wants and savings, adjust the ratios to fit your life, and see the amounts instantly.',
+  category: 'finance' as const,
+  keywords: ['budget calculator', '50 30 20 rule', 'monthly budget calculator', 'budget planner', 'how to budget', 'income budget'],
+  lastUpdated: '2026-07-18',
+};
+const path = '/finance/budget-calculator';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Finance', url: '/finance/' }, { name: 'Budget Calculator', url: path },
+];
+
+// Build-time 50/30/20 split reference across income levels.
+const incomes = [30000, 50000, 75000, 100000, 150000];
+const table = incomes.map((i) => ({ i, needs: i * 0.5, wants: i * 0.3, save: i * 0.2 }));
+const fmt = (n: number) => Math.round(n).toLocaleString('en-IN');
+
+const faqs = [
+  { q: 'What is the 50/30/20 budget rule?', a: 'It\'s a simple framework popularised by US Senator Elizabeth Warren: spend 50% of your take-home pay on needs, 30% on wants, and put 20% toward savings and debt repayment. Needs are essentials you can\'t skip: rent, groceries, utilities, minimum loan payments, transport. Wants are lifestyle choices like dining out, subscriptions and holidays. The 20% builds your emergency fund, investments and extra debt payoff. It\'s a starting point you can adjust.' },
+  { q: 'Should the budget use gross or net income?', a: 'Net: your take-home pay after income tax and mandatory deductions like provident fund or health insurance. Budgeting off gross salary overstates what you actually have to spend. If your employer already deducts retirement contributions, some people count those toward the 20% savings bucket; just be consistent about which figure you start from.' },
+  { q: 'What if my needs are more than 50% of my income?', a: 'That\'s common in high-rent cities and on lower incomes. If needs exceed 50%, trim the wants bucket first rather than the savings, but never drop savings to zero. Even a 10% savings rate builds a buffer. Over time, the levers are increasing income, reducing fixed costs (rent, EMIs), or both. Adjust the sliders on this calculator to model a split that actually fits.' },
+  { q: 'How much should I keep as an emergency fund?', a: 'A common target is three to six months of essential expenses (your "needs" total), kept in an easily accessible account like a savings account or liquid fund. If your income is irregular or you\'re a sole earner, aim toward the higher end. Build it from the 20% savings bucket before locking money into longer-term or higher-risk investments.' },
+  { q: 'Is 50/30/20 the only way to budget?', a: 'No. It\'s just an easy-to-remember one. Alternatives include zero-based budgeting (every unit of income is assigned a job), the envelope system, or paying yourself first (automate savings, then spend the rest). The best budget is the one you\'ll actually stick to. This calculator lets you set your own percentages, so you can model whatever method suits you.' },
+];
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to make a 50/30/20 budget',
+    description: 'Split your monthly take-home income into needs, wants and savings.',
+    totalTime: 'PT2M',
+    estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter your take-home pay', text: 'Type your monthly income after tax and deductions.' },
+      { name: 'Set your ratios', text: 'Start with 50% needs, 30% wants; savings takes the remaining 20%.' },
+      { name: 'Read the amounts', text: 'The calculator shows how much to allocate to each bucket.' },
+    ],
+  }),
+];
+const relatedCalcs = [
+  { name: 'Salary Calculator', href: '/finance/salary-calculator/', desc: 'CTC to in-hand pay.', icon: '💼', color: 'bg-cyan-accent' },
+  { name: 'SIP Calculator', href: '/finance/sip-calculator/', desc: 'Grow your savings.', icon: '📈', color: 'bg-lime-accent' },
+  { name: 'EMI Calculator', href: '/finance/emi-calculator/', desc: 'Loan monthly payment.', icon: '🇮🇳', color: 'bg-yellow-accent' },
+  { name: 'Compound Interest', href: '/finance/compound-interest-calculator/', desc: 'Savings growth.', icon: '💹', color: 'bg-rose-300' },
+];
+---
+
+<BaseLayout title="Budget Calculator: 50/30/20 Rule for Your Income" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-lime-accent text-ink-900">📊 Budgeting</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Budget <span class="text-gradient-brand">Calculator.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="speakable-answer text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                The <strong>50/30/20 rule</strong> splits your take-home pay: <strong>50% needs, 30% wants, 20% savings & debt</strong>. On ₹50,000/month that's ₹25,000 / ₹15,000 / ₹10,000. Enter your income below and adjust the split to fit your life.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <BudgetCalculator client:load />
+    </div>
+  </section>
+
+  <!-- SPLIT TABLE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip bg-lime-accent text-ink-900 mb-4">📊 Quick reference</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">50/30/20 by income.</h2>
+        <div class="mt-8 overflow-x-auto">
+          <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+            <thead><tr class="bg-ink-900 text-white">
+              <th class="text-left p-3 font-extrabold">Monthly income</th>
+              <th class="text-center p-3 font-extrabold">Needs (50%)</th>
+              <th class="text-center p-3 font-extrabold">Wants (30%)</th>
+              <th class="text-right p-3 font-extrabold">Save (20%)</th>
+            </tr></thead>
+            <tbody>
+              {table.map((r, i) => (
+                <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                  <td class="p-3 font-extrabold text-ink-900">{fmt(r.i)}</td>
+                  <td class="p-3 text-center font-mono font-bold text-ink-900">{fmt(r.needs)}</td>
+                  <td class="p-3 text-center font-mono font-bold text-ink-900">{fmt(r.wants)}</td>
+                  <td class="p-3 text-right font-mono font-bold text-ink-900">{fmt(r.save)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs text-ink-500 mt-3 font-medium">Amounts in the same currency units as your income.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-lime-accent text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

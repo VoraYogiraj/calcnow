@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PaintCalculator from '../../components/calculators/PaintCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema, buildHowToSchema, buildSpeakableSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'paint-calculator', name: 'Paint Calculator',
+  description: 'Free paint calculator. Work out how many gallons or litres of paint you need for a room from its dimensions, coats, doors and windows. Coverage and waste handled for you.',
+  category: 'construction' as const,
+  keywords: ['paint calculator', 'how much paint do i need', 'paint coverage calculator', 'gallons of paint', 'room paint calculator', 'wall paint calculator'],
+  lastUpdated: '2026-07-19',
+};
+const path = '/construction/paint-calculator';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Construction', url: '/construction/' }, { name: 'Paint Calculator', url: path },
+];
+
+// Build-time reference: gallons for common rooms (2 coats, 9 ft walls, 350 sqft/gal).
+function gallons(l: number, w: number) {
+  const wall = Math.max(0, 2 * (l + w) * 9 - 1 * 21 - 2 * 15);
+  return (wall * 2) / 350;
+}
+const rooms = [
+  { size: '8 × 10 ft (bedroom)', g: gallons(8, 10) },
+  { size: '10 × 12 ft (bedroom)', g: gallons(10, 12) },
+  { size: '12 × 12 ft (living room)', g: gallons(12, 12) },
+  { size: '12 × 16 ft (large room)', g: gallons(12, 16) },
+  { size: '15 × 20 ft (open plan)', g: gallons(15, 20) },
+];
+
+const faqs = [
+  { q: 'How much paint do I need for a room?', a: 'Measure the walls: wall area = 2 × (length + width) × height. For a 12 × 12 ft room with 9 ft walls that is 2 × 24 × 9 = 432 sq ft, minus about 21 sq ft per door and 15 sq ft per window. Divide the paintable area by the coverage rate (roughly 350 sq ft per gallon) and multiply by the number of coats. So 432 sq ft at 2 coats needs about 2.5 gallons. Round up to 3 one-gallon cans.' },
+  { q: 'How many square feet does a gallon of paint cover?', a: 'A gallon of interior wall paint covers roughly 350–400 sq ft in one coat on smooth, primed drywall. In metric, a litre covers about 11 m². Rough, textured, porous or dark-to-light surfaces cover less and may need an extra coat or a primer. This calculator uses 350 sq ft per gallon, which is a safe planning figure.' },
+  { q: 'How many coats of paint do I need?', a: 'Two coats is standard for a durable, even finish, and it is what most manufacturers assume in their coverage claims. You can sometimes get away with one coat when repainting a similar colour, but going light-over-dark, covering patches, or painting bare drywall usually needs a primer plus two topcoats. Set the number of coats in the calculator to match your job.' },
+  { q: 'Should I subtract doors and windows?', a: 'Yes, for a more accurate estimate. You are not painting those surfaces. A standard interior door is about 21 sq ft and an average window about 15 sq ft. The calculator deducts these automatically based on the counts you enter. For a rough estimate you can skip it, which simply builds in a little extra paint.' },
+  { q: 'Do I need primer, and does it count as a coat?', a: 'Primer is recommended on bare drywall, patched areas, glossy surfaces, and big colour changes. It seals the surface so the topcoat covers evenly and you may need fewer finish coats. Primer is a separate product with its own coverage, so buy it in addition to your topcoat paint rather than counting it as one of your colour coats.' },
+];
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate paint for a room',
+    description: 'Estimate the paint needed for a room from its dimensions, coats, doors and windows.',
+    totalTime: 'PT2M',
+    estimatedCost: { value: '0', currency: 'USD' },
+    steps: [
+      { name: 'Measure the room', text: 'Enter length, width and wall height.' },
+      { name: 'Set coats and openings', text: 'Choose the number of coats and count the doors and windows.' },
+      { name: 'Read the paint needed', text: 'The calculator divides paintable area by coverage and rounds up to cans.' },
+    ],
+  }),
+];
+const relatedCalcs = [
+  { name: 'Concrete Calculator', href: '/construction/concrete-calculator/', desc: 'Cubic yards & bags.', icon: '🧱', color: 'bg-orange-300' },
+  { name: 'Tile Calculator', href: '/construction/tile-calculator/', desc: 'Tiles & boxes by area.', icon: '🟦', color: 'bg-lime-accent' },
+  { name: 'Wallpaper via Tile', href: '/construction/', desc: 'All construction tools.', icon: '🔨', color: 'bg-yellow-accent' },
+  { name: 'Roofing Calculator', href: '/construction/roofing-calculator/', desc: 'Squares & bundles.', icon: '🏠', color: 'bg-violet-300' },
+];
+---
+
+<BaseLayout title="Paint Calculator: How Much Paint for a Room?" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-cyan-accent text-ink-900">🎨 Construction</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Paint <span class="text-gradient-brand">Calculator.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="speakable-answer text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Paint = <strong>wall area × coats ÷ coverage</strong>. A gallon covers ~350 sq ft. A typical 12 × 12 ft room (2 coats) needs about <strong>2.5 gallons</strong>. Round up to 3 cans. Enter your room below; doors and windows are deducted for you.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <PaintCalculator client:load />
+    </div>
+  </section>
+
+  <!-- ROOM TABLE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip bg-cyan-accent text-ink-900 mb-4">📊 Quick reference</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Paint for common room sizes.</h2>
+        <p class="mt-3 text-ink-700 font-medium">Two coats, 9 ft walls, one door and two windows deducted.</p>
+        <div class="mt-8 overflow-x-auto">
+          <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+            <thead><tr class="bg-ink-900 text-white">
+              <th class="text-left p-3 font-extrabold">Room size</th>
+              <th class="text-center p-3 font-extrabold">Gallons</th>
+              <th class="text-right p-3 font-extrabold">Cans (1 gal)</th>
+            </tr></thead>
+            <tbody>
+              {rooms.map((r, i) => (
+                <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                  <td class="p-3 font-extrabold text-ink-900">{r.size}</td>
+                  <td class="p-3 text-center font-mono font-bold text-ink-900">{r.g.toFixed(1)}</td>
+                  <td class="p-3 text-right font-mono font-bold text-ink-900">{Math.ceil(r.g)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-cyan-accent text-ink-900 mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">More construction tools.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

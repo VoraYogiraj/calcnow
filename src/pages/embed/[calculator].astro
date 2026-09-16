@@ -1,0 +1,252 @@
+---
+/**
+ * Embeddable widget for each live calculator: /embed/<slug>/
+ *
+ * Every calculator is written out as an explicit tag below rather than looked up
+ * from a map. Astro resolves `client:*` islands from the literal component tag in
+ * the template — a variable (`<Calculator client:load />`), a dynamic import() or
+ * import.meta.glob all fail with NoMatchingImport at build time. Only the matching
+ * branch renders, so a page still ships just its own calculator's JS.
+ *
+ * WIRED_SLUGS guards against drift: if a live calculator is missing here the build
+ * fails, rather than the widget silently 404ing.
+ *
+ * Generated shape — when adding a calculator, add its import, its slug to
+ * WIRED_SLUGS, and its tag.
+ */
+import EmbedLayout from '../../layouts/EmbedLayout.astro';
+import { SITE } from '../../lib/seo';
+import { embeddableCalculators } from '../../lib/embeds';
+
+import MortgageCalculator from '../../components/calculators/MortgageCalculator.tsx';
+import LoanCalculator from '../../components/calculators/LoanCalculator.tsx';
+import EmiCalculator from '../../components/calculators/EmiCalculator.tsx';
+import SipCalculator from '../../components/calculators/SipCalculator.tsx';
+import CompoundInterestCalculator from '../../components/calculators/CompoundInterestCalculator.tsx';
+import SimpleInterestCalculator from '../../components/calculators/SimpleInterestCalculator.tsx';
+import SalaryCalculator from '../../components/calculators/SalaryCalculator.tsx';
+import CarLoanCalculator from '../../components/calculators/CarLoanCalculator.tsx';
+import IncomeTaxIndiaCalculator from '../../components/calculators/IncomeTaxIndiaCalculator.tsx';
+import TipCalculator from '../../components/calculators/TipCalculator.tsx';
+import SalesTaxCalculator from '../../components/calculators/SalesTaxCalculator.tsx';
+import BudgetCalculator from '../../components/calculators/BudgetCalculator.tsx';
+import RetirementCalculator from '../../components/calculators/RetirementCalculator.tsx';
+import InflationCalculator from '../../components/calculators/InflationCalculator.tsx';
+import NetWorthCalculator from '../../components/calculators/NetWorthCalculator.tsx';
+import BmiCalculator from '../../components/calculators/BmiCalculator.tsx';
+import FdCalculator from '../../components/calculators/FdCalculator.tsx';
+import PpfCalculator from '../../components/calculators/PpfCalculator.tsx';
+import GratuityCalculator from '../../components/calculators/GratuityCalculator.tsx';
+import EpfCalculator from '../../components/calculators/EpfCalculator.tsx';
+import NpsCalculator from '../../components/calculators/NpsCalculator.tsx';
+import SukanyaSamriddhiCalculator from '../../components/calculators/SukanyaSamriddhiCalculator.tsx';
+import NscCalculator from '../../components/calculators/NscCalculator.tsx';
+import ScssCalculator from '../../components/calculators/ScssCalculator.tsx';
+import PostOfficeMisCalculator from '../../components/calculators/PostOfficeMisCalculator.tsx';
+import ApyCalculator from '../../components/calculators/ApyCalculator.tsx';
+import SwpCalculator from '../../components/calculators/SwpCalculator.tsx';
+import StepUpSipCalculator from '../../components/calculators/StepUpSipCalculator.tsx';
+import XirrCalculator from '../../components/calculators/XirrCalculator.tsx';
+import CapitalGainsCalculator from '../../components/calculators/CapitalGainsCalculator.tsx';
+import TdsCalculator from '../../components/calculators/TdsCalculator.tsx';
+import AdvanceTaxCalculator from '../../components/calculators/AdvanceTaxCalculator.tsx';
+import LumpsumCalculator from '../../components/calculators/LumpsumCalculator.tsx';
+import CagrCalculator from '../../components/calculators/CagrCalculator.tsx';
+import RdCalculator from '../../components/calculators/RdCalculator.tsx';
+import HraCalculator from '../../components/calculators/HraCalculator.tsx';
+import GstCalculator from '../../components/calculators/GstCalculator.tsx';
+import TdeeCalculator from '../../components/calculators/TdeeCalculator.tsx';
+import BmrCalculator from '../../components/calculators/BmrCalculator.tsx';
+import BodyFatCalculator from '../../components/calculators/BodyFatCalculator.tsx';
+import PregnancyCalculator from '../../components/calculators/PregnancyCalculator.tsx';
+import CalorieDeficitCalculator from '../../components/calculators/CalorieDeficitCalculator.tsx';
+import IdealWeightCalculator from '../../components/calculators/IdealWeightCalculator.tsx';
+import WaterIntakeCalculator from '../../components/calculators/WaterIntakeCalculator.tsx';
+import OvulationCalculator from '../../components/calculators/OvulationCalculator.tsx';
+import DiscountCalculator from '../../components/calculators/DiscountCalculator.tsx';
+import PercentageCalculator from '../../components/calculators/PercentageCalculator.tsx';
+import CgpaCalculator from '../../components/calculators/CgpaCalculator.tsx';
+import FractionCalculator from '../../components/calculators/FractionCalculator.tsx';
+import GpaCalculator from '../../components/calculators/GpaCalculator.tsx';
+import RatioCalculator from '../../components/calculators/RatioCalculator.tsx';
+import GradeCalculator from '../../components/calculators/GradeCalculator.tsx';
+import ScientificCalculator from '../../components/calculators/ScientificCalculator.tsx';
+import UnitConverter from '../../components/calculators/UnitConverter.tsx';
+import TemperatureConverter from '../../components/calculators/TemperatureConverter.tsx';
+import TimeZoneConverter from '../../components/calculators/TimeZoneConverter.tsx';
+import AgeCalculator from '../../components/calculators/AgeCalculator.tsx';
+import DateDifferenceCalculator from '../../components/calculators/DateDifferenceCalculator.tsx';
+import CountdownCalculator from '../../components/calculators/CountdownCalculator.tsx';
+import ConcreteCalculator from '../../components/calculators/ConcreteCalculator.tsx';
+import PaintCalculator from '../../components/calculators/PaintCalculator.tsx';
+import TileCalculator from '../../components/calculators/TileCalculator.tsx';
+import BrickCalculator from '../../components/calculators/BrickCalculator.tsx';
+import RoofingCalculator from '../../components/calculators/RoofingCalculator.tsx';
+import FuelCostCalculator from '../../components/calculators/FuelCostCalculator.tsx';
+import FuelEconomyCalculator from '../../components/calculators/FuelEconomyCalculator.tsx';
+import CarDepreciationCalculator from '../../components/calculators/CarDepreciationCalculator.tsx';
+import LeaseVsBuyCalculator from '../../components/calculators/LeaseVsBuyCalculator.tsx';
+import WordCounter from '../../components/calculators/WordCounter.tsx';
+
+const WIRED_SLUGS = new Set([
+  'mortgage-calculator',
+  'loan-calculator',
+  'emi-calculator',
+  'sip-calculator',
+  'compound-interest-calculator',
+  'simple-interest-calculator',
+  'salary-calculator',
+  'car-loan-calculator',
+  'income-tax-india',
+  'tip-calculator',
+  'sales-tax-calculator',
+  'budget-calculator',
+  'retirement-calculator',
+  'inflation-calculator',
+  'net-worth-calculator',
+  'bmi-calculator',
+  'fd-calculator',
+  'ppf-calculator',
+  'gratuity-calculator',
+  'epf-calculator',
+  'nps-calculator',
+  'sukanya-samriddhi-calculator',
+  'nsc-calculator',
+  'scss-calculator',
+  'post-office-mis-calculator',
+  'apy-calculator',
+  'swp-calculator',
+  'step-up-sip-calculator',
+  'xirr-calculator',
+  'capital-gains-calculator',
+  'tds-calculator',
+  'advance-tax-calculator',
+  'lumpsum-calculator',
+  'cagr-calculator',
+  'rd-calculator',
+  'hra-calculator',
+  'gst-calculator',
+  'tdee-calculator',
+  'bmr-calculator',
+  'body-fat-calculator',
+  'pregnancy-calculator',
+  'calorie-calculator',
+  'ideal-weight-calculator',
+  'water-intake-calculator',
+  'ovulation-calculator',
+  'discount-calculator',
+  'percentage-calculator',
+  'cgpa-to-percentage-calculator',
+  'fraction-calculator',
+  'gpa-calculator',
+  'ratio-calculator',
+  'grade-calculator',
+  'scientific-calculator',
+  'unit-converter',
+  'temperature-converter',
+  'time-zone-converter',
+  'age-calculator',
+  'date-difference-calculator',
+  'countdown-timer',
+  'concrete-calculator',
+  'paint-calculator',
+  'tile-calculator',
+  'brick-calculator',
+  'roofing-calculator',
+  'fuel-cost-calculator',
+  'fuel-economy-calculator',
+  'car-depreciation-calculator',
+  'lease-vs-buy-calculator',
+  'word-counter',
+]);
+
+export function getStaticPaths() {
+  // No WIRED_SLUGS reference here: Astro hoists getStaticPaths out of the
+  // frontmatter, so consts declared below are not in scope at call time.
+  return embeddableCalculators.map((calc) => ({
+    params: { calculator: calc.slug },
+    props: { calc },
+  }));
+}
+
+const { calc } = Astro.props;
+if (!WIRED_SLUGS.has(calc.slug)) {
+  throw new Error(
+    `[embed] no component wired for "${calc.slug}". Add its import, WIRED_SLUGS entry and ` +
+      `tag in src/pages/embed/[calculator].astro, or exclude it via NOT_EMBEDDABLE in src/lib/embeds.ts.`
+  );
+}
+const canonical = new URL(calc.href, SITE.url).toString();
+---
+
+<EmbedLayout title={`${calc.name} | ${SITE.name}`} canonical={canonical} calcName={calc.name}>
+  {calc.slug === 'mortgage-calculator' && <MortgageCalculator client:load />}
+  {calc.slug === 'loan-calculator' && <LoanCalculator client:load />}
+  {calc.slug === 'emi-calculator' && <EmiCalculator client:load />}
+  {calc.slug === 'sip-calculator' && <SipCalculator client:load />}
+  {calc.slug === 'compound-interest-calculator' && <CompoundInterestCalculator client:load />}
+  {calc.slug === 'simple-interest-calculator' && <SimpleInterestCalculator client:load />}
+  {calc.slug === 'salary-calculator' && <SalaryCalculator client:load />}
+  {calc.slug === 'car-loan-calculator' && <CarLoanCalculator client:load />}
+  {calc.slug === 'income-tax-india' && <IncomeTaxIndiaCalculator client:load />}
+  {calc.slug === 'tip-calculator' && <TipCalculator client:load />}
+  {calc.slug === 'sales-tax-calculator' && <SalesTaxCalculator client:load />}
+  {calc.slug === 'budget-calculator' && <BudgetCalculator client:load />}
+  {calc.slug === 'retirement-calculator' && <RetirementCalculator client:load />}
+  {calc.slug === 'inflation-calculator' && <InflationCalculator client:load />}
+  {calc.slug === 'net-worth-calculator' && <NetWorthCalculator client:load />}
+  {calc.slug === 'bmi-calculator' && <BmiCalculator client:load />}
+  {calc.slug === 'fd-calculator' && <FdCalculator client:load />}
+  {calc.slug === 'ppf-calculator' && <PpfCalculator client:load />}
+  {calc.slug === 'gratuity-calculator' && <GratuityCalculator client:load />}
+  {calc.slug === 'epf-calculator' && <EpfCalculator client:load />}
+  {calc.slug === 'nps-calculator' && <NpsCalculator client:load />}
+  {calc.slug === 'sukanya-samriddhi-calculator' && <SukanyaSamriddhiCalculator client:load />}
+  {calc.slug === 'nsc-calculator' && <NscCalculator client:load />}
+  {calc.slug === 'scss-calculator' && <ScssCalculator client:load />}
+  {calc.slug === 'post-office-mis-calculator' && <PostOfficeMisCalculator client:load />}
+  {calc.slug === 'apy-calculator' && <ApyCalculator client:load />}
+  {calc.slug === 'swp-calculator' && <SwpCalculator client:load />}
+  {calc.slug === 'step-up-sip-calculator' && <StepUpSipCalculator client:load />}
+  {calc.slug === 'xirr-calculator' && <XirrCalculator client:load />}
+  {calc.slug === 'capital-gains-calculator' && <CapitalGainsCalculator client:load />}
+  {calc.slug === 'tds-calculator' && <TdsCalculator client:load />}
+  {calc.slug === 'advance-tax-calculator' && <AdvanceTaxCalculator client:load />}
+  {calc.slug === 'lumpsum-calculator' && <LumpsumCalculator client:load />}
+  {calc.slug === 'cagr-calculator' && <CagrCalculator client:load />}
+  {calc.slug === 'rd-calculator' && <RdCalculator client:load />}
+  {calc.slug === 'hra-calculator' && <HraCalculator client:load />}
+  {calc.slug === 'gst-calculator' && <GstCalculator client:load />}
+  {calc.slug === 'tdee-calculator' && <TdeeCalculator client:load />}
+  {calc.slug === 'bmr-calculator' && <BmrCalculator client:load />}
+  {calc.slug === 'body-fat-calculator' && <BodyFatCalculator client:load />}
+  {calc.slug === 'pregnancy-calculator' && <PregnancyCalculator client:load />}
+  {calc.slug === 'calorie-calculator' && <CalorieDeficitCalculator client:load />}
+  {calc.slug === 'ideal-weight-calculator' && <IdealWeightCalculator client:load />}
+  {calc.slug === 'water-intake-calculator' && <WaterIntakeCalculator client:load />}
+  {calc.slug === 'ovulation-calculator' && <OvulationCalculator client:load />}
+  {calc.slug === 'discount-calculator' && <DiscountCalculator client:load />}
+  {calc.slug === 'percentage-calculator' && <PercentageCalculator client:load />}
+  {calc.slug === 'cgpa-to-percentage-calculator' && <CgpaCalculator client:load />}
+  {calc.slug === 'fraction-calculator' && <FractionCalculator client:load />}
+  {calc.slug === 'gpa-calculator' && <GpaCalculator client:load />}
+  {calc.slug === 'ratio-calculator' && <RatioCalculator client:load />}
+  {calc.slug === 'grade-calculator' && <GradeCalculator client:load />}
+  {calc.slug === 'scientific-calculator' && <ScientificCalculator client:load />}
+  {calc.slug === 'unit-converter' && <UnitConverter client:load />}
+  {calc.slug === 'temperature-converter' && <TemperatureConverter client:load />}
+  {calc.slug === 'time-zone-converter' && <TimeZoneConverter client:load />}
+  {calc.slug === 'age-calculator' && <AgeCalculator client:load />}
+  {calc.slug === 'date-difference-calculator' && <DateDifferenceCalculator client:load />}
+  {calc.slug === 'countdown-timer' && <CountdownCalculator client:load />}
+  {calc.slug === 'concrete-calculator' && <ConcreteCalculator client:load />}
+  {calc.slug === 'paint-calculator' && <PaintCalculator client:load />}
+  {calc.slug === 'tile-calculator' && <TileCalculator client:load />}
+  {calc.slug === 'brick-calculator' && <BrickCalculator client:load />}
+  {calc.slug === 'roofing-calculator' && <RoofingCalculator client:load />}
+  {calc.slug === 'fuel-cost-calculator' && <FuelCostCalculator client:load />}
+  {calc.slug === 'fuel-economy-calculator' && <FuelEconomyCalculator client:load />}
+  {calc.slug === 'car-depreciation-calculator' && <CarDepreciationCalculator client:load />}
+  {calc.slug === 'lease-vs-buy-calculator' && <LeaseVsBuyCalculator client:load />}
+  {calc.slug === 'word-counter' && <WordCounter client:load />}
+</EmbedLayout>

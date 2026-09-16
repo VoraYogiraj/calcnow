@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HraCalculator from '../../components/calculators/HraCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/hra-calculator';
+
+const meta = {
+  slug: 'hra-calculator',
+  name: 'HRA Calculator',
+  description: 'Free HRA (House Rent Allowance) exemption calculator for Indian salaried taxpayers. Calculates tax-exempt HRA portion under Section 10(13A) with metro / non-metro split.',
+  category: 'finance' as const,
+  keywords: ['hra calculator', 'house rent allowance calculator', 'hra exemption calculator', 'section 10 13a calculator'],
+  lastUpdated: '2026-05-17',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'HRA Calculator', url: path },
+];
+
+const faqs = [
+  { q: 'How is HRA exemption calculated in India?', a: 'HRA exemption is the LEAST of three values: (A) Actual HRA received from employer, (B) 50% of basic salary for metro cities (Mumbai, Delhi, Kolkata, Chennai) or 40% for non-metro, (C) Rent paid minus 10% of basic salary. The smallest of these three is your tax-exempt HRA; the rest is added to your taxable income. This rule is in Section 10(13A) of the Income Tax Act.' },
+  { q: 'Which cities are HRA "metro" for tax purposes?', a: 'For HRA exemption purposes, only 4 cities qualify as "metro" with the 50% rule: Mumbai, Delhi (NCT), Kolkata, Chennai. All other Indian cities (including Bengaluru, Pune, Hyderabad, Ahmedabad, Surat, Jaipur) qualify only for 40% non-metro rule. This is despite Bengaluru/Pune/Hyderabad being major metros economically. The 4-metro list is from the original 1962 Income Tax Rules and has not been updated.' },
+  { q: 'HRA in old vs new tax regime: what changed?', a: 'HRA exemption is available ONLY in the Old Tax Regime, not in the New Tax Regime (which has lower slabs but eliminates most exemptions and deductions). For most salaried earners with HRA + 80C + standard deduction + home loan interest, the Old Regime is still optimal. The New Regime favors taxpayers without these deductions. Most tax-planning calculators (including ours) help compare both regimes.' },
+  { q: 'Can I claim HRA if I pay rent to my parents?', a: 'Yes, but with strict conditions: (1) you must actually pay rent to your parents (preferably via bank transfer for documentation), (2) the parent must be the legal owner of the property (not you), (3) the parent must declare the rental income on their tax return, (4) for rent above ₹1 lakh/year, you must report your landlord-parent\'s PAN to your employer. Income Tax Officers routinely scrutinize parent-rent HRA claims; ensure full documentation.' },
+  { q: 'HRA documentation requirements?', a: 'For HRA above ₹3,000/month: actual rent receipts signed by landlord. For HRA above ₹1 lakh/year: landlord\'s PAN must be furnished to employer. For HRA above ₹50,000/month: tenant must deduct 5% TDS under Section 194-IB and deposit with the IT Department. Keep rent receipts, rental agreement, and bank transfer records. IT Officers can request documentation up to 6 years after filing.' },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate HRA exemption',
+    description: 'Step-by-step instructions for calculating tax-exempt House Rent Allowance under Section 10(13A) of the Income Tax Act.',
+    totalTime: 'PT2M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Select city tier', text: 'Metro (50% rule) applies only to Mumbai, Delhi, Kolkata, Chennai. All other cities use 40% non-metro rule.' },
+      { name: 'Enter basic salary', text: 'Use your basic + DA from Form 16 / payslip. Don\'t include allowances, bonuses, or perks. Only basic salary counts for HRA calculation.' },
+      { name: 'Enter HRA received from employer', text: 'Use the HRA component shown on your payslip or Form 16. This is monthly.' },
+      { name: 'Enter monthly rent paid', text: 'Actual rent paid to your landlord. Must have receipts. For above ₹1L/yr: need landlord PAN.' },
+      { name: 'Read the exemption amount', text: 'Calculator shows the LEAST of (A) actual HRA, (B) % of basic, (C) rent - 10% basic. The least is your tax-exempt HRA. Rest is taxable.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout title="HRA Calculator India: Rent Allowance 2025-26" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">🏠 HRA</span>
+          <span class="chip-cyan">💰 Section 10(13A)</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          HRA Calculator.
+          <span class="text-gradient-brand">Maximize exemption.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                HRA exemption = <strong>LEAST</strong> of (A) actual HRA received, (B) <strong>50% of basic</strong> (metro) or <strong>40% of basic</strong> (non-metro), (C) <strong>rent paid − 10% of basic</strong>. Only 4 cities qualify as "metro": Mumbai, Delhi, Kolkata, Chennai. HRA exemption is available only in the <strong>Old Tax Regime</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><HraCalculator client:visible /></div></section>
+  <section class="bg-ink-50 border-y-2 border-ink-900"><div class="container-wide py-12 md:py-16"><div class="max-w-4xl mx-auto"><span class="chip-cyan mb-4">❓ FAQ</span><h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">HRA calculator FAQ.</h2><div class="mt-8 space-y-4">{faqs.map((faq) => (<details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group"><summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4"><span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span></summary><p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p></details>))}</div></div></div></section>
+</BaseLayout>

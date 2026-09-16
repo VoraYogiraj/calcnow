@@ -1,0 +1,182 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/how-emi-amortization-works';
+const lastUpdated = '2026-07-09';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'How EMI Amortization Works', url: path },
+];
+
+// All numbers computed at build time — ₹50L @ 8.5% for 20 years.
+const P = 5000000, RATE = 8.5, YEARS = 20;
+const r = RATE / 100 / 12;
+const n = YEARS * 12;
+const emi = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+const month1Interest = P * r;
+const month1Principal = emi - month1Interest;
+const totalPaid = emi * n;
+const totalInterest = totalPaid - P;
+
+// Amortization milestones: outstanding balance + cumulative interest at year ends.
+function simulate(extraPerYear = 0) {
+  let bal = P, months = 0, cumInterest = 0;
+  const milestones: Record<number, { bal: number; cumInterest: number }> = {};
+  while (bal > 0 && months < 600) {
+    months++;
+    const interest = bal * r;
+    cumInterest += interest;
+    bal = bal + interest - emi;
+    if (extraPerYear > 0 && months % 12 === 0) bal -= extraPerYear;
+    if (bal < 0) bal = 0;
+    if (months % 12 === 0) milestones[months / 12] = { bal, cumInterest };
+  }
+  return { months, cumInterest, milestones };
+}
+const base = simulate(0);
+const prepay = simulate(emi); // one extra EMI every year
+const monthsSaved = base.months - prepay.months;
+const interestSaved = base.cumInterest - prepay.cumInterest;
+// Break-even year: when cumulative principal repaid crosses 50%
+const halfYear = Object.entries(base.milestones).find(([, v]) => v.bal <= P / 2)?.[0];
+
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+const fmtL = (v: number) => v >= 10000000 ? `₹${(v / 10000000).toFixed(2)} Cr` : `₹${(v / 100000).toFixed(1)} L`;
+
+const faqs = [
+  { q: 'Why is most of my early EMI interest, not principal?', a: `Because interest is charged on the outstanding balance, and at the start you owe the full amount. On a ${fmtL(P)} loan at ${RATE}%, the first month's interest alone is ${fmtINR(month1Interest)}, so of your ${fmtINR(emi)} EMI, only ${fmtINR(month1Principal)} (about ${((month1Principal / emi) * 100).toFixed(0)}%) reduces the loan. As the balance falls, the interest share falls with it, and late-tenure EMIs are almost all principal.` },
+  { q: 'When will I have repaid half my home loan?', a: `Much later than halfway through the tenure. On a ${YEARS}-year loan at ${RATE}%, you cross 50% principal repaid only around year ${halfYear}, roughly two-thirds of the way in. This is why selling or refinancing early feels like "I've paid for years and barely own more of the house."` },
+  { q: 'How much does one extra EMI per year actually save?', a: `A lot more than intuition suggests. Paying one extra EMI (${fmtINR(emi)}) each year on this loan clears it about ${Math.floor(monthsSaved / 12)} years and ${monthsSaved % 12} months early and saves roughly ${fmtL(interestSaved)} in interest, a ${((interestSaved / base.cumInterest) * 100).toFixed(0)}% cut in total interest cost, because every prepaid rupee stops compounding against you immediately.` },
+  { q: 'Should I prepay my loan or invest the money instead?', a: 'Compare the loan rate with your realistic post-tax investment return. Prepaying an 8.5% loan is a guaranteed, risk-free 8.5% return. Equity may beat it over long horizons (10-12% historically in India), but with volatility. A common middle path: prepay enough to feel safe, invest the rest, and always prepay high-rate debt (personal loans, credit cards) before investing anything.' },
+  { q: 'Does EMI change when interest rates change?', a: 'On floating-rate loans in India, lenders usually keep the EMI constant and stretch or shrink the tenure when the repo rate moves. You can ask the bank to adjust the EMI instead (often smarter, since a longer tenure quietly adds interest). After every rate change, check your revised tenure, not just the EMI.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title="How EMI Amortization Really Works: Why Your First EMI Is 79% Interest" description={`Inside the EMI formula: on a ₹50L loan at 8.5%, your first EMI of ${fmtINR(emi)} pays just ${fmtINR(month1Principal)} of principal. Amortization milestones, the half-paid myth, and what one extra EMI a year saves.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">📚 Guide</span>
+          <span class="chip-yellow">🏠 Home loans</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Why your first EMI is <span class="text-gradient-brand">{((month1Interest / emi) * 100).toFixed(0)}% interest.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                On a <strong>{fmtL(P)} loan at {RATE}% for {YEARS} years</strong>, your EMI is <strong>{fmtINR(emi)}</strong>, but the first month, <strong>{fmtINR(month1Interest)}</strong> of it is interest and only <strong>{fmtINR(month1Principal)}</strong> repays the loan. You don't cross 50% repaid until around <strong>year {halfYear}</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-3xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The mechanics nobody explains at loan signing</h2>
+      <p class="text-ink-700 font-medium leading-relaxed">
+        An EMI is engineered to be the <em>same number every month</em> for the full tenure. That's its whole appeal. But underneath that flat payment, two moving parts trade places every single month. Interest is calculated on whatever you still owe; the rest of the EMI goes to principal. Early on you owe a lot, so interest devours the payment. Two decades later you owe little, so nearly the whole EMI chips away at principal. The payment never changes. The <em>composition</em> changes completely.
+      </p>
+      <p class="text-ink-700 font-medium leading-relaxed">
+        Run the actual numbers for a typical Indian metro home loan, {fmtL(P)} at {RATE}% over {YEARS} years. The formula (EMI = P×r×(1+r)ⁿ ÷ ((1+r)ⁿ−1), with r the monthly rate) produces an EMI of <strong>{fmtINR(emi)}</strong>. In month one, the bank charges {RATE}%÷12 on the full {fmtL(P)}: that's <strong>{fmtINR(month1Interest)}</strong> in interest. Your loan shrinks by just {fmtINR(month1Principal)}. If you total every payment over {YEARS} years, you repay <strong>{fmtINR(totalPaid)}</strong>. The house costs you {fmtL(totalInterest)} in interest on top of the principal.
+      </p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The milestones that matter</h2>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">End of year</th>
+            <th class="text-right p-3 font-extrabold">Still owed</th>
+            <th class="text-right p-3 font-extrabold">Interest paid so far</th>
+          </tr></thead>
+          <tbody>
+            {[5, 10, Number(halfYear), 15, 20].filter((y, i, a) => a.indexOf(y) === i).sort((a, b) => a - b).map((y) => (
+              <tr class="border-b-2 border-ink-100">
+                <td class="p-3 font-semibold text-ink-700">Year {y}{String(y) === String(halfYear) ? ' (half repaid)' : ''}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtL(base.milestones[y]?.bal ?? 0)}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtL(base.milestones[y]?.cumInterest ?? base.cumInterest)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-ink-700 font-medium leading-relaxed mt-6">
+        Notice the asymmetry: five years in (a quarter of the tenure), you've barely dented the principal, yet you've already handed the bank more than {fmtL(base.milestones[5].cumInterest)} in interest. This is why refinancing to a cheaper rate is most valuable <em>early</em> in a loan, and nearly pointless in the final years: the interest is front-loaded, so the savings are too.
+      </p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The single cheapest trick in home finance</h2>
+      <p class="text-ink-700 font-medium leading-relaxed">
+        Pay <strong>one extra EMI per year</strong>, a 13th payment, applied straight to principal. On this loan it shortens the tenure by about <strong>{Math.floor(monthsSaved / 12)} years {monthsSaved % 12} months</strong> and saves roughly <strong>{fmtL(interestSaved)}</strong> ({((interestSaved / base.cumInterest) * 100).toFixed(0)}% of the total interest), because a prepaid rupee at year 2 stops accruing {RATE}% for the remaining eighteen years. Indian floating-rate home loans carry <strong>no prepayment penalty</strong> by RBI rule, so the only cost is opportunity cost. Bonus math: prepaying an {RATE}% loan is a guaranteed, tax-free {RATE}% return. Compare that honestly with what your money would otherwise earn.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Run your own numbers</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'EMI Calculator', href: '/finance/emi-calculator/', icon: '🇮🇳', color: 'bg-rose-300' },
+          { name: 'Mortgage Calculator', href: '/finance/mortgage-calculator/', icon: '🏠', color: 'bg-lime-accent' },
+          { name: 'Flat vs Reducing Guide', href: '/finance/flat-vs-reducing-interest/', icon: '🚩', color: 'bg-cyan-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,243 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import IncomeTaxIndiaCalculator from '../../../components/calculators/IncomeTaxIndiaCalculator.tsx';
+import StateIcon from '../../../components/ui/StateIcon.astro';
+import { indiaStates, type IndiaStateData } from '../../../data/india-states';
+import {
+  buildCalculatorSchema,
+  buildBreadcrumbSchema,
+  buildFAQSchema,
+} from '../../../lib/seo';
+
+export async function getStaticPaths() {
+  return indiaStates.map((state) => ({
+    params: { state: state.slug },
+    props: { state },
+  }));
+}
+
+interface Props {
+  state: IndiaStateData;
+}
+
+const { state } = Astro.props;
+const path = `/finance/income-tax-india/${state.slug}`;
+
+const meta = {
+  slug: `income-tax-india-${state.slug}`,
+  // Income tax is FEDERAL in India — what actually differs by state is
+  // Professional Tax and HRA tier. Lead with that (it's also the only honest
+  // differentiator between these 16 pages, per scaled-content guidance).
+  name: `Take-Home & Professional Tax Calculator: ${state.name}`,
+  description: `${state.name} take-home salary calculator (FY 2025-26): ${state.monthlyProfessionalTax > 0 ? `₹${state.monthlyProfessionalTax}/mo state Professional Tax` : 'zero Professional Tax (state-exempt)'}, HRA ${state.hraTier === 'metro' ? '50%' : '40%'} tier, and Old vs New regime income tax compared.`,
+  category: 'finance' as const,
+  keywords: state.metaKeywords,
+  lastUpdated: '2026-05-28',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'India Income Tax', url: '/finance/income-tax-india/' },
+  { name: state.name, url: path },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(state.faqs),
+];
+
+// Link to ALL other states for SEO crawlability — prevents orphan pages.
+const otherStates = indiaStates.filter((s) => s.slug !== state.slug);
+
+const ptYearly = state.monthlyProfessionalTax * 12;
+const hraExemption = state.hraTier === 'metro' ? '50%' : '40%';
+---
+
+<BaseLayout
+  title={`${state.name} Take-Home & Professional Tax Calculator FY 2025-26`}
+  description={meta.description}
+  schemas={schemas}
+  publishedTime={meta.lastUpdated}
+  modifiedTime={meta.lastUpdated}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/20 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-yellow">🇮🇳 India · FY 2025-26</span>
+          <span class="chip-cyan inline-flex items-center gap-1.5"><StateIcon slug={state.slug} size={18} alt={state.name} /> {state.name}</span>
+          {state.monthlyProfessionalTax === 0 ? (
+            <span class="chip-lime">✓ No Professional Tax</span>
+          ) : (
+            <span class="chip-white">PT ₹{state.monthlyProfessionalTax}/mo</span>
+          )}
+          <span class="chip-white"><span class="text-ink-500">HRA</span><span>{hraExemption}</span></span>
+        </div>
+
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          {state.name} Take-Home
+          <span class="text-gradient-brand">& Professional Tax.</span>
+        </h1>
+
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick context</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                {state.name} {state.monthlyProfessionalTax === 0 ? (
+                  <span>does NOT levy Professional Tax, saving ₹2,500/year vs Maharashtra/Karnataka residents.</span>
+                ) : (
+                  <span>levies Professional Tax of ₹{state.monthlyProfessionalTax}/month (~₹{ptYearly}/year) on income above the slab threshold.</span>
+                )} {state.name} cities qualify for <strong>{hraExemption} HRA exemption</strong> ({state.hraTier === 'metro' ? 'tier-1 metro' : 'tier-2'} status under Section 10(13A)). Use the calculator below to compare Old vs New regime for your salary.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <IncomeTaxIndiaCalculator
+        client:load
+        monthlyProfessionalTax={state.monthlyProfessionalTax}
+        stateName={state.name}
+      />
+    </div>
+  </section>
+
+  <!-- STATE CONTEXT -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4 inline-flex items-center gap-1.5"><StateIcon slug={state.slug} size={18} alt={state.name} /> About {state.name}</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          {state.name} economic profile.
+        </h2>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">Capital</div>
+            <div class="text-2xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">{state.capital}</div>
+          </div>
+          <div class="bg-pink-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-white mb-2">Avg Mid-Career Salary</div>
+            <div class="text-2xl font-extrabold text-white leading-none" style="font-family: 'Inter Tight', sans-serif;">
+              ₹{(state.avgSalaryMid / 100000).toFixed(1)}L
+            </div>
+            <div class="text-xs text-white/90 mt-2 font-semibold">per year</div>
+          </div>
+          <div class="bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">Cost of Living</div>
+            <div class="text-2xl font-extrabold text-ink-900 leading-none" style="font-family: 'Inter Tight', sans-serif;">{state.costOfLivingIndex}</div>
+            <div class="text-xs text-ink-800 mt-2 font-semibold">vs Mumbai = 100</div>
+          </div>
+        </div>
+
+        <h3 class="!text-xl mt-8 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Market overview</h3>
+        <p class="text-ink-700 mt-2 font-medium leading-relaxed">{state.marketContext}</p>
+
+        <h3 class="!text-xl mt-6 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Top industries</h3>
+        <div class="flex flex-wrap gap-2 mt-3">
+          {state.topIndustries.map((ind) => (
+            <span class="chip-white">{ind}</span>
+          ))}
+        </div>
+
+        <h3 class="!text-xl mt-8 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">{state.name}-specific tax notes</h3>
+        <p class="text-ink-700 mt-2 font-medium leading-relaxed">{state.taxNote}</p>
+
+        <div class="mt-4 bg-white border-2 border-ink-200 rounded-2xl p-4">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-2">Professional Tax slab</div>
+          <p class="text-sm text-ink-800 font-medium !m-0">{state.ptSlabsNote}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ {state.name} FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        Common questions.
+      </h2>
+
+      <div class="space-y-3 mt-8">
+        {state.faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- OTHER STATES -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-violet-300 text-ink-900 mb-4">🗺️ Other states</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          Tax calculator for other states.
+        </h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-8">
+          {otherStates.map((other) => (
+            <a
+              href={`/finance/income-tax-india/${other.slug}/`}
+              class="group bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200"
+            >
+              <StateIcon slug={other.slug} size={28} alt={other.name} class="mb-2 group-hover:rotate-12 transition-transform" />
+              <div class="font-extrabold text-ink-900 text-sm leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+                {other.name}
+              </div>
+              <div class="text-xs text-ink-600 mt-1 font-semibold">
+                {other.monthlyProfessionalTax === 0 ? 'No PT' : `PT ₹${other.monthlyProfessionalTax}/mo`}
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <div class="mt-6">
+          <a href="/finance/" class="font-bold underline decoration-2 underline-offset-4 decoration-lime-accent">
+            ← Back to all finance calculators
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

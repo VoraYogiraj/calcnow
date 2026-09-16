@@ -1,0 +1,234 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+
+const path = '/guides/';
+const lastUpdated = '2026-07-09';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: path },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs)];
+
+const guides = [
+  {
+    title: 'The rate they quote isn\'t the rate you pay',
+    href: '/guides/apr-vs-interest-rate/',
+    desc: 'A ₹10L loan at 10% with a 1% fee has a ~10.43% APR, not 10%. Why a flat fee against a shrinking balance bites harder than its sticker rate. Every figure solved by IRR.',
+    icon: '🏷️',
+    color: 'bg-pink-accent',
+    tag: 'Loan traps',
+  },
+  {
+    title: 'Personal loan vs credit card vs gold loan',
+    href: '/guides/personal-loan-vs-credit-card-vs-gold-loan/',
+    desc: '₹1L for a year costs ₹7,238 on a gold loan but ₹24,181 revolved on a card. All four routes on identical terms, with fees, GST and true APR computed.',
+    icon: '💳',
+    color: 'bg-pink-accent',
+    tag: 'Borrowing',
+  },
+  {
+    title: 'The 10% raise that doubles your SIP',
+    href: '/guides/sip-step-up-vs-flat/',
+    desc: 'A flat ₹10k/mo SIP over 20 years at 12% builds ~₹1 Cr; stepping it up 10% a year builds ~₹1.99 Cr, nearly ₹99L more. Full table by step-up rate, every figure computed.',
+    icon: '📈',
+    color: 'bg-lime-accent',
+    tag: 'Investing',
+  },
+  {
+    title: 'Why your first EMI is 79% interest',
+    href: '/guides/how-emi-amortization-works/',
+    desc: 'Inside the amortization curve: when you really own half your home, why refinancing late is pointless, and what one extra EMI a year saves (spoiler: years).',
+    icon: '🏠',
+    color: 'bg-cyan-accent',
+    tag: 'Home loans',
+  },
+  {
+    title: 'The invisible fee in every remittance',
+    href: '/guides/remittance-costs-gulf/',
+    desc: 'Bank wire vs exchange house vs digital across the Gulf\'s biggest corridors, and the AED 2,600/year that hides in the exchange rate, not the fee line.',
+    icon: '💸',
+    color: 'bg-lime-accent',
+    tag: 'Remittances',
+  },
+  {
+    title: 'Down payments around the world',
+    href: '/guides/down-payments-around-the-world/',
+    desc: '0% in the Netherlands, 30% in Hong Kong: what ten markets\' deposit rules reveal about who\'s afraid of a crash, with rate data across 186 countries.',
+    icon: '🌍',
+    color: 'bg-yellow-accent',
+    tag: 'Global',
+  },
+  {
+    title: 'How much rent is tax-free? (HRA)',
+    href: '/guides/hra-exemption-explained/',
+    desc: 'HRA exemption is the least of three formulas. The "rent minus 10% of basic" catch trips everyone up. Worked table across rent levels, plus the old-regime-only rule.',
+    icon: '🏠',
+    color: 'bg-yellow-accent',
+    tag: 'Tax',
+  },
+  {
+    title: 'The extra ₹50,000 deduction (NPS)',
+    href: '/guides/nps-tax-benefit-explained/',
+    desc: 'Section 80CCD(1B) stacks ₹50,000 on top of 80C, worth ₹15,600 at the 30% slab. Tax saved by slab, the net cost, and the 80CCD(2) employer route that survives the new regime.',
+    icon: '🧾',
+    color: 'bg-cyan-accent',
+    tag: 'Tax',
+  },
+  {
+    title: 'How much gratuity will you get?',
+    href: '/guides/gratuity-calculation/',
+    desc: 'The 15/26 formula decoded: ₹50k basic + DA over 10 years pays ₹2.88L, tax-free up to ₹20L. Full table by tenure, plus the basic-only catch that shrinks your payout.',
+    icon: '🎁',
+    color: 'bg-yellow-accent',
+    tag: 'Retirement',
+  },
+  {
+    title: 'Home loan tax benefits',
+    href: '/guides/home-loan-tax-benefits/',
+    desc: 'Sections 80C + 24(b) worth up to ₹1.05L/year, but only under the old regime. The by-slab table and why the new regime removes them entirely.',
+    icon: '🪙',
+    color: 'bg-yellow-accent',
+    tag: 'Tax',
+  },
+  {
+    title: 'How big should your emergency fund be?',
+    href: '/guides/emergency-fund-how-much/',
+    desc: '3 to 6 months of essential expenses, not salary. At ₹50k/month that is ₹1.5L to ₹3L. Full target table by expense level, plus the savings + liquid-fund split for access with a little yield.',
+    icon: '🛟',
+    color: 'bg-lime-accent',
+    tag: 'Saving',
+  },
+  {
+    title: 'Where to park your money',
+    href: '/guides/fd-vs-debt-fund-vs-savings/',
+    desc: 'FD vs debt fund vs savings, compared post-tax for a 30% slab. Liquidity-first for emergencies, but never leave long-term money earning 3%.',
+    icon: '💰',
+    color: 'bg-cyan-accent',
+    tag: 'Saving',
+  },
+  {
+    title: 'Your credit score is a price tag',
+    href: '/guides/credit-score-and-home-loan-rate/',
+    desc: 'The same ₹50L loan costs lakhs more with a poor CIBIL score. Full rate-band table (8.35% at 800+ vs 11.25% below 650) and how to raise your score before applying.',
+    icon: '📉',
+    color: 'bg-cyan-accent',
+    tag: 'Credit',
+  },
+  {
+    title: 'Currency pegs explained',
+    href: '/guides/currency-pegs-explained/',
+    desc: 'Why the dirham never moves against the dollar, and what that means for your remittance: when AED is locked to USD, watching USD→INR tells you your AED→INR.',
+    icon: '💱',
+    color: 'bg-yellow-accent',
+    tag: 'FX basics',
+  },
+  {
+    title: 'The Rule of 72',
+    href: '/guides/rule-of-72/',
+    desc: 'Divide 72 by your return to find how fast money doubles: 8% → 9 years. The shortcut checked against the exact maths, plus using it on inflation and over a lifetime.',
+    icon: '🧮',
+    color: 'bg-lime-accent',
+    tag: 'Mental maths',
+  },
+  {
+    title: 'Rent vs buy a home',
+    href: '/guides/rent-vs-buy-a-home/',
+    desc: 'A year-by-year net-worth simulation of buying a ₹80L home vs renting and investing the difference: when the buyer overtakes, and why holding period decides everything.',
+    icon: '🔑',
+    color: 'bg-lime-accent',
+    tag: 'Big decisions',
+  },
+  {
+    title: 'Prepay your loan, or invest?',
+    href: '/guides/prepay-home-loan-vs-invest/',
+    desc: 'Prepaying an 8.5% loan is a guaranteed tax-free 8.5% return. A ₹5L prepayment saves lakhs, compared head-to-head against investing the same money at 6–12%.',
+    icon: '⚖️',
+    color: 'bg-pink-accent',
+    tag: 'Decision',
+  },
+  {
+    title: 'How much home loan can you afford?',
+    href: '/guides/how-much-home-loan-can-i-afford/',
+    desc: 'The 40% EMI rule, computed across income levels (a ₹1L salary funds a ₹40L+ loan), plus FOIR, tenure tricks, and why not to borrow the max.',
+    icon: '📊',
+    color: 'bg-cyan-accent',
+    tag: 'Affordability',
+  },
+  {
+    title: 'Stamp duty, state by state',
+    href: '/guides/stamp-duty-by-state-india/',
+    desc: 'The upfront cost that isn\'t in your EMI: all 32 Indian states ranked, from 5% to 13%, with the women\'s rebate. The same flat can cost lakhs more by state.',
+    icon: '🏛️',
+    color: 'bg-yellow-accent',
+    tag: 'Home buying',
+  },
+  {
+    title: 'The true cost of owning a car',
+    href: '/guides/true-cost-of-car-ownership/',
+    desc: 'A ₹12L car costs ~₹15.5L to own for 5 years, about ₹25/km. Depreciation, not fuel, is the hidden giant. Full five-line breakdown, every figure computed.',
+    icon: '🚗',
+    color: 'bg-pink-accent',
+    tag: 'Big decisions',
+  },
+  {
+    title: 'Flat vs reducing interest rates',
+    href: '/finance/flat-vs-reducing-interest/',
+    desc: 'A 10% flat rate is really ~17.3% reducing. The dealer trick explained with a full worked comparison, and the ×1.8 rule to convert in your head.',
+    icon: '🚩',
+    color: 'bg-pink-accent',
+    tag: 'Loan traps',
+  },
+];
+---
+
+<BaseLayout title="Money Guides: Plain-English Finance, With the Math Shown" description="Deep, worked-example guides to EMIs and amortization, remittance costs, down payment rules across 186 countries, and the flat-vs-reducing rate trick. No fluff. Every number computed.">
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-10 pb-12 md:pt-14 md:pb-16">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <span class="chip-lime mb-4">📚 Guides</span>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900 mt-4" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Money, with the <span class="text-gradient-brand">math shown.</span>
+        </h1>
+        <p class="mt-5 text-lg text-ink-700 font-medium leading-relaxed">
+          Plain-English deep dives into the numbers behind loans, rates and transfers. Every figure in these guides is computed, not quoted: the same engines that power our calculators, turned into explanations.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-16 md:pb-24">
+    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5">
+      {guides.map((g) => (
+        <a href={g.href} class={`group ${g.color} border-[2.5px] border-ink-900 rounded-3xl p-6 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200 flex flex-col`}>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-4xl group-hover:rotate-12 transition-transform inline-block">{g.icon}</span>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider bg-white/70 border-2 border-ink-900 rounded-full px-2.5 py-0.5 text-ink-900">{g.tag}</span>
+          </div>
+          <h2 class="!text-xl md:!text-2xl !font-extrabold !text-ink-900 !m-0 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">{g.title}</h2>
+          <p class="text-sm text-ink-800 mt-2.5 leading-snug font-medium flex-1">{g.desc}</p>
+          <div class="mt-4 font-extrabold text-ink-900 text-sm">Read the guide →</div>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Sticker shadow -->
+  <rect x="3" y="4" width="27" height="27" rx="7" fill="#0f172a" opacity="0.95"/>
+  <!-- Sticker face -->
+  <rect x="1" y="1" width="27" height="27" rx="7" fill="#a3e635" stroke="#0f172a" stroke-width="2.5"/>
+  <!-- ÷ symbol -->
+  <circle cx="14.5" cy="9" r="2.4" fill="#0f172a"/>
+  <rect x="7" y="13" width="15" height="3" rx="1.5" fill="#0f172a"/>
+  <circle cx="14.5" cy="20" r="2.4" fill="#0f172a"/>
+</svg>

@@ -1,0 +1,105 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/finance/fha-vs-conventional-mortgage';
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'Mortgage Calculator', url: '/finance/mortgage-calculator/' },
+  { name: 'FHA vs Conventional', url: path },
+];
+const faqs = [
+  { q: 'FHA vs Conventional: which is better for a first-time buyer?', a: 'FHA wins if your FICO is 580-680 and/or you have less than 10% down. Conventional wins if FICO is 720+ and you have 20%+ down (avoiding PMI). The middle case (FICO 680-720, 5-10% down): math is close. Conventional with PMI usually edges out FHA when PMI auto-cancels at 78% LTV.' },
+  { q: 'What is the minimum down payment for FHA vs Conventional?', a: 'FHA: 3.5% down (FICO 580+) or 10% down (FICO 500-579). Conventional: 3% down (Fannie/Freddie HomeReady/Home Possible programs), 5% down (standard), 20% down (avoids PMI). FHA\'s 3.5% is among the lowest standard programs in the US.' },
+  { q: 'What about FHA mortgage insurance vs Conventional PMI?', a: 'FHA: Upfront MIP of 1.75% (rolled into loan) + monthly MIP of 0.5-1.05% for the life of the loan (or 11 years if down payment ≥ 10%). Conventional PMI: 0.15-2.5% annually, AUTO-CANCELS at 78% LTV. The "life of loan" MIP on FHA is a major disadvantage for long-term holders. Conventional becomes cheaper over time as PMI drops off.' },
+  { q: 'Can I refinance FHA to Conventional?', a: 'Yes. The standard play: take FHA at purchase (lower down + lenient credit), build 20%+ equity through appreciation and principal payment, then refinance to Conventional to drop the lifetime MIP. Many homebuyers execute this exact move 5-10 years post-purchase.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+
+function emi(p: number, r: number, years: number): number {
+  const m = r / 100 / 12;
+  const n = years * 12;
+  return (p * m * Math.pow(1 + m, n)) / (Math.pow(1 + m, n) - 1);
+}
+const loanAmount = 350000;
+const fhaRate = 6.25;
+const convRate = 6.5;
+const fhaEmi = emi(loanAmount, fhaRate, 30);
+const convEmi = emi(loanAmount, convRate, 30);
+// Approx FHA MIP: 0.55% annually on loan
+const fhaMIP = (loanAmount * 0.0055) / 12;
+// PMI: 0.5% annually until 78% LTV (~6-8 years on standard amortization)
+const pmiAnnual = (loanAmount * 0.005) / 12;
+const fmtUSD = (v: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
+---
+
+<BaseLayout title="FHA vs Conventional Mortgage: Which Saves More?" description="FHA vs Conventional mortgage compared. Real numbers on $350K loan: down payment, MIP/PMI, rate, total cost over 30 years. Plus the right path for your FICO + down payment combination." schemas={schemas}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-yellow">🇺🇸 USA</span>
+          <span class="chip-cyan">FHA</span>
+          <span class="text-xl font-bold text-ink-500">vs</span>
+          <span class="chip-pink">Conventional</span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">FHA vs Conventional <span class="text-gradient-brand">Mortgage.</span></h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <p class="text-ink-900 text-base sm:text-lg !m-0 leading-relaxed font-medium"><strong>TL;DR:</strong> FHA wins on entry: lower FICO requirements (580 vs 620), lower down payment (3.5% vs 5%). Conventional wins on long-term cost: PMI auto-cancels at 78% LTV; FHA MIP stays for life of loan. The smart play: enter via FHA, refinance to Conventional once you hit 80% LTV.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="!text-3xl sm:!text-4xl !mt-0 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">$350,000 loan, 30-year term.</h2>
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">🏛️ FHA Loan</div>
+          <div class="text-4xl font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{fmtUSD(fhaEmi + fhaMIP)}</div>
+          <div class="text-sm text-ink-800 mt-1 font-bold">/month (P&I + MIP)</div>
+          <div class="mt-5 space-y-2 text-sm font-semibold">
+            <div class="flex justify-between"><span>Interest rate</span><strong>{fhaRate}%</strong></div>
+            <div class="flex justify-between"><span>Principal & Interest</span><strong>{fmtUSD(fhaEmi)}</strong></div>
+            <div class="flex justify-between"><span>Monthly MIP (forever)</span><strong>{fmtUSD(fhaMIP)}</strong></div>
+            <div class="flex justify-between"><span>Upfront MIP (1.75%)</span><strong>{fmtUSD(loanAmount * 0.0175)}</strong></div>
+            <div class="flex justify-between"><span>Min down payment</span><strong>3.5%</strong></div>
+            <div class="flex justify-between"><span>Min FICO</span><strong>580</strong></div>
+          </div>
+        </div>
+        <div class="bg-pink-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-white mb-2">🏦 Conventional (with PMI)</div>
+          <div class="text-4xl font-extrabold text-white" style="font-family: 'Inter Tight', sans-serif;">{fmtUSD(convEmi + pmiAnnual)}</div>
+          <div class="text-sm text-white mt-1 font-bold">/month (P&I + PMI initially)</div>
+          <div class="mt-5 space-y-2 text-sm font-semibold text-white">
+            <div class="flex justify-between"><span>Interest rate</span><strong>{convRate}%</strong></div>
+            <div class="flex justify-between"><span>Principal & Interest</span><strong>{fmtUSD(convEmi)}</strong></div>
+            <div class="flex justify-between"><span>Monthly PMI</span><strong>{fmtUSD(pmiAnnual)}</strong></div>
+            <div class="flex justify-between"><span>PMI cancels at</span><strong>78% LTV (~year 8)</strong></div>
+            <div class="flex justify-between"><span>Min down payment</span><strong>3-5%</strong></div>
+            <div class="flex justify-between"><span>Min FICO</span><strong>620</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-5 bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker">
+        <p class="text-ink-900 font-semibold !m-0 leading-relaxed"><strong>30-year total cost comparison:</strong> FHA total = {fmtUSD((fhaEmi + fhaMIP) * 360 + loanAmount * 0.0175)} (because MIP runs for the full term). Conventional total ≈ {fmtUSD(convEmi * 360 + pmiAnnual * 96)} (PMI cancels around year 8). <strong>Conventional saves ~$30-50K over 30 years if you don\'t refinance the FHA.</strong> Smart play: start with FHA, refinance to Conventional at 80% LTV.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">{faqs.map((faq, idx) => (<details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}><summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none"><span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors"><svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></span></summary><div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div></details>))}</div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

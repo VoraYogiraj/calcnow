@@ -1,0 +1,64 @@
+---
+/**
+ * Shared hero for the category hub pages (/finance/, /health/, ...).
+ *
+ * The hubs used to open with a bare <h1> on the pre-redesign slate palette,
+ * which read as a different site from the calculator pages they link to. This
+ * gives them the same treatment: blurred accent orbs, a chip row, an Inter
+ * Tight headline whose second clause carries the brand gradient.
+ */
+import Breadcrumbs from './Breadcrumbs.astro';
+
+export interface Props {
+  breadcrumbs: { name: string; url: string }[];
+  /** Chip contents, e.g. "💰 Finance". */
+  chip: string;
+  /** Chip colour class, e.g. "chip-lime". Defaults to lime. */
+  chipClass?: string;
+  /** Optional stat pills shown beside the chip, e.g. { label: 'Tools', value: '25' }. */
+  stats?: { label: string; value: string }[];
+  /** First half of the headline, rendered in ink. */
+  titleLead: string;
+  /** Second half, rendered in the brand gradient. */
+  titleAccent: string;
+  intro: string;
+  /** Tailwind colour for the two background orbs. */
+  orbA?: string;
+  orbB?: string;
+}
+
+const {
+  breadcrumbs,
+  chip,
+  chipClass = 'chip-lime',
+  stats = [],
+  titleLead,
+  titleAccent,
+  intro,
+  orbA = 'bg-lime-accent/30',
+  orbB = 'bg-cyan-accent/25',
+} = Astro.props;
+---
+
+<section class="relative overflow-hidden bg-white">
+  <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+    <div class={`absolute top-[-10%] left-[-5%] w-[500px] h-[500px] ${orbA} rounded-full blur-[120px] float-slow`}></div>
+    <div class={`absolute top-[5%] right-[-10%] w-[400px] h-[400px] ${orbB} rounded-full blur-[120px] float-slow-2`}></div>
+  </div>
+  <div class="container-wide relative pt-10 pb-10 md:pt-14 md:pb-12">
+    <Breadcrumbs items={breadcrumbs} />
+    <div class="flex flex-wrap items-center gap-2 mb-5">
+      <span class={chipClass}>{chip}</span>
+      {stats.map((s) => (
+        <span class="chip-white"><span class="text-ink-500">{s.label}</span><span>{s.value}</span></span>
+      ))}
+    </div>
+    <h1
+      class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900"
+      style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;"
+    >
+      {titleLead} <span class="text-gradient-brand">{titleAccent}</span>
+    </h1>
+    <p class="mt-5 text-lg text-ink-700 font-medium leading-relaxed max-w-3xl">{intro}</p>
+  </div>
+</section>

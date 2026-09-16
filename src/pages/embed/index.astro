@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HubHero from '../../components/ui/HubHero.astro';
+import HubCard from '../../components/ui/HubCard.astro';
+import { buildBreadcrumbSchema, buildFAQSchema, SITE } from '../../lib/seo';
+import { categoryMeta } from '../../data/calculators';
+import { embeddableCalculators, embedPath } from '../../lib/embeds';
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Embed a calculator', url: '/embed/' },
+];
+
+// Group by category so a publisher can find the one relevant to their post.
+const byCategory = [...new Set(embeddableCalculators.map((c) => c.category))].map((cat) => ({
+  cat,
+  meta: categoryMeta[cat],
+  calcs: embeddableCalculators.filter((c) => c.category === cat),
+}));
+
+const faqs = [
+  {
+    q: 'Is embedding a Calctube calculator free?',
+    a: 'Yes, free for any site, personal or commercial, with no signup, no API key and no usage limits. The only condition is that you keep the "Powered by Calctube" attribution link visible.',
+  },
+  {
+    q: 'Will the widget slow down my page?',
+    a: 'It should not. A widget weighs roughly 60 KB gzipped in total, loads only its own calculator, and runs no ads, no analytics and no third-party trackers inside your page. It sits in a lazy-loaded iframe, so it never blocks your own content from rendering and it cannot affect your page’s layout stability.',
+  },
+  {
+    q: 'Does the iframe resize itself?',
+    a: 'The widget reports its height to the parent page via postMessage. The snippet includes a few lines of JavaScript that listen for that message and resize the iframe, so the calculator never ends up with an inner scrollbar. If you drop that script, set a fixed height instead.',
+  },
+  {
+    q: 'Do you collect data from visitors who use the embedded calculator?',
+    a: 'No. Every calculation runs entirely in the visitor’s browser. Nothing is sent to our servers, and the widget sets no cookies.',
+  },
+];
+
+const schemas = [
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+];
+---
+
+<BaseLayout
+  title="Embed a Free Calculator on Your Site"
+  description={`Add any of ${embeddableCalculators.length} free calculators to your website with one line of HTML. No signup, no API key, no tracking. Mortgage, EMI, SIP, BMI, percentage and more.`}
+  schemas={schemas}
+>
+  <HubHero
+    breadcrumbs={breadcrumbs}
+    chip="🧩 Embed"
+    chipClass="chip-cyan"
+    stats={[{ label: 'Calculators', value: String(embeddableCalculators.length) }]}
+    titleLead="Embed a calculator."
+    titleAccent="One line of HTML."
+    intro={`Any of these ${embeddableCalculators.length} calculators can be dropped into your page with one line of HTML. Free for personal and commercial use: no signup, no API key, no tracking, no usage limits.`}
+  />
+
+  <section class="container-wide pb-16 md:pb-24">
+    <div class="max-w-4xl mx-auto">
+      <div class="card">
+        <label for="picker" class="font-extrabold text-ink-900">Pick a calculator</label>
+        <select
+          id="picker"
+          class="mt-2 w-full rounded-xl border-[2.5px] border-ink-900 px-3 py-2.5 text-sm font-semibold bg-white focus:outline-none focus:ring-4 focus:ring-cyan-accent transition-all"
+        >
+          {byCategory.map((g) => (
+            <optgroup label={g.meta.label}>
+              {g.calcs.map((c) => (
+                <option value={c.slug} data-name={c.name}>{c.name}</option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+
+        <div class="mt-5">
+          <div class="flex items-center justify-between gap-3">
+            <span class="font-extrabold text-ink-900 text-sm">Copy this snippet</span>
+            <button
+              id="copy"
+              type="button"
+              class="text-xs font-extrabold px-3 py-1.5 rounded-full border-2 border-ink-900 bg-lime-accent hover:shadow-sticker-sm transition-all"
+            >Copy</button>
+          </div>
+          <pre class="mt-2 overflow-x-auto rounded-2xl border-[2.5px] border-ink-900 bg-ink-900 text-ink-100 p-4 text-xs leading-relaxed"><code id="snippet"></code></pre>
+        </div>
+
+        <div class="mt-6">
+          <span class="font-extrabold text-ink-900 text-sm">Live preview</span>
+          <iframe
+            id="preview"
+            title="Calculator preview"
+            src={embedPath(embeddableCalculators[0].slug)}
+            style="width:100%;border:2.5px solid #18181b;border-radius:16px;margin-top:8px"
+            height="520"
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+
+      <h2
+        class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
+        style="font-family: 'Inter Tight', sans-serif;"
+      >
+        All embeddable calculators
+      </h2>
+      {byCategory.map((g) => (
+        <section class="mt-8">
+          <h3 class="!text-lg sm:!text-xl !font-extrabold text-ink-900 !mt-0 !mb-4" style="font-family: 'Inter Tight', sans-serif;">
+            {g.meta.icon} {g.meta.label}
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {g.calcs.map((c) => (
+              <HubCard href={embedPath(c.slug)} name={c.name} desc={c.description} icon={c.icon} />
+            ))}
+          </div>
+        </section>
+      ))}
+
+      <h2
+        class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
+        style="font-family: 'Inter Tight', sans-serif;"
+      >
+        Terms of use
+      </h2>
+      <p class="text-ink-700 leading-relaxed font-medium">
+        Use the widgets on any site, commercial or not, as long as the "Powered by Calctube" link stays
+        visible and followable. Please don't modify the calculation logic or present the results as your
+        own. Calculations are estimates; the same disclaimers on our own pages apply.
+      </p>
+
+      <h2
+        class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
+        style="font-family: 'Inter Tight', sans-serif;"
+      >
+        Frequently asked questions
+      </h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card">
+            <summary class="cursor-pointer font-extrabold text-ink-900">{f.q}</summary>
+            <p class="text-sm text-ink-700 mt-2 !leading-relaxed font-medium">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline define:vars={{ origin: SITE.url }}>
+  (() => {
+    const picker = document.getElementById('picker');
+    const snippet = document.getElementById('snippet');
+    const preview = document.getElementById('preview');
+    const copy = document.getElementById('copy');
+
+    const build = (slug, name) =>
+      `<iframe src="${origin}/embed/${slug}/" title="${name}" width="100%" height="520"\n        style="border:0;max-width:680px" loading="lazy"></iframe>\n<script>\n  addEventListener('message', (e) => {\n    if (e.origin !== '${origin}' || e.data?.type !== 'calctube:height') return;\n    document.querySelectorAll('iframe[src^="${origin}/embed/"]').forEach((f) => {\n      if (f.contentWindow === e.source) f.height = e.data.height;\n    });\n  });\n<\/script>`;
+
+    const sync = () => {
+      const opt = picker.options[picker.selectedIndex];
+      snippet.textContent = build(picker.value, opt.dataset.name);
+      preview.src = `/embed/${picker.value}/`;
+    };
+
+    picker.addEventListener('change', sync);
+    copy.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(snippet.textContent);
+      copy.textContent = 'Copied';
+      setTimeout(() => (copy.textContent = 'Copy'), 1500);
+    });
+    sync();
+
+    // Size the on-page preview from the widget's own height messages.
+    addEventListener('message', (e) => {
+      if (e.data?.type === 'calctube:height' && e.source === preview.contentWindow) {
+        preview.height = e.data.height;
+      }
+    });
+  })();
+</script>

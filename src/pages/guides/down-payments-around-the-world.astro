@@ -1,0 +1,171 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FlagIcon from '../../components/ui/FlagIcon.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+import { mortgageLocales } from '../../data/mortgage-locales';
+
+const path = '/guides/down-payments-around-the-world';
+const lastUpdated = '2026-07-09';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Down Payments Around the World', url: path },
+];
+
+// Original synthesis computed from our 186-country mortgage dataset at build time.
+const featured = ['netherlands', 'uk', 'usa', 'canada', 'india', 'uae', 'japan', 'germany', 'singapore', 'hong-kong']
+  .map((slug) => mortgageLocales.find((l) => l.slug === slug))
+  .filter(Boolean) as typeof mortgageLocales;
+
+// Typical down payment by market (editorial data — regulatory/customary minimums for first-time owner-occupiers)
+const downPayments: Record<string, { pct: string; note: string }> = {
+  'netherlands': { pct: '0%', note: '100% LTV allowed; buyer pays ~4–6% transaction costs from savings' },
+  'uk': { pct: '5–10%', note: '95% LTV products exist; 10%+ unlocks better rates' },
+  'usa': { pct: '3–20%', note: 'FHA from 3.5%, conventional 3–5%; 20% avoids PMI' },
+  'canada': { pct: '5–20%', note: '5% under $500K (CMHC-insured); 20% avoids insurance' },
+  'india': { pct: '10–25%', note: 'RBI LTV caps: 90% up to ₹30L, 80% above ₹75L' },
+  'uae': { pct: '20–15%', note: '20% expats / 15% nationals on first home under AED 5M' },
+  'japan': { pct: '0–10%', note: 'Full-financing loans common; flat 35 rewards 10%+' },
+  'germany': { pct: '10–20%', note: 'Banks prefer 20%+; buyer also pays ~10% closing costs' },
+  'singapore': { pct: '25%', note: '75% LTV cap; 5% must be cash, rest can be CPF' },
+  'hong-kong': { pct: '30%', note: 'Relaxed to 70% LTV for most homes under HK$30M' },
+};
+
+// Global rate stats from the full dataset — genuine original synthesis.
+const sorted = [...mortgageLocales].sort((a, b) => a.typicalRate - b.typicalRate);
+const cheapest = sorted.slice(0, 3);
+const dearest = sorted.slice(-3).reverse();
+const medianRate = sorted[Math.floor(sorted.length / 2)].typicalRate;
+
+const faqs = [
+  { q: 'Which country requires the smallest down payment?', a: 'The Netherlands is the outlier: mortgages up to 100% of the property value are legal and normal, so the down payment can be zero, though Dutch buyers still need savings for the roughly 4-6% in transfer tax, notary and advisory costs, which cannot be financed. Japan also routinely finances 100% for salaried buyers. At the other extreme, Singapore caps loans at 75% and Hong Kong at 70%, making 25-30% cash the entry ticket.' },
+  { q: 'Why do some countries force big down payments?', a: 'It\'s usually a financial-stability tool, not a bank preference. Regulators in Singapore, Hong Kong and India cap loan-to-value ratios to cool speculative property markets and protect banks from price crashes. Where governments instead want to expand ownership (US FHA loans, Canada\'s CMHC insurance, Dutch NHG), they use insurance or guarantees to make low-down-payment lending safe for lenders.' },
+  { q: `Which countries have the cheapest and most expensive mortgages in 2026?`, a: `Across the ${mortgageLocales.length} markets in our dataset, typical prime rates run from about ${cheapest[0].typicalRate}% in ${cheapest[0].country} (${cheapest.map(c => c.country).join(', ')} form the cheap tier) to ${dearest[0].typicalRate}% in ${dearest[0].country}, with ${dearest.slice(1).map(c => c.country).join(' and ')} close behind. The global median sits near ${medianRate}%. The spread mostly tracks inflation and currency risk. Lenders in volatile-currency economies must charge nominal rates that survive devaluation.` },
+  { q: 'Is a bigger down payment always better?', a: 'No. It\'s a trade-off. More equity means a smaller loan, better rates, and no mortgage insurance. But over-stretching for the down payment can leave you without an emergency fund, and in low-rate markets the cash may earn more invested than the interest it saves. The sweet spot in most markets: enough to clear the insurance/LTV threshold (often 20%), an intact emergency fund, and not a rupee, dirham or euro more of illiquidity than you can afford.' },
+  { q: 'Do foreigners face different down payment rules?', a: 'Almost everywhere, yes. Non-residents typically face LTV caps 10-30 points stricter: 60-70% in Belize and Mauritius, 50-70% in France for non-EU buyers, and lender-by-lender discretion in the UAE and Singapore. Some markets (Maldives, parts of Indonesia) bar foreign freehold entirely. Budget for the stricter tier and treat anything better as a bonus.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title="Down Payments Around the World (2026): 0% in the Netherlands, 30% in Hong Kong" description={`How much house deposit 10 major markets really require (from 100% LTV Dutch mortgages to Singapore's 25% cash rule), plus rate data across ${mortgageLocales.length} countries: cheapest ${cheapest[0].typicalRate}% (${cheapest[0].country}), median ~${medianRate}%.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-yellow">📚 Guide</span>
+          <span class="chip-cyan">🌍 {mortgageLocales.length} markets compared</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Down payments <span class="text-gradient-brand">around the world.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                The same first home needs <strong>0% down in the Netherlands</strong> (100% LTV is legal), <strong>3.5% in the US</strong> (FHA), <strong>10–25% in India</strong> (RBI caps), and <strong>25–30% cash in Singapore and Hong Kong</strong>. The rules say more about each country's fear of a housing crash than about its banks.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Ten markets, ten philosophies</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Ask "how much do I need to buy a house?" in ten countries and you get ten different answers, not because the banks disagree, but because each regulator has drawn a different line between expanding home ownership and preventing the next crash. Here's what a first-time, owner-occupier buyer actually needs down in ten major markets in 2026, with typical prime mortgage rates from our country dataset:
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Market</th>
+            <th class="text-right p-3 font-extrabold">Min. down payment</th>
+            <th class="text-right p-3 font-extrabold">Typical rate</th>
+            <th class="text-left p-3 font-extrabold hidden md:table-cell">The catch</th>
+          </tr></thead>
+          <tbody>
+            {featured.map((l, i) => (
+              <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                <td class="p-3 font-semibold text-ink-900"><a href={`/finance/mortgage-calculator/${l.slug}/`} class="no-underline font-bold text-ink-900 hover:underline inline-flex items-center gap-2"><FlagIcon slug={l.slug} size={18} alt={`${l.country} flag`} /> {l.country}</a></td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{downPayments[l.slug]?.pct}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{l.typicalRate}%</td>
+                <td class="p-3 text-ink-600 font-medium hidden md:table-cell">{downPayments[l.slug]?.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">What the extremes teach</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        <strong>The Netherlands at 0%</strong> works because of everything around it: recourse loans, the NHG national guarantee, mandatory amortization for tax relief, and a culture of fixed rates. Remove those supports and 100% LTV is how you get 2008. <strong>Hong Kong at 30%</strong> is the mirror image, one of the world's most volatile property markets, where the regulator uses the down payment as a shock absorber: prices can fall 25% before the bank owns the problem.
+      </p>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Rates tell a parallel story across all {mortgageLocales.length} markets we track: the cheapest typical rates cluster in {cheapest.map(c => c.country).join(', ')} (from {cheapest[0].typicalRate}%), the dearest in {dearest.map(c => c.country).join(', ')} (up to {dearest[0].typicalRate}%), and the global median sits near <strong>{medianRate}%</strong>. High-rate markets are almost always high-inflation markets. Lenders aren't greedier in Cairo than Copenhagen; their currency melts faster. That's also why CPI-indexed products (Chile's UF, Uruguay's UI, Iceland's verðtryggð loans) exist: they split the inflation risk so the *real* rate can stay sane.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Explore the data</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'Netherlands mortgages', href: '/finance/mortgage-calculator/netherlands/', icon: '🇳🇱', color: 'bg-cyan-accent' },
+          { name: 'Canada mortgages', href: '/finance/mortgage-calculator/canada/', icon: '🇨🇦', color: 'bg-lime-accent' },
+          { name: `All ${mortgageLocales.length} country calculators`, href: '/finance/mortgage-calculator/', icon: '🌍', color: 'bg-yellow-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

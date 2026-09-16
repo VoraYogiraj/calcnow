@@ -1,0 +1,186 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/rent-vs-buy-a-home';
+const lastUpdated = '2026-07-10';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Rent vs Buy', url: path },
+];
+
+// Build-time 10-year net-worth simulation. Both parties spend the same each month;
+// the buyer puts it into a home, the renter into rent + an investment portfolio.
+const P = 8000000;               // property price
+const DOWN_PCT = 20, STAMP_PCT = 6;
+const RATE = 8.5, LOAN_YEARS = 20;
+const APPRECIATION = 6;          // property %/yr
+const RENT_START = 28000, RENT_GROWTH = 7;   // monthly, %/yr
+const MAINT_START = 4000, MAINT_GROWTH = 5;
+const INVEST_RETURN = 10;        // renter's portfolio %/yr
+const HORIZON = 10;
+
+const down = P * DOWN_PCT / 100;
+const stamp = P * STAMP_PCT / 100;
+const loan = P - down;
+const r = RATE / 100 / 12;
+const n = LOAN_YEARS * 12;
+const emi = (loan * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+const ir = INVEST_RETURN / 100 / 12;
+
+let balance = loan;
+let renterPortfolio = down + stamp; // renter invests the buyer's upfront cash
+const yearly: Array<{ year: number; buyer: number; renter: number }> = [];
+for (let m = 1; m <= HORIZON * 12; m++) {
+  const y = Math.ceil(m / 12);
+  const rent = RENT_START * Math.pow(1 + RENT_GROWTH / 100, y - 1);
+  const maint = MAINT_START * Math.pow(1 + MAINT_GROWTH / 100, y - 1);
+  const buyerMonthly = emi + maint;
+  balance = Math.max(0, balance + balance * r - emi);
+  renterPortfolio *= 1 + ir;
+  const surplus = buyerMonthly - rent;
+  if (surplus > 0) renterPortfolio += surplus;
+  if (m % 12 === 0) {
+    const propVal = P * Math.pow(1 + APPRECIATION / 100, y);
+    yearly.push({ year: y, buyer: propVal - balance, renter: renterPortfolio });
+  }
+}
+const crossover = yearly.find((d) => d.buyer > d.renter);
+const finalRow = yearly[yearly.length - 1];
+
+const fmtL = (v: number) => v >= 10000000 ? `₹${(v / 10000000).toFixed(2)} Cr` : `₹${(v / 100000).toFixed(1)} L`;
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+const faqs = [
+  { q: 'Is it better to rent or buy in 2026?', a: `It depends on how long you'll stay. Buying wins over the long run because you build equity and the property appreciates, but the upfront costs (down payment + ${STAMP_PCT}% stamp duty) take years to recover. In our base scenario (a ${fmtL(P)} home vs a ${fmtINR(RENT_START)}/month rental), the buyer's net worth overtakes the renter's around year ${crossover ? crossover.year : HORIZON}. Below that horizon, renting and investing the difference usually leaves you richer.` },
+  { q: 'What is the "rent and invest the difference" argument?', a: `The strongest case for renting: instead of sinking ${fmtL(down + stamp)} into a down payment and stamp duty, you invest it, and you invest the gap between the (higher) monthly cost of owning and your (lower) rent. Compounded at ${INVEST_RETURN}%, that portfolio can rival home equity for years. It only works if you actually invest the difference with discipline; most people spend it, which is the quiet reason buying "wins" for them.` },
+  { q: 'Why does the break-even take so many years?', a: `Two upfront costs you never recover: stamp duty and registration (${STAMP_PCT}%+ of the price, gone the day you buy) and the front-loaded interest on your loan (early EMIs are mostly interest, not equity). Add brokerage and moving costs on a future sale, and the "buying transaction" needs several years of appreciation and principal repayment just to break even. That's why the rule of thumb is: don't buy unless you'll hold the home at least 5-7 years.` },
+  { q: 'Does home-loan tax benefit change the maths?', a: 'It helps buying, modestly. Under the old tax regime you can deduct up to ₹2 lakh of home-loan interest (Section 24b) and principal within the ₹1.5 lakh 80C limit, worth a few thousand rupees a month in tax saved for higher earners. Under the new regime (now the default) those deductions largely vanish, so many buyers no longer get them. Factor your actual regime in; don\'t assume the old benefits still apply.' },
+  { q: 'What makes renting clearly the right call?', a: 'Renting wins when: you might relocate within a few years (job mobility), the local price-to-rent ratio is very high (property costs 30-40x annual rent, common in overheated metros), you\'d be stretching to the edge of affordability to buy, or you\'re disciplined enough to genuinely invest the difference. Buying wins when you\'ll stay long-term, prices are reasonable versus rent, and the stability and forced-saving of a mortgage matter to you.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`Rent vs Buy a Home (2026): When Buying Actually Wins, With the Full Maths`} description={`A year-by-year net-worth simulation: on a ₹80L home vs ₹28k/mo rent, the buyer overtakes the renter around year ${crossover ? crossover.year : HORIZON}. Why stamp duty + front-loaded interest push break-even out, and when renting-and-investing wins.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">📚 Guide</span>
+          <span class="chip-lime">🏠 vs 🔑</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Rent vs buy: <span class="text-gradient-brand">the real maths.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Buying a <strong>{fmtL(P)} home</strong> instead of renting at <strong>{fmtINR(RENT_START)}/month</strong>, the buyer's net worth overtakes the renter's around <strong>year {crossover ? crossover.year : `${HORIZON}+`}</strong>. Before that, renting and investing the {fmtL(down + stamp)} down-payment-plus-stamp-duty usually wins. <strong>Time in the home is the whole game.</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The honest comparison</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        "Rent is money down the drain" and "buying is always better" are both half-truths. The fair way to compare is to assume both people spend the same amount each month: the buyer on EMI, maintenance and upfront costs; the renter on rent, with every rupee of difference invested. Then track each person's net worth over time. Below is exactly that simulation for a {fmtL(P)} home ({DOWN_PCT}% down, {RATE}% loan over {LOAN_YEARS} years, {STAMP_PCT}% stamp duty, {APPRECIATION}%/yr appreciation) versus a {fmtINR(RENT_START)}/month rental rising {RENT_GROWTH}%/yr, with the renter's portfolio compounding at {INVEST_RETURN}%.
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">After year</th>
+            <th class="text-right p-3 font-extrabold">Buyer net worth</th>
+            <th class="text-right p-3 font-extrabold">Renter net worth</th>
+            <th class="text-right p-3 font-extrabold">Winner</th>
+          </tr></thead>
+          <tbody>
+            {yearly.filter((d) => [1, 3, 5, 7, 10].includes(d.year)).map((d) => (
+              <tr class={`border-b-2 border-ink-100 ${crossover && d.year === crossover.year ? 'bg-lime-accent/25' : ''}`}>
+                <td class="p-3 font-bold text-ink-900">Year {d.year}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtL(d.buyer)}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtL(d.renter)}</td>
+                <td class={`p-3 text-right font-extrabold ${d.buyer > d.renter ? 'text-green-700' : 'text-pink-600'}`}>{d.buyer > d.renter ? '🏠 Buy' : '🔑 Rent'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl mt-6">
+        The pattern is almost always the same shape: the renter leads early (because the buyer's {fmtL(down + stamp)} upfront and front-loaded interest haven't been recovered), and then the buyer pulls ahead as equity builds and appreciation compounds, crossing over around <strong>year {crossover ? crossover.year : HORIZON}</strong> and widening after. By year {HORIZON} the buyer is at {fmtL(finalRow.buyer)} versus the renter's {fmtL(finalRow.renter)}. Change the inputs (a cheaper home, a bigger rent, faster appreciation) and the crossover moves, but the shape holds.
+      </p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The one number that decides it</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        <strong>How long you'll stay.</strong> Every other variable is secondary to the holding period, because the upfront costs of buying (stamp duty, registration, and the interest-heavy early years) only pay off with time. If there's a real chance you'll move within 3-5 years (a job change, a growing family, a city you're not sure about), the maths and the flexibility both favour renting. If you're planting roots for 7+ years, buying's forced-saving and appreciation usually win. Don't buy for the investment return; buy for the stability, and let the return be a bonus.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Run your scenario</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'Mortgage Calculator', href: '/finance/mortgage-calculator/', icon: '🏠', color: 'bg-lime-accent' },
+          { name: 'Home Loan Affordability', href: '/guides/how-much-home-loan-can-i-afford/', icon: '📊', color: 'bg-cyan-accent' },
+          { name: 'SIP Calculator', href: '/finance/sip-calculator/', icon: '📈', color: 'bg-yellow-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

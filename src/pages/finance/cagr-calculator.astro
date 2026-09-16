@@ -1,0 +1,101 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CagrCalculator from '../../components/calculators/CagrCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/cagr-calculator';
+
+const meta = {
+  slug: 'cagr-calculator',
+  name: 'CAGR Calculator',
+  description: 'Free CAGR calculator. Enter a starting value, an ending value and a holding period in years and months to get the compound annual growth rate, absolute return, doubling time and a year-by-year smoothed growth table. Negative CAGR is handled correctly.',
+  category: 'finance' as const,
+  keywords: ['cagr calculator', 'compound annual growth rate', 'cagr formula', 'cagr vs absolute return', 'negative cagr', 'doubling time calculator'],
+  lastUpdated: '2026-07-21',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'CAGR Calculator', url: path },
+];
+
+const faqs = [
+  {
+    q: 'What is the difference between CAGR and absolute return?',
+    a: 'Absolute return is the total percentage change from start to finish: (final − initial) ÷ initial. It ignores time completely, so a 150% gain looks identical whether it took five years or fifteen. CAGR converts that same gain into a per-year compounded rate, which is why it is the fairer way to compare investments held for different lengths of time. Growing ₹1,00,000 to ₹2,50,000 is 150% absolute either way, but it is a 20.11% CAGR over five years and only 6.30% over fifteen. Always ask for the holding period before you are impressed by an absolute number.',
+  },
+  {
+    q: 'When should I use XIRR instead of CAGR?',
+    a: 'Use CAGR only when there is one investment at the start and one value at the end. The moment money goes in or out midway (a SIP, a top-up, a partial redemption, a dividend withdrawn), CAGR breaks, because each rupee has been invested for a different length of time. XIRR (extended internal rate of return) solves for the single annualised rate that makes all those dated cash flows net to zero, so it weights every instalment by how long it actually stayed invested. For a monthly SIP, CAGR computed on total invested versus final corpus badly understates the real return. Use XIRR there.',
+  },
+  {
+    q: 'What CAGR is realistic for Indian equity over the long run?',
+    a: 'Broad Indian equity indices have delivered roughly 11% to 13% a year in rupee terms over multi-decade periods, with the Sensex and Nifty total-return series landing in that band depending on the exact start and end dates you pick. That is a nominal figure: after 5% to 6% inflation, the real compounding is closer to 6% to 7%. Two cautions matter. First, start-date sensitivity is severe. Shifting the window by two years can move the answer by several points. Second, past returns are a record, not a forecast; nothing obliges the next twenty years to resemble the last twenty.',
+  },
+  {
+    q: 'Why does CAGR hide volatility and drawdowns?',
+    a: 'CAGR is a back-solved constant. It takes only two numbers (where you started and where you ended) and reports the single smooth rate that connects them, discarding everything in between. Two portfolios that both compounded at 12% can have had wildly different journeys: one drifting steadily upward, the other losing 45% in a single year before recovering. The investor in the second one may well have sold at the bottom and never earned that 12% at all. To see risk you need other measures: standard deviation, maximum drawdown, and the worst rolling one-year and three-year returns.',
+  },
+  {
+    q: 'How accurate is the Rule of 72?',
+    a: 'The Rule of 72 estimates doubling time by dividing 72 by the annual growth rate, and it is a genuinely good mental shortcut in the 6% to 10% range, where it lands within about one percent of the exact answer. Accuracy falls away at the extremes. At 20.11%, the rule suggests 3.58 years while the exact figure, ln(2) ÷ ln(1 + r), is 3.78 years, an error of over two months. At very low rates it drifts the other way. Treat it as a sanity check you can do in your head, never as the number you put in a plan.',
+  },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate CAGR (compound annual growth rate)',
+    description: 'Step-by-step instructions for working out the compound annual growth rate between a starting value and an ending value.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter the initial value', text: 'Put in what the investment was worth on day one. It must be greater than zero, because the CAGR formula divides by it.' },
+      { name: 'Enter the final value', text: 'Put in the value today, or on the date you exited. If it is lower than the initial value the CAGR will be negative, which is a valid result.' },
+      { name: 'Enter the holding period', text: 'Enter whole years, then any additional months. The calculator converts months to a fraction of a year, so 5 years and 6 months becomes 5.5.' },
+      { name: 'Read the rate and the smoothed table', text: 'The calculator shows CAGR, absolute return, exact doubling time and the Rule of 72 approximation, plus a year-by-year table of the smoothed path.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout title="CAGR Calculator 📊" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-sky-500/20 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">📊 (F ÷ I)^(1/t) − 1</span>
+          <span class="chip-pink">📉 Negative CAGR handled</span>
+          <span class="chip-white"><span class="text-ink-500">Example</span><span>20.11%</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          CAGR Calculator.
+          <span class="text-gradient-brand">One rate, honestly.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                CAGR = <strong>(final value ÷ initial value)<sup>(1 ÷ years)</sup> − 1</strong>. Growing <strong>₹1,00,000 into ₹2,50,000 over 5 years</strong> is a CAGR of <strong>20.11%</strong>, even though the absolute return is <strong>150%</strong>. At 20.11% money doubles in <strong>3.78 years</strong> (the Rule of 72 guesses 3.58). If the final value is lower than the initial, the CAGR is simply negative, and this calculator shows it correctly instead of returning an error.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><CagrCalculator client:visible /></div></section>
+  <section class="bg-ink-50 border-y-2 border-ink-900"><div class="container-wide py-12 md:py-16"><div class="max-w-4xl mx-auto"><span class="chip-cyan mb-4">❓ FAQ</span><h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">CAGR calculator FAQ.</h2><div class="mt-8 space-y-4">{faqs.map((faq) => (<details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group"><summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4"><span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span></summary><p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p></details>))}</div><div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm"><div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related calculators</div><div class="flex flex-wrap gap-2"><a href="/finance/sip-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">SIP</a><a href="/finance/lumpsum-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Lumpsum</a><a href="/finance/compound-interest-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Compound interest</a><a href="/finance/inflation-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Inflation</a><a href="/math/percentage-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Percentage</a></div></div></div></div></section>
+</BaseLayout>

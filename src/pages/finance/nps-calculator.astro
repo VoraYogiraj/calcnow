@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NpsCalculator from '../../components/calculators/NpsCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/nps-calculator';
+
+const meta = {
+  slug: 'nps-calculator',
+  name: 'NPS Calculator',
+  description: 'Free NPS calculator for India. Project your National Pension System Tier I corpus at 60, the 60% tax-free lump sum, the mandatory 40% annuity portion, and your estimated monthly pension at 5%, 6% and 7% annuity rates.',
+  category: 'finance' as const,
+  keywords: ['nps calculator', 'national pension system calculator', 'nps pension calculator', 'nps maturity amount calculator', 'nps annuity calculator', '80ccd 1b calculator'],
+  lastUpdated: '2026-07-21',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'NPS Calculator', url: path },
+];
+
+const faqs = [
+  { q: 'How does the extra ₹50,000 NPS deduction under Section 80CCD(1B) work?', a: 'Section 80CCD(1B) gives an additional deduction of up to ₹50,000 for your own NPS Tier I contributions, and it sits on top of the ₹1.5 lakh ceiling under Section 80CCE that covers 80C, 80CCC and 80CCD(1) together. So a taxpayer who has already exhausted ₹1.5 lakh with PPF, ELSS, EPF or life insurance can still claim ₹50,000 more, taking the total to ₹2 lakh. At a 30% slab that extra ₹50,000 saves about ₹15,600 including cess. Two conditions matter: the benefit applies only to Tier I, and it is available only under the old tax regime. Under the new regime the sole NPS deduction left is 80CCD(2) for the employer contribution.' },
+  { q: 'Why must 40% of the NPS corpus be used to buy an annuity at 60?', a: 'NPS is a pension scheme, not a lump-sum savings product, so PFRDA rules require at least 40% of the Tier I corpus to be used at superannuation to purchase an annuity from an IRDAI-registered annuity service provider. The remaining 60% can be withdrawn as cash. The rule exists to manage longevity risk: without it, a retiree could spend the entire corpus early and be left with nothing in their eighties. Two exemptions apply. If the total corpus is ₹5 lakh or less at 60, you may withdraw all of it and skip the annuity. If you exit before 60, the annuitisation requirement rises to 80%, with full withdrawal allowed when the corpus is ₹2.5 lakh or less.' },
+  { q: 'What is the difference between an NPS Tier I and Tier II account?', a: 'Tier I is the actual pension account. It is the one that carries the tax deductions under 80CCD(1), 80CCD(1B) and 80CCD(2), and it is locked until age 60 apart from limited partial withdrawals. You need a minimum of ₹500 per contribution and ₹1,000 a year to keep it active, and it is the account this calculator models. Tier II is an optional add-on savings account that sits on the same PRAN and can only be opened once Tier I exists. It has no lock-in, allows withdrawals any time, and charges no exit load, but it carries no tax deduction for most subscribers and gains are taxed on redemption. Central government employees are the exception, with a 80C-eligible Tier II variant carrying a three-year lock-in.' },
+  { q: 'Should I pick Active Choice or Auto Choice in NPS?', a: 'Active Choice lets you set your own split across four asset classes: E for equity, C for corporate bonds, G for government securities and A for alternative investments, which is capped at 5%. Equity is capped at 75% of the Tier I corpus, so NPS can never be a pure equity product. Auto Choice instead runs an age-based glide path in one of three lifecycle funds. Aggressive (LC75) holds 75% equity until age 35 and then tapers roughly 4% a year down to 15% by 55; Moderate (LC50) starts at 50%; Conservative (LC25) starts at 25%. Auto Choice suits people who do not want to review allocation; Active Choice suits those who do and want to hold the 75% equity ceiling longer.' },
+  { q: 'How is NPS taxed when you withdraw at 60?', a: 'The exit is partly exempt, not fully. Up to 60% of the Tier I corpus withdrawn as a lump sum at superannuation is tax-free under Section 10(12A), so on a ₹1.13 crore corpus roughly ₹67.8 lakh comes to you with no tax. The amount used to buy the annuity is not taxed at the moment of purchase either. What is taxed is the pension itself: every annuity instalment you receive afterwards is added to your total income for that year and taxed at your applicable slab rate, so a ₹22,605 monthly pension is ₹2.71 lakh of taxable income annually. Partial withdrawals of up to 25% of your own contributions before 60 are also exempt under Section 10(12B).' },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate your NPS pension in India',
+    description: 'Step-by-step instructions for projecting your National Pension System corpus, lump sum and monthly pension at age 60.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter your current age', text: 'The calculator counts monthly contributions from your current age up to the NPS vesting age of 60, so age 30 gives 360 contributions.' },
+      { name: 'Enter your monthly contribution and expected return', text: 'Use the amount you pay into Tier I each month and a blended return across the equity, corporate bond and government securities funds. Around 9% to 11% is a common long-run assumption.' },
+      { name: 'Set the annuity portion', text: 'At least 40% of the corpus must buy an annuity at 60 under PFRDA rules. Raise the share above 40% if you want a larger pension and a smaller lump sum.' },
+      { name: 'Read the corpus, lump sum and pension', text: 'The calculator shows the corpus at 60, the tax-free lump sum, the annuity corpus, and the monthly pension at your chosen annuity rate along with a 5% to 7% sensitivity table.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout title="NPS Calculator India 🪷" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-violet-500/20 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-lime">🪷 NPS Tier I</span>
+          <span class="chip-pink">🛡️ +₹50,000 under 80CCD(1B)</span>
+          <span class="chip-white"><span class="text-ink-500">Annuity floor</span><span>40%</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          NPS Calculator.
+          <span class="text-gradient-brand">See your pension.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Paying <strong>₹5,000 a month</strong> into NPS Tier I from age <strong>30 to 60</strong> at a <strong>10%</strong> return builds a corpus of about <strong>₹1,13,02,440</strong> on ₹18,00,000 invested. At 60 you withdraw <strong>₹67,81,464</strong> tax-free and <strong>₹45,20,976</strong> must buy an annuity, which at a <strong>6%</strong> annuity rate pays roughly <strong>₹22,605 a month</strong> for life.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><NpsCalculator client:visible /></div></section>
+  <section class="bg-ink-50 border-y-2 border-ink-900"><div class="container-wide py-12 md:py-16"><div class="max-w-4xl mx-auto"><span class="chip-cyan mb-4">❓ FAQ</span><h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">NPS calculator FAQ.</h2><div class="mt-8 space-y-4">{faqs.map((faq) => (<details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group"><summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4"><span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span></summary><p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p></details>))}</div><div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm"><div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related India calculators</div><div class="flex flex-wrap gap-2"><a href="/finance/ppf-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">PPF</a><a href="/finance/sip-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">SIP</a><a href="/finance/retirement-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Retirement</a><a href="/finance/epf-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">EPF</a><a href="/finance/income-tax-india/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Income tax</a></div></div></div></div></section>
+</BaseLayout>

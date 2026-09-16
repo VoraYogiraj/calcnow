@@ -1,0 +1,113 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../../../components/ui/Breadcrumbs.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../../../lib/seo';
+import { indiaCities } from '../../../../data/india-cities';
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'Mortgage Calculator', url: '/finance/mortgage-calculator/' },
+  { name: 'Cities', url: '/finance/mortgage-calculator/cities/' },
+];
+
+// Group by state
+const byState = new Map<string, typeof indiaCities>();
+for (const c of indiaCities) {
+  if (!byState.has(c.stateName)) byState.set(c.stateName, [] as any);
+  byState.get(c.stateName)!.push(c);
+}
+const states = [...byState.entries()]
+  .map(([name, cities]) => ({ name, cities }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const metros = indiaCities.filter((c) => c.hraTier === 'metro');
+
+const faqs = [
+  { q: 'How many Indian city home loan calculators does Calctube offer?', a: `Calctube currently has ${indiaCities.length} city-specific Indian home loan EMI calculators, each with local stamp duty rates, registration charges, women buyer discounts, typical ticket size, and top lender positioning for that city.` },
+  { q: 'What is the stamp duty difference between Indian states?', a: 'Stamp duty in India ranges from 4% (Goa, women buyers Maharashtra) to 8% (most states for men). Registration is typically 1% on top. Tamil Nadu has the highest combined burden at 11% (7% stamp + 4% registration, no women discount). Maharashtra offers 1% women buyer discount; Karnataka and Delhi offer 2% discounts.' },
+  { q: 'Why do home loan rates vary by city?', a: 'Rate cards are uniform per bank nationally, but effective rates vary by city due to (1) employer pre-approval depth at top metros, (2) PSU bank home-state pricing concessions (BoB in Gujarat, Canara in Karnataka, Federal Bank in Kerala), (3) ticket size: Mumbai/Bengaluru typical ₹80L–1.5cr ticket may qualify for premium negotiated rates not available in tier-3.' },
+];
+---
+
+<BaseLayout
+  title={`Home Loan EMI Calculators: ${indiaCities.length} Indian Cities`}
+  description={`Free home loan EMI calculators for ${indiaCities.length} Indian cities. Local stamp duty, registration, women buyer discounts, typical ticket size, and top lender comparisons for Mumbai, Bengaluru, Chennai, Delhi-NCR and more.`}
+  schemas={[buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)]}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-10 pb-10 md:pt-14 md:pb-12">
+      <Breadcrumbs items={breadcrumbs} />
+      <div class="flex flex-wrap items-center gap-2 mb-5">
+        <span class="chip-lime">🏙️ Home loans</span>
+        <span class="chip-white"><span class="text-ink-500">Cities</span><span>{indiaCities.length}</span></span>
+        <span class="chip-white"><span class="text-ink-500">States</span><span>{states.length}</span></span>
+      </div>
+      <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+        Home Loan EMI Calculators. <span class="text-gradient-brand">City by city.</span>
+      </h1>
+      <p class="mt-5 text-lg text-ink-700 font-medium leading-relaxed max-w-3xl">
+        {indiaCities.length} cities covered. Each calculator uses the local stamp duty rate, registration charge, women buyer discount, typical mid-segment ticket, and top lender positioning specific to that city.
+      </p>
+    </div>
+  </section>
+
+  <section class="container-wide pb-16 md:pb-24">
+    <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-0 !mb-2" style="font-family: 'Inter Tight', sans-serif;">Metro cities</h2>
+    <p class="text-sm text-ink-600 font-medium max-w-3xl">Metro HRA tier (50% exemption): Mumbai, Delhi-NCR, Bengaluru, Chennai, Kolkata, Hyderabad.</p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-4">
+      {
+        metros.map((c) => (
+          <a
+            href={`/finance/mortgage-calculator/cities/${c.slug}/`}
+            class="group block bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker-sm hover:shadow-sticker hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <div class="text-2xl mb-1 group-hover:rotate-12 transition-transform inline-block">{c.flag}</div>
+            <div class="font-extrabold text-ink-900">{c.name}</div>
+            <div class="text-xs text-ink-600 mt-1 font-semibold">~{c.typicalRate}% · {c.stateName}</div>
+          </a>
+        ))
+      }
+    </div>
+
+    {
+      states.map((s) => (
+        <section class="mt-14">
+          <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-0 !mb-4 flex items-center gap-2 flex-wrap" style="font-family: 'Inter Tight', sans-serif;">
+            <span>{s.name}</span>
+            <span class="text-xs font-extrabold uppercase tracking-wider bg-white border-2 border-ink-900 rounded-full px-2.5 py-0.5 text-ink-900">{s.cities.length} cities</span>
+          </h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {s.cities.map((c) => (
+              <a
+                href={`/finance/mortgage-calculator/cities/${c.slug}/`}
+                class="block px-3 py-2 rounded-xl bg-white border-2 border-ink-200 hover:border-ink-900 hover:bg-lime-accent/20 no-underline text-sm font-semibold text-ink-900 transition-colors"
+              >
+                <span>{c.flag} {c.name}</span>
+                <span class="text-ink-500 ml-2 text-xs">~{c.typicalRate}%</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+
+    <section class="mt-14">
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-0 !mb-4" style="font-family: 'Inter Tight', sans-serif;">FAQ</h2>
+      <dl class="grid gap-4 md:grid-cols-2">
+        {
+          faqs.map((f) => (
+            <div class="card">
+              <dt class="font-extrabold text-ink-900">{f.q}</dt>
+              <dd class="text-sm text-ink-700 mt-2 !leading-snug font-medium">{f.a}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+  </section>
+</BaseLayout>

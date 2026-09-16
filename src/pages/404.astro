@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { calculators } from '../data/calculators';
+
+// Pick 6 most popular live calculators to suggest as fallback
+const suggestions = calculators
+  .filter((c) => c.status === 'live' && c.popular)
+  .slice(0, 6);
+---
+
+<BaseLayout
+  title="404: Page Not Found"
+  description="The page you're looking for doesn't exist. Try our popular calculators below."
+  noindex={true}
+>
+  <section class="container-wide py-16 md:py-24">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="text-8xl sm:text-9xl mb-6">🧮</div>
+
+      <h1
+        class="!text-5xl sm:!text-6xl md:!text-7xl !font-extrabold !tracking-tight !leading-none text-ink-900 mb-6"
+        style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.04em;"
+      >
+        404
+      </h1>
+
+      <p class="text-xl sm:text-2xl text-ink-700 font-bold mb-3" style="font-family: 'Inter Tight', sans-serif;">
+        That page doesn't add up.
+      </p>
+
+      <p class="text-base sm:text-lg text-ink-600 leading-relaxed max-w-xl mx-auto mb-10 font-medium">
+        The URL you tried isn't on Calctube. It may have moved, been renamed, or never existed.
+        Try one of these popular calculators instead, or head back to the
+        <a href="/" class="font-bold underline decoration-2 underline-offset-4 decoration-lime-accent text-ink-900">homepage</a>.
+      </p>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-12 text-left">
+        {suggestions.map((calc) => (
+          <a
+            href={calc.href}
+            class="group bg-white border-[2.5px] border-ink-900 rounded-2xl p-4 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200"
+          >
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{calc.icon}</div>
+            <div class="font-extrabold text-ink-900 text-sm leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+              {calc.name}
+            </div>
+            <p class="text-xs text-ink-600 mt-1 leading-snug font-medium">{calc.description}</p>
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-12 flex flex-wrap justify-center gap-3 text-sm">
+        <a href="/" class="px-5 py-2.5 rounded-full bg-ink-900 text-white border-2 border-ink-900 font-bold no-underline hover:-translate-y-0.5 transition-transform">
+          ← Homepage
+        </a>
+        <a href="/finance/" class="px-5 py-2.5 rounded-full bg-white text-ink-900 border-2 border-ink-900 font-bold no-underline hover:bg-lime-accent transition-colors">
+          Finance
+        </a>
+        <a href="/health/" class="px-5 py-2.5 rounded-full bg-white text-ink-900 border-2 border-ink-900 font-bold no-underline hover:bg-pink-accent transition-colors">
+          Health
+        </a>
+        <a href="/math/" class="px-5 py-2.5 rounded-full bg-white text-ink-900 border-2 border-ink-900 font-bold no-underline hover:bg-cyan-accent transition-colors">
+          Math
+        </a>
+        <a href="/conversions/" class="px-5 py-2.5 rounded-full bg-white text-ink-900 border-2 border-ink-900 font-bold no-underline hover:bg-yellow-accent transition-colors">
+          Conversions
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

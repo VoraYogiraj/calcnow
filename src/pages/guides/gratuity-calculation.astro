@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/gratuity-calculation';
+const lastUpdated = '2026-07-19';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Gratuity Calculation', url: path },
+];
+
+// Payment of Gratuity Act formula: (15 / 26) × last-drawn monthly (basic + DA) × completed years.
+// Tax-free up to ₹20,00,000 (lifetime) for covered employees.
+const LAST_SALARY = 50000;      // ₹50,000/month last-drawn basic + DA
+const TAX_FREE_CAP = 2000000;   // ₹20 lakh statutory ceiling
+const DAYS_FACTOR = 15 / 26;    // 15 days' wages per completed year, 26 working days/month
+
+function gratuityFor(years: number) {
+  const raw = DAYS_FACTOR * LAST_SALARY * years;
+  const gratuity = Math.round(raw);
+  const exempt = Math.min(gratuity, TAX_FREE_CAP);
+  return { years, gratuity, exempt, taxable: Math.max(0, gratuity - TAX_FREE_CAP) };
+}
+
+const tenures = [5, 10, 20, 30];
+const rows = tenures.map(gratuityFor);
+const example = rows[1]; // 10 years
+
+// A worked figure showing the cap can bite at very long tenure / high salary.
+const capExample = (() => {
+  const salary = 150000, years = 30; // ₹1.5L/mo, 30 yrs
+  const g = Math.round(DAYS_FACTOR * salary * years);
+  return { salary, years, gratuity: g, exempt: Math.min(g, TAX_FREE_CAP), taxable: Math.max(0, g - TAX_FREE_CAP) };
+})();
+
+const fmtL = (v: number) => `₹${(v / 100000).toFixed(2)} L`;
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+const faqs = [
+  { q: 'How is gratuity calculated in India?', a: `For employees covered under the Payment of Gratuity Act, gratuity = (15 ÷ 26) × last-drawn monthly salary (basic + DA) × number of completed years of service. The 15/26 is 15 days' wages for every completed year, using 26 as the number of working days in a month. On a last-drawn ${fmtINR(LAST_SALARY)}/month basic + DA with ${example.years} years of service, that works out to ${fmtINR(example.gratuity)}.` },
+  { q: 'Who is eligible for gratuity?', a: 'You need at least 5 years of continuous service with the same employer, in an establishment covered by the Payment of Gratuity Act (broadly, factories, mines, and any shop or establishment with 10 or more employees). The 5-year rule is waived if service ends due to death or disablement. The nominee or employee is paid regardless of tenure. Gratuity is payable on resignation, retirement, superannuation, or termination (except for termination on grounds of moral turpitude).' },
+  { q: 'Is gratuity taxable?', a: `For private-sector employees covered under the Act, gratuity is tax-free up to a lifetime ceiling of ${fmtL(TAX_FREE_CAP)}. The exemption is the least of (a) actual gratuity received, (b) ${fmtL(TAX_FREE_CAP)}, and (c) the formula amount. Anything above the ceiling is taxed as salary. Government employees get gratuity fully tax-free. The ${fmtL(TAX_FREE_CAP)} cap is cumulative across your career, so gratuity from an earlier job reduces the exemption available on a later one.` },
+  { q: 'What salary is used, gross or basic?', a: 'Only basic salary plus dearness allowance (DA) count. HRA, conveyance, special allowance, bonuses, overtime and other allowances are excluded. This is why gratuity is often smaller than people expect: on a package where basic is deliberately kept low, the gratuity base is low too. Use your latest payslip\'s basic + DA line, not your CTC or take-home.' },
+  { q: 'How are partial years of service counted?', a: 'A completed year plus any additional service of more than 6 months rounds UP to the next full year; 6 months or less is ignored. So 10 years 7 months counts as 11 years, but 10 years 6 months counts as 10. Note this rounding applies only to employers covered by the Act. Employers not covered use a different basis: (15 ÷ 30) × average of the last 10 months\' salary × years, with no rounding up of the final part-year.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`Gratuity Calculation (2026): The 15/26 Formula, ₹20L Tax-Free`} description={`Gratuity = (15 ÷ 26) × last-drawn basic + DA × years of service, tax-free up to ₹20 lakh. On ₹50k basic + DA over ${example.years} years that's ${fmtINR(example.gratuity)}. Full table by tenure (5/10/20/30 yrs) + the tax rule.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-yellow-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-yellow">📚 Guide</span>
+          <span class="chip-cyan">🎁 Retirement</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          How much <span class="text-gradient-brand">gratuity</span> will you get?
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Gratuity = <strong>(15 ÷ 26) × last-drawn monthly (basic + DA) × years of service</strong>. On a {fmtINR(LAST_SALARY)}/month basic + DA over <strong>{example.years} years</strong>, that's <strong>{fmtINR(example.gratuity)}</strong>, and it's <strong>tax-free up to {fmtL(TAX_FREE_CAP)}</strong>. You need 5 years of continuous service to qualify (waived on death or disablement).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The 15/26 formula, decoded</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Gratuity is a lump sum your employer owes you for sticking around: statutorily, 15 days' wages for every completed year of service. The odd-looking "15 ÷ 26" is just that: 15 days out of an assumed 26 working days in a month, applied to your <strong>last-drawn</strong> basic salary plus dearness allowance (never the whole CTC). Because it scales linearly with years, the reward for a long tenure is real. Here's the payout on a {fmtINR(LAST_SALARY)}/month basic + DA across common tenures:
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Years of service</th>
+            <th class="text-right p-3 font-extrabold">Gratuity payable</th>
+            <th class="text-right p-3 font-extrabold">Tax-free portion</th>
+            <th class="text-right p-3 font-extrabold">Taxable</th>
+          </tr></thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr class={`border-b-2 border-ink-100 ${row.years === example.years ? 'bg-lime-accent/25' : i % 2 ? 'bg-ink-50' : ''}`}>
+                <td class="p-3 font-bold text-ink-900">{row.years} years</td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{fmtINR(row.gratuity)}</td>
+                <td class="p-3 text-right font-mono font-bold text-green-700">{fmtINR(row.exempt)}</td>
+                <td class="p-3 text-right font-mono text-ink-800">{row.taxable === 0 ? '–' : fmtINR(row.taxable)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">Last-drawn {fmtINR(LAST_SALARY)}/mo basic + DA, employer covered under the Payment of Gratuity Act, FY 2025-26. Figures rounded to the nearest rupee. Not tax advice.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The ₹20 lakh tax-free ceiling, and when it bites</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        For most people the whole gratuity lands tax-free, because the {fmtL(TAX_FREE_CAP)} exemption is generous relative to the formula. The taxable column above stays empty right up to 30 years on a mid salary. The ceiling only bites when a high last-drawn salary meets a long tenure. Take {fmtINR(capExample.salary)}/month basic + DA over {capExample.years} years: the formula yields {fmtINR(capExample.gratuity)}, of which {fmtL(capExample.exempt)} is exempt and <strong>{fmtINR(capExample.taxable)} is taxed as salary</strong> at your slab. Two more things worth knowing: the {fmtL(TAX_FREE_CAP)} cap is a <strong>lifetime</strong> figure across all employers, and only <strong>basic + DA</strong> feed the formula, so a salary structure that keeps basic low quietly shrinks your eventual gratuity. Check your latest payslip's basic line, not your CTC, before you estimate.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'Salary Calculator', href: '/finance/salary-calculator/', icon: '💼', color: 'bg-lime-accent' },
+          { name: 'Income Tax India', href: '/finance/income-tax-india/', icon: '🪙', color: 'bg-yellow-accent' },
+          { name: 'HRA Exemption Explained', href: '/guides/hra-exemption-explained/', icon: '🏠', color: 'bg-cyan-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

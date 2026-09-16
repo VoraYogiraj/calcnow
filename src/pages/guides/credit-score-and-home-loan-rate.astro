@@ -1,0 +1,166 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/credit-score-and-home-loan-rate';
+const lastUpdated = '2026-07-10';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Credit Score & Home Loan Rate', url: path },
+];
+
+// Build-time: what each CIBIL band costs on a ₹50L / 20yr loan.
+const LOAN = 5000000, YEARS = 20;
+const n = YEARS * 12;
+function emiFor(rate: number) {
+  const r = rate / 100 / 12;
+  const emi = (LOAN * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+  const totalInterest = emi * n - LOAN;
+  return { emi, totalInterest };
+}
+const bands = [
+  { band: '800–900', label: 'Excellent', rate: 8.35, note: "Best-in-market pricing; lenders compete for you" },
+  { band: '750–799', label: 'Very good', rate: 8.55, note: "Standard prime rate; smooth approval" },
+  { band: '700–749', label: 'Good', rate: 9.10, note: "Approved, but ~50 bps costlier" },
+  { band: '650–699', label: 'Fair', rate: 10.00, note: "Higher rate, tighter LTV, extra scrutiny" },
+  { band: 'Below 650', label: 'Poor', rate: 11.25, note: "Often rejected; if approved, penal pricing" },
+].map((b) => ({ ...b, ...emiFor(b.rate) }));
+
+const best = bands[0], prime = bands[1], poor = bands[bands.length - 1];
+const extraInterestPoorVsPrime = poor.totalInterest - prime.totalInterest;
+const emiGapPoorVsPrime = poor.emi - prime.emi;
+
+const fmtL = (v: number) => v >= 10000000 ? `₹${(v / 10000000).toFixed(2)} Cr` : `₹${(v / 100000).toFixed(1)} L`;
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+const faqs = [
+  { q: 'What credit score do I need for a home loan in India?', a: `Most lenders want a CIBIL score of 750 or above for smooth approval at the best rate. You can often still get a loan from 700-749, just a little costlier; below 700 approvals get harder and rates rise sharply; below 650 many banks decline outright. On a ${fmtL(LOAN)} loan, moving from a 750+ score to a sub-650 score can add about ${fmtL(extraInterestPoorVsPrime)} in total interest, the single most expensive number most borrowers never check.` },
+  { q: 'How much does a low credit score really cost me?', a: `A lot, because it compounds over 20 years. At a prime rate of ${prime.rate}% a ${fmtL(LOAN)} loan costs ${fmtINR(prime.emi)}/month and ${fmtL(prime.totalInterest)} total interest. At a poor-score rate of ${poor.rate}% it's ${fmtINR(poor.emi)}/month (${fmtINR(emiGapPoorVsPrime)} more every month) and ${fmtL(poor.totalInterest)} total, roughly ${fmtL(extraInterestPoorVsPrime)} extra. Improving your score before applying is often worth more than any amount of rate-shopping.` },
+  { q: 'How can I improve my credit score before applying?', a: 'Four levers, in order of impact: (1) pay every EMI and credit-card bill on time (payment history is the biggest factor); (2) keep credit-card usage under 30% of your limit; (3) don\'t apply for multiple loans/cards in the months before your home loan (each hard enquiry dings the score); (4) check your report for errors (wrongly reported defaults are common) and dispute them. Most improvements take 3-6 months to show, so start before you house-hunt.' },
+  { q: 'Does checking my own score lower it?', a: 'No. Checking your own CIBIL score is a "soft enquiry" and never affects it. You can and should check it free every month. What lowers the score is a "hard enquiry," which happens when a lender pulls your report because you applied for credit. Several hard enquiries in a short window signal desperation to lenders and shave points, so space out applications.' },
+  { q: 'Can I get a home loan with no credit history?', a: 'Yes, but it\'s harder and often costlier. First-time borrowers with a "thin file" (no loans or cards yet) may be assessed on income and banking history instead, sometimes at a slightly higher rate or with a co-applicant. The fix is to build history first: a small credit card used lightly and paid in full for 6-12 months creates a track record that unlocks better home-loan pricing.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`How Your Credit Score Sets Your Home Loan Rate (2026): A ₹${(extraInterestPoorVsPrime/100000).toFixed(0)}L Difference`} description={`Your CIBIL score can swing a ₹50L home loan by ${fmtL(extraInterestPoorVsPrime)} in interest. Full rate-band table (8.35% at 800+ vs 11.25% below 650), the EMI gap, and how to raise your score before applying.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-pink-accent/25 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-pink">📚 Guide</span>
+          <span class="chip-cyan">📊 CIBIL</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Your credit score is <span class="text-gradient-brand">a price tag.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                On a <strong>{fmtL(LOAN)} loan</strong>, a <strong>750+ CIBIL score</strong> gets ~{prime.rate}% ({fmtINR(prime.emi)}/mo); a <strong>sub-650 score</strong> pays ~{poor.rate}% ({fmtINR(poor.emi)}/mo), <strong>{fmtINR(emiGapPoorVsPrime)} more every month</strong> and about <strong>{fmtL(extraInterestPoorVsPrime)} more interest</strong> over the loan. Raise the score before you apply.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Same loan, five different prices</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Banks don't offer everyone the same home-loan rate. They price the loan to your risk, and your CIBIL score is the headline measure of that risk. Two people can walk into the same branch, ask for the same {fmtL(LOAN)}, and walk out with EMIs hundreds of thousands of rupees apart over the life of the loan. Here's what each score band typically costs on a {YEARS}-year loan in 2026:
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">CIBIL band</th>
+            <th class="text-right p-3 font-extrabold">Typical rate</th>
+            <th class="text-right p-3 font-extrabold">EMI</th>
+            <th class="text-right p-3 font-extrabold">Total interest</th>
+          </tr></thead>
+          <tbody>
+            {bands.map((b, i) => (
+              <tr class={`border-b-2 border-ink-100 ${i === 1 ? 'bg-lime-accent/25' : i === bands.length - 1 ? 'bg-pink-accent/15' : i % 2 ? 'bg-ink-50' : ''}`}>
+                <td class="p-3 font-bold text-ink-900">{b.band} <span class="text-ink-500 font-semibold">({b.label})</span></td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{b.rate}%</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtINR(b.emi)}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{fmtL(b.totalInterest)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">Indicative 2026 rates by band; actual pricing varies by lender, income, LTV and loan amount. Bands below 700 also often face lower LTV caps and slower approval.</p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">Why 50 points can beat any rate-shopping</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Borrowers spend weeks comparing lenders to shave 10-15 basis points off their rate, and ignore the 100-165 basis points sitting inside their own credit score. Moving from the "Good" band to the "Very good" band is worth more than switching banks. The good news: score improvement is largely mechanical. Pay on time, keep card utilisation low, avoid a flurry of applications, and fix report errors. Start 3-6 months before you house-hunt, because the score you apply with is the price you pay for the next two decades. A free monthly CIBIL check is the highest-ROI financial habit a future home buyer has.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 See your numbers</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'EMI Calculator', href: '/finance/emi-calculator/', icon: '🇮🇳', color: 'bg-rose-300' },
+          { name: 'Home Loan Affordability', href: '/guides/how-much-home-loan-can-i-afford/', icon: '📊', color: 'bg-cyan-accent' },
+          { name: 'Mortgage Calculator', href: '/finance/mortgage-calculator/', icon: '🏠', color: 'bg-lime-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

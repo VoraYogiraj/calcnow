@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="OG Image Preview | Calctube"
+  description="Preview the social-share Open Graph image."
+  noindex={true}
+>
+  <div class="container-wide py-12">
+    <div class="max-w-3xl mb-10">
+      <span class="chip-pink mb-4">Internal</span>
+      <h1 class="!mt-4 !text-4xl md:!text-5xl !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        OG image preview
+      </h1>
+      <p class="text-ink-600 mt-3 text-lg">
+        This is the social-share card that appears when calctube.com is shared on Twitter, LinkedIn, Discord, Slack, etc.
+        Dimensions: <strong>1200 × 630</strong>.
+      </p>
+    </div>
+
+    <!-- Live preview at actual size -->
+    <div class="mb-8">
+      <div class="text-xs font-bold uppercase tracking-wider text-ink-500 mb-3">Actual size (1200 × 630)</div>
+      <div class="bg-ink-100 p-4 rounded-2xl border-2 border-ink-900 shadow-sticker overflow-x-auto">
+        <img
+          src="/og-default.svg"
+          alt="Calctube OG preview"
+          width="1200"
+          height="630"
+          class="block rounded-xl shadow-2xl"
+          style="min-width: 1200px;"
+        />
+      </div>
+    </div>
+
+    <!-- Scaled-down preview (responsive) -->
+    <div class="mb-8">
+      <div class="text-xs font-bold uppercase tracking-wider text-ink-500 mb-3">Responsive preview</div>
+      <div class="card max-w-2xl">
+        <img
+          src="/og-default.svg"
+          alt="Calctube OG preview"
+          class="w-full h-auto rounded-xl"
+        />
+      </div>
+    </div>
+
+    <!-- How it looks in Twitter / LinkedIn cards -->
+    <div class="mb-8">
+      <div class="text-xs font-bold uppercase tracking-wider text-ink-500 mb-3">How it looks on Twitter / X</div>
+      <div class="max-w-xl bg-white border border-ink-300 rounded-2xl overflow-hidden shadow-soft">
+        <img src="/og-default.svg" alt="" class="w-full h-auto" />
+        <div class="p-4 border-t border-ink-200">
+          <div class="text-xs text-ink-500 uppercase">calctube.com</div>
+          <div class="text-base font-semibold text-ink-900 mt-1">
+            Calctube: Free Online Calculators for Finance, Health, Math &amp; More
+          </div>
+          <div class="text-sm text-ink-600 mt-0.5">
+            100+ free, fast, accurate calculators. Mortgage, BMI, EMI, SIP, currency, tax…
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How to convert to PNG -->
+    <div class="card max-w-2xl bg-lime-accent !border-2 !border-ink-900 !shadow-sticker">
+      <h2 class="!text-2xl !mt-0 !mb-3" style="font-family: 'Inter Tight', sans-serif;">
+        Need a PNG version?
+      </h2>
+      <p class="text-ink-900 mb-3">
+        Twitter / X, LinkedIn, Discord, and Slack all support SVG. Facebook and WhatsApp prefer PNG.
+        To create a PNG version:
+      </p>
+      <ol class="list-decimal list-inside text-ink-900 space-y-1.5 font-medium">
+        <li>Open <code class="font-mono bg-white px-1.5 py-0.5 rounded border border-ink-900">/og-default.svg</code> at full size (1200×630)</li>
+        <li>Take a screenshot (Cmd/Ctrl+Shift+S on most browsers), <strong>or</strong></li>
+        <li>Use any free SVG→PNG converter: <a href="https://cloudconvert.com/svg-to-png" target="_blank" rel="noopener" class="font-bold underline">cloudconvert.com</a> · <a href="https://svgtopng.com/" target="_blank" rel="noopener" class="font-bold underline">svgtopng.com</a></li>
+        <li>Save the PNG as <code class="font-mono bg-white px-1.5 py-0.5 rounded border border-ink-900">public/og-default.png</code></li>
+      </ol>
+      <p class="text-sm text-ink-800 mt-4">
+        Once you have the PNG, also update the reference in <code class="font-mono bg-white px-1 rounded">src/lib/seo.ts</code> from <code class="font-mono">og-default.png</code>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

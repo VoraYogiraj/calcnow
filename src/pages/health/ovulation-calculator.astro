@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import OvulationCalculator from '../../components/calculators/OvulationCalculator.tsx';
+import { buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema, buildHowToSchema, buildSpeakableSchema } from '../../lib/seo';
+
+const meta = {
+  slug: 'ovulation-calculator', name: 'Ovulation Calculator',
+  description: 'Free ovulation calculator to find your most fertile days. Enter your last period and cycle length to see your fertile window and estimated ovulation date for the next few cycles.',
+  category: 'health' as const,
+  keywords: ['ovulation calculator', 'fertile window', 'fertility calculator', 'when do i ovulate', 'ovulation cycle', 'most fertile days'],
+  lastUpdated: '2026-07-18',
+};
+const path = '/health/ovulation-calculator';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Health', url: '/health/' }, { name: 'Ovulation Calculator', url: path },
+];
+
+// Build-time ovulation-day reference by cycle length (ovulation = cycle − 14).
+const cycles = [24, 26, 28, 30, 32, 34];
+const table = cycles.map((c) => ({ c, ov: c - 14, fertile: `Day ${c - 19} – ${c - 13}` }));
+
+const faqs = [
+  { q: 'When do you ovulate?', a: 'Ovulation typically happens about 14 days before your next period starts, not necessarily on "day 14" of your cycle. That\'s because the luteal phase (from ovulation to the next period) is fairly constant at around 14 days, while the first half of the cycle varies. So on a 28-day cycle you ovulate around day 14, but on a 32-day cycle it\'s closer to day 18. This calculator uses your cycle length to place the day.' },
+  { q: 'What is the fertile window?', a: 'It\'s the roughly 6-day span when conception is possible: the 5 days before ovulation plus ovulation day itself. Sperm can survive up to about 5 days in the reproductive tract, while the egg lives around 12–24 hours after release. The two or three days leading up to ovulation are usually the most fertile. This tool highlights that whole window.' },
+  { q: 'How accurate is calendar-based ovulation prediction?', a: 'It\'s a useful estimate for people with regular cycles, but it assumes a consistent cycle length and a standard 14-day luteal phase, which isn\'t true for everyone. Stress, illness, travel and conditions like PCOS can shift ovulation. For more precision, combine the calendar estimate with ovulation predictor kits (which detect the LH surge), basal body temperature tracking, or cervical mucus changes.' },
+  { q: 'Can I use this as birth control?', a: 'No. Calendar-based prediction is not a reliable contraceptive method on its own. Cycles vary and sperm survive several days, so the "safe" days are far from guaranteed. If you\'re avoiding pregnancy, use a proven contraceptive method and talk to a healthcare provider. This calculator is intended for people trying to conceive or simply understanding their cycle.' },
+  { q: 'How does cycle length change my ovulation day?', a: 'Since ovulation is counted back 14 days from the next period, a longer cycle moves ovulation later and a shorter cycle moves it earlier. On a 24-day cycle you\'d ovulate around day 10; on a 34-day cycle, around day 20. The reference table on this page lists the estimated ovulation day for common cycle lengths.' },
+];
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate your ovulation and fertile window',
+    description: 'Estimate your ovulation date and fertile window from your last period and cycle length.',
+    totalTime: 'PT1M',
+    estimatedCost: { value: '0', currency: 'USD' },
+    steps: [
+      { name: 'Enter your last period', text: 'Select the first day of your most recent period.' },
+      { name: 'Set your cycle length', text: 'Enter your average cycle length in days (default 28).' },
+      { name: 'See your fertile days', text: 'The calculator marks ovulation (cycle − 14) and the 6-day fertile window.' },
+    ],
+  }),
+];
+const relatedCalcs = [
+  { name: 'Pregnancy Due Date', href: '/health/pregnancy-calculator/', desc: 'EDD from your LMP.', icon: '🤰', color: 'bg-rose-300' },
+  { name: 'Age Calculator', href: '/date-time/age-calculator/', desc: 'Exact age in y/m/d.', icon: '🎂', color: 'bg-cyan-accent' },
+  { name: 'Date Difference', href: '/date-time/date-difference-calculator/', desc: 'Days between dates.', icon: '📆', color: 'bg-lime-accent' },
+  { name: 'BMI Calculator', href: '/health/bmi-calculator/', desc: 'Body mass index.', icon: '⚖️', color: 'bg-yellow-accent' },
+];
+---
+
+<BaseLayout title="Ovulation Calculator: Find Your Fertile Window" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-pink-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-rose-300/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip bg-pink-accent text-white">🌸 Fertility</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Ovulation <span class="text-gradient-brand">Calculator.</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="speakable-answer text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                You ovulate about <strong>14 days before your next period</strong> (not always day 14). Your <strong>fertile window</strong> is the 5 days before ovulation plus ovulation day, about 6 days. Enter your last period and cycle length below to map your most fertile days.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <OvulationCalculator client:load />
+    </div>
+  </section>
+
+  <!-- CYCLE TABLE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip bg-pink-accent text-white mb-4">📊 Quick reference</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Ovulation day by cycle length.</h2>
+        <p class="mt-3 text-ink-700 font-medium">Counting back 14 days from the next period. "Day 1" is the first day of your period.</p>
+        <div class="mt-8 overflow-x-auto">
+          <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+            <thead><tr class="bg-ink-900 text-white">
+              <th class="text-left p-3 font-extrabold">Cycle length</th>
+              <th class="text-center p-3 font-extrabold">Ovulation ~day</th>
+              <th class="text-right p-3 font-extrabold">Fertile window</th>
+            </tr></thead>
+            <tbody>
+              {table.map((r, i) => (
+                <tr class={`border-b-2 border-ink-100 ${i % 2 ? 'bg-ink-50' : ''}`}>
+                  <td class="p-3 font-extrabold text-ink-900">{r.c} days</td>
+                  <td class="p-3 text-center font-mono font-bold text-ink-900">Day {r.ov}</td>
+                  <td class="p-3 text-right font-semibold text-ink-700">{r.fertile}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip-yellow mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+      <div class="space-y-3 mt-8">
+        {faqs.map((faq, idx) => (
+          <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-pink-accent text-white mb-4">🔗 Related</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          {relatedCalcs.map((c) => (
+            <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+              <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+              <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+              <p class="text-xs text-ink-800 mt-1.5 leading-snug font-medium">{c.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

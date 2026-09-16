@@ -1,0 +1,222 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/guides/personal-loan-vs-credit-card-vs-gold-loan';
+const lastUpdated = '2026-08-07';
+const breadcrumbs = [
+  { name: 'Home', url: '/' }, { name: 'Guides', url: '/guides/' }, { name: 'Personal Loan vs Credit Card vs Gold Loan', url: path },
+];
+
+// Build-time: borrow ₹1,00,000 and clear it in 12 equal monthly payments.
+// Every route below is priced the same way (reducing balance, EMI-style) so the
+// numbers are genuinely comparable, then a fee-inclusive APR is solved by IRR.
+const P = 100000;
+const n = 12;
+const GST = 18;             // GST on lender fees, India
+const CARD_MONTHLY = 3.5;   // typical card finance charge, % per month
+
+// Representative rates for a borrower with a decent credit profile, FY 2025-26 India.
+// Ranges are wide; these sit mid-band and the prose states the spread.
+const OPTIONS = [
+  { key: 'gold', name: 'Gold loan', rate: 11, feePct: 1.0, band: '9% to 12% at banks', security: 'Secured (your jewellery)', icon: '🪙' },
+  { key: 'personal', name: 'Personal loan', rate: 14, feePct: 2.0, band: '10.5% to 24%', security: 'Unsecured', icon: '🏦' },
+  { key: 'cardemi', name: 'Card balance converted to EMI', rate: 16, feePct: 1.5, band: '13% to 18%', security: 'Unsecured', icon: '🧾' },
+  { key: 'revolve', name: 'Credit card, revolved', rate: CARD_MONTHLY * 12, feePct: 0, band: `${CARD_MONTHLY}% per month`, security: 'Unsecured', icon: '💳' },
+];
+
+// Standard EMI on the full principal: the fee never reduces what you owe.
+function emiFor(rate: number) {
+  const i = rate / 100 / 12;
+  return P * i * Math.pow(1 + i, n) / (Math.pow(1 + i, n) - 1);
+}
+// Present value of the EMI stream at a candidate monthly rate, used for the IRR solve.
+function pv(emi: number, r: number) {
+  if (r === 0) return emi * n;
+  return emi * (1 - Math.pow(1 + r, -n)) / r;
+}
+// True APR = the rate that equates cash actually received (principal minus fees)
+// with the repayment stream. pv() falls as r rises, so bisection converges cleanly.
+function aprFor(emi: number, net: number) {
+  let lo = 0, hi = 1;
+  for (let k = 0; k < 200; k++) {
+    const mid = (lo + hi) / 2;
+    if (pv(emi, mid) > net) lo = mid; else hi = mid;
+  }
+  return ((lo + hi) / 2) * 12 * 100;
+}
+
+const rows = OPTIONS.map((o) => {
+  const emi = emiFor(o.rate);
+  const interest = emi * n - P;
+  const fee = P * o.feePct / 100 * (1 + GST / 100);   // fee plus GST, paid upfront
+  const totalCost = interest + fee;
+  return { ...o, emi, interest, fee, totalCost, apr: aprFor(emi, P - fee) };
+});
+
+const gold = rows.find((r) => r.key === 'gold')!;
+const personal = rows.find((r) => r.key === 'personal')!;
+const cardEmi = rows.find((r) => r.key === 'cardemi')!;
+const revolve = rows.find((r) => r.key === 'revolve')!;
+const spread = revolve.totalCost - gold.totalCost;
+const multiple = revolve.totalCost / gold.totalCost;
+const cardEffective = (Math.pow(1 + CARD_MONTHLY / 100, 12) - 1) * 100;  // monthly compounding
+
+// The minimum-due trap: pay only 5% of the outstanding (floor ₹200) every month
+// while the balance keeps compounding at the card's monthly rate.
+function minDue() {
+  const r = CARD_MONTHLY / 100;
+  let bal = P, paid = 0, months = 0;
+  while (bal > 0 && months < 1200) {
+    bal = bal * (1 + r);
+    let pay = Math.max(bal * 0.05, 200);
+    if (pay >= bal) pay = bal;
+    bal -= pay; paid += pay; months++;
+  }
+  return { months, paid, interest: paid - P, years: months / 12 };
+}
+const trap = minDue();
+
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+
+const faqs = [
+  { q: 'Which is cheapest: a personal loan, a credit card, or a gold loan?', a: `On ${fmtINR(P)} cleared over 12 months, the gold loan is cheapest at about ${fmtINR(gold.totalCost)} all-in, then the personal loan at ${fmtINR(personal.totalCost)}, then converting a card balance to EMI at ${fmtINR(cardEmi.totalCost)}. Revolving on the card is far and away the worst at roughly ${fmtINR(revolve.totalCost)}, about ${multiple.toFixed(1)} times the gold loan and ${fmtINR(spread)} more in cash. The ordering follows the security: a gold loan is backed by jewellery the lender can sell, so it is priced lowest, while card revolving is unsecured, instant, and priced accordingly.` },
+  { q: 'Why is credit card interest so much higher than a loan?', a: `A card is an unsecured, pre-approved, revolving line you can draw on at any moment with no fresh underwriting, and issuers price that convenience plus the default risk into a monthly rate rather than an annual one. At ${CARD_MONTHLY}% a month the nominal rate is ${(CARD_MONTHLY * 12).toFixed(0)}% a year, but because the charge compounds monthly the effective annual rate is about ${cardEffective.toFixed(1)}%. Two extra traps make it worse than the headline: the moment you carry any balance you lose the interest-free grace period, so new purchases start accruing from the day you make them, and a cash withdrawal on the card attracts interest from day one plus a withdrawal fee of around 2.5%.` },
+  { q: 'What happens if I only pay the minimum due on my credit card?', a: `You stay in debt for decades. Paying just 5% of the outstanding each month (with the usual ₹200 floor) on a ${fmtINR(P)} balance at ${CARD_MONTHLY}% a month takes roughly ${trap.months} months, about ${trap.years.toFixed(0)} years, and costs around ${fmtINR(trap.interest)} in interest, more than ${(trap.interest / P).toFixed(1)} times what you borrowed. The reason is arithmetic: the balance grows ${CARD_MONTHLY}% while your payment removes only 5%, so the balance falls by under 2% a month. The minimum due is designed to keep your account current, not to clear your debt. Always pay the statement balance in full, and if you cannot, convert it to an EMI before the due date.` },
+  { q: 'Is a gold loan risky? What is the LTV limit?', a: `The risk is real but specific: your jewellery is collateral, so if you default the lender can auction it, and you lose an asset that may matter to you far beyond its resale value. Lenders also cap how much they will advance against the metal, an LTV limit of 75% of the gold's value, so ₹1,00,000 of gold typically supports about ₹75,000 of loan. If gold prices fall sharply mid-tenure some lenders ask for a top-up. Against that, gold loans are quick (often same day), need almost no income proof, and do not hinge on your credit score, which is exactly why the rate is the lowest of the four routes here.` },
+  { q: 'Should I convert my credit card balance into an EMI?', a: `Yes, if you already have a balance you cannot clear this month. Converting the ${fmtINR(P)} to a ${cardEmi.rate}% EMI costs about ${fmtINR(cardEmi.totalCost)} over the year against roughly ${fmtINR(revolve.totalCost)} for revolving, so the conversion saves around ${fmtINR(revolve.totalCost - cardEmi.totalCost)}. Do it before the payment due date, check the one-time conversion fee (typically 1% to 2% plus GST), and confirm whether the converted amount still blocks your credit limit. Two caveats: pre-closing an EMI conversion often carries a foreclosure charge, and a fresh personal loan at ${personal.rate}% would still be cheaper (about ${fmtINR(cardEmi.totalCost - personal.totalCost)} less) if you have the few days it takes to get one approved.` },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+---
+
+<BaseLayout title={`Personal Loan vs Credit Card vs Gold Loan: ${fmtINR(gold.totalCost)} vs ${fmtINR(revolve.totalCost)}`} description={`Borrowing ${fmtINR(P)} for a year costs ${fmtINR(gold.totalCost)} on a gold loan, ${fmtINR(personal.totalCost)} on a personal loan, ${fmtINR(revolve.totalCost)} revolved on a card. Fees, GST and true APR computed.`} schemas={schemas} publishedTime={lastUpdated} modifiedTime={lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-pink-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+          {breadcrumbs.map((item, idx) => (
+            <li class="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>
+              ) : (
+                <>
+                  <a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a>
+                  <svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">📚 Guide</span>
+          <span class="chip-pink">💳 Borrowing</span>
+          <span class="chip-white"><span class="text-ink-500">Updated</span><span>{lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Personal loan vs credit card vs <span class="text-gradient-brand">gold loan</span>
+        </h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Borrow {fmtINR(P)} and clear it over 12 months: a <strong>gold loan costs about {fmtINR(gold.totalCost)}</strong>, a <strong>personal loan {fmtINR(personal.totalCost)}</strong>, a <strong>card balance converted to EMI {fmtINR(cardEmi.totalCost)}</strong>, and <strong>revolving on the card about {fmtINR(revolve.totalCost)}</strong>. Same money, same year, {fmtINR(spread)} apart. Revolving is roughly {multiple.toFixed(1)}x the cheapest route, so never let a card balance simply roll.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16 pt-4">
+    <div class="max-w-4xl mx-auto prose prose-lg">
+      <h2 style="font-family: 'Inter Tight', sans-serif;">What {fmtINR(P)} for one year actually costs</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Lenders quote rates in incompatible units, which is most of the confusion. A personal loan is sold as an annual reducing rate, a card as a percentage <em>per month</em>, a gold loan as an annual rate but often on an interest-only structure. So the table below forces all four onto identical terms: {fmtINR(P)} borrowed, repaid in {n} equal monthly instalments, interest charged on the reducing balance, plus the upfront processing fee with {GST}% GST on top. The final column is the true APR, solved by IRR, which folds that fee back into the rate so you can compare the deals rather than the advertisements.
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full bg-white border-[2.5px] border-ink-900 rounded-2xl shadow-sticker-sm overflow-hidden border-separate border-spacing-0 text-sm">
+          <thead><tr class="bg-ink-900 text-white">
+            <th class="text-left p-3 font-extrabold">Route</th>
+            <th class="text-right p-3 font-extrabold">Rate</th>
+            <th class="text-right p-3 font-extrabold">Fee + GST</th>
+            <th class="text-right p-3 font-extrabold">Interest (12 mo)</th>
+            <th class="text-right p-3 font-extrabold">Total cost</th>
+            <th class="text-right p-3 font-extrabold">True APR</th>
+          </tr></thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr class={`border-b-2 border-ink-100 ${r.key === 'revolve' ? 'bg-pink-accent/40' : r.key === 'gold' ? 'bg-lime-accent/30' : i % 2 ? 'bg-ink-50' : 'bg-white'}`}>
+                <td class="p-3 font-bold text-ink-900">{r.icon} {r.name}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{r.rate}%</td>
+                <td class="p-3 text-right font-mono text-ink-900">{r.fee === 0 ? 'nil' : fmtINR(r.fee)}</td>
+                <td class="p-3 text-right font-mono text-ink-900">{fmtINR(r.interest)}</td>
+                <td class="p-3 text-right font-mono font-extrabold text-ink-900">{fmtINR(r.totalCost)}</td>
+                <td class="p-3 text-right font-mono font-bold text-ink-900">{r.apr.toFixed(2)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-ink-500 mt-3 font-medium">
+        {fmtINR(P)} repaid in {n} equal monthly instalments on a reducing balance. Fees shown include {GST}% GST. True APR solved by IRR on cash actually received. Rates are representative mid-band figures for FY 2025-26: gold {gold.band}, personal loan {personal.band}, card EMI conversion {cardEmi.band}, card finance charge {revolve.band}. Your own rate depends on lender, credit score and income. Not financial advice.
+      </p>
+
+      <h2 style="font-family: 'Inter Tight', sans-serif;">The minimum-due trap, and picking the right route</h2>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        The {fmtINR(revolve.totalCost)} revolving figure above assumes something quite disciplined: that you clear the whole balance inside twelve months. Most people do not. Pay only the minimum due, typically 5% of the outstanding with a ₹200 floor, and the arithmetic turns brutal. The balance grows {CARD_MONTHLY}% a month while your payment removes 5% of it, so the debt shrinks by less than 2% a month. Starting from {fmtINR(P)}, that takes about {trap.months} months to clear, roughly {trap.years.toFixed(0)} years, and costs around {fmtINR(trap.interest)} in interest: over {(trap.interest / P).toFixed(1)} times the amount you borrowed. The minimum due keeps your account current, it does not repay your debt.
+      </p>
+      <p class="text-ink-700 font-medium leading-relaxed max-w-3xl">
+        Choosing between the rest is mostly about what you can pledge and how fast you need the money. A gold loan wins on price ({gold.apr.toFixed(2)}% APR here) and barely looks at your credit score or income proof, but the lender caps the advance at 75% of the gold's value and can auction the jewellery if you default. A personal loan at {personal.apr.toFixed(2)}% APR needs a decent score and a few days, yet asks for no collateral and gives a fixed end date, which is usually the right default for a planned expense. Card EMI conversion at {cardEmi.apr.toFixed(2)}% APR is the fast fix for a balance already sitting on your statement: it costs about {fmtINR(cardEmi.totalCost - personal.totalCost)} more than a personal loan over the year, but you can do it in minutes, and it beats revolving by roughly {fmtINR(revolve.totalCost - cardEmi.totalCost)}. Watch the flat-rate quote too, because a lender advertising a low "flat" rate is quoting something close to double in real terms, as our guide on <a href="/finance/flat-vs-reducing-interest/">flat vs reducing interest</a> shows.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        {[
+          { name: 'EMI Calculator', href: '/finance/emi-calculator/', icon: '🧮', color: 'bg-cyan-accent' },
+          { name: 'Flat vs Reducing Rates', href: '/finance/flat-vs-reducing-interest/', icon: '🚩', color: 'bg-pink-accent' },
+          { name: 'Emergency Fund Size', href: '/guides/emergency-fund-how-much/', icon: '🛟', color: 'bg-lime-accent' },
+        ].map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-2 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-ink-900 text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ApyCalculator from '../../components/calculators/ApyCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/apy-calculator';
+
+const meta = {
+  slug: 'apy-calculator',
+  name: 'APY Calculator',
+  description: 'Free Atal Pension Yojana (APY) calculator for India. Look up your exact monthly contribution by entry age and chosen pension of ₹1,000 to ₹5,000, the total you pay until 60, the guaranteed lifetime pension, and the corpus returned to your nominee.',
+  category: 'finance' as const,
+  keywords: ['apy calculator', 'atal pension yojana calculator', 'apy contribution chart', 'apy pension calculator', 'atal pension yojana contribution chart', 'apy monthly contribution'],
+  lastUpdated: '2026-08-26',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'APY Calculator', url: path },
+];
+
+const faqs: Array<{ q: string; a: string; link?: { href: string; label: string } }> = [
+  { q: 'Who is eligible to join the Atal Pension Yojana?', a: 'Any Indian citizen aged 18 to 40 with a savings bank account or post office savings account can join the Atal Pension Yojana. Aadhaar and a mobile number are needed, and the account is opened through your bank or post office. Because contributions run until age 60, the entry window closes at 40, giving every subscriber at least 20 years of paying in. One important change matters: from 1 October 2022, anyone who is or has ever been an income-tax payer is no longer allowed to open a new APY account. Existing subscribers who later start paying tax keep their accounts, but new taxpayer entrants are barred.' },
+  { q: 'How do the guaranteed pension and the return-to-nominee corpus work?', a: 'APY is a defined-benefit scheme, so the pension is fixed in advance and not tied to market returns. Once you turn 60 you receive your chosen level of ₹1,000, ₹2,000, ₹3,000, ₹4,000 or ₹5,000 every month for life, guaranteed by the Government of India. When you die, the same monthly pension passes to your spouse for their lifetime. After both of you have died, the accumulated pension corpus is returned to your nominee. That indicative corpus rises with the pension level, from about ₹1.7 lakh for the ₹1,000 pension up to ₹8.5 lakh for the ₹5,000 pension.' },
+  { q: 'Do APY contributions get the Section 80CCD(1B) tax deduction?', a: 'Yes. Atal Pension Yojana contributions qualify for a deduction under Section 80CCD(1B) of the Income Tax Act, the same additional ₹50,000 bucket used for NPS Tier I. This sits on top of the ₹1.5 lakh combined ceiling under Section 80C and 80CCD(1), so an APY subscriber can claim up to ₹50,000 of APY contributions here. In practice APY instalments are small, so most people will not fill the whole ₹50,000 from APY alone. The deduction is available only under the old tax regime. Remember too that from October 2022 income-tax payers can no longer join, which limits who this benefits.', link: { href: '/finance/nps-calculator/', label: 'See the NPS calculator for the same 80CCD(1B) bucket' } },
+  { q: 'What happens if I stop paying my APY contributions?', a: 'If your bank account lacks enough balance on the due date, the instalment is treated as missed and a small overdue charge is added, roughly ₹1 for every ₹100 or part thereof per missed month, scaled to the instalment size. If default continues, the account is frozen after six months, deactivated after twelve months, and closed after twenty-four months, with the balance returned to you. The practical rule is to keep the auto-debit account funded. You can also change your contribution frequency, or step the pension level up or down once a year, to keep the account affordable rather than letting it lapse.' },
+  { q: 'How is APY different from NPS?', a: 'Both are PFRDA-run retirement products, but they work very differently. APY is defined-benefit: you pick a fixed monthly pension of ₹1,000 to ₹5,000, the small contribution needed is read from a government table by your entry age, and the pension is guaranteed by the Government of India regardless of markets. NPS is defined-contribution: you invest as much as you like into market-linked equity and debt funds, the corpus and eventual pension vary with returns, and at least 40% must buy an annuity at 60. APY suits low and moderate earners wanting a guaranteed floor; NPS suits those chasing a larger, market-driven corpus.', link: { href: '/finance/nps-calculator/', label: 'Compare with the NPS calculator' } },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate your Atal Pension Yojana contribution',
+    description: 'Step-by-step instructions for looking up your APY monthly contribution and guaranteed pension from the official government chart.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter your age today', text: 'APY accepts new subscribers aged 18 to 40. Your entry age fixes the contribution, because the scheme reads it straight from the official government chart. A younger start means a smaller instalment for the same pension.' },
+      { name: 'Choose your guaranteed monthly pension', text: 'Pick ₹1,000, ₹2,000, ₹3,000, ₹4,000 or ₹5,000. This is the fixed amount you, and after you your spouse, will receive every month from age 60 for life.' },
+      { name: 'Pick your contribution frequency', text: 'Contributions can be monthly, quarterly or half-yearly. The calculator multiplies the monthly chart figure by 1, 3 or 6 so you see the exact amount debited each cycle.' },
+      { name: 'Read your contribution and payout', text: 'The calculator shows the required contribution, the years you pay until 60, the total you will contribute, the guaranteed monthly pension, and the corpus returned to your nominee.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout title="Atal Pension Yojana Calculator 🇮🇳" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-pink-accent/20 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-pink">🇮🇳 APY</span>
+          <span class="chip-lime">🛡️ Govt-guaranteed pension</span>
+          <span class="chip-white"><span class="text-ink-500">Entry age</span><span>18 to 40</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          APY Calculator.
+          <span class="text-gradient-brand">Your guaranteed pension.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Joining Atal Pension Yojana at age <strong>25</strong> for the <strong>₹5,000</strong> pension costs a fixed <strong>₹376 a month</strong> from the official chart, paid for <strong>35 years</strong> until 60. That is <strong>₹1,57,920</strong> contributed in total. In return you get a guaranteed <strong>₹5,000 a month for life</strong> from age 60, the same pension to your spouse afterwards, and <strong>₹8.5 lakh</strong> returned to your nominee.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><ApyCalculator client:visible /></div></section>
+  <section class="bg-ink-50 border-y-2 border-ink-900"><div class="container-wide py-12 md:py-16"><div class="max-w-4xl mx-auto"><span class="chip-cyan mb-4">❓ FAQ</span><h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">APY calculator FAQ.</h2><div class="mt-8 space-y-4">{faqs.map((faq) => (<details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group"><summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4"><span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span></summary><p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p>{faq.link && (<a href={faq.link.href} class="inline-flex items-center gap-1.5 mt-3 text-sm font-bold text-ink-900 no-underline border-b-2 border-pink-accent hover:bg-pink-accent/10 transition-colors">{faq.link.label}<span aria-hidden="true">→</span></a>)}</details>))}</div><div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm"><div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related India calculators</div><div class="flex flex-wrap gap-2"><a href="/finance/nps-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">NPS</a><a href="/finance/ppf-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">PPF</a><a href="/finance/epf-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">EPF</a><a href="/finance/retirement-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Retirement</a><a href="/finance/sukanya-samriddhi-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Sukanya Samriddhi</a></div></div></div></div></section>
+</BaseLayout>

@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/ui/Breadcrumbs.astro';
+import { buildBreadcrumbSchema } from '../lib/seo';
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Contact', url: '/contact/' },
+];
+---
+
+<BaseLayout
+  title="Contact Calctube"
+  description="Get in touch with the Calctube team. Report a bug, suggest a calculator, or just say hi."
+  schemas={[buildBreadcrumbSchema(breadcrumbs)]}
+  noindex={true}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-prose relative pt-10 pb-8 md:pt-14 md:pb-10">
+      <Breadcrumbs items={breadcrumbs} />
+      <span class="chip-cyan mb-4">✉️ Contact</span>
+      <h1 class="!text-4xl sm:!text-5xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900 mt-4" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+        Contact the <span class="text-gradient-brand">Calctube team.</span>
+      </h1>
+      <p class="mt-5 text-lg text-ink-700 font-medium leading-relaxed">
+        Have a question, found a bug, or want to suggest a calculator? Email us. We read every message and reply within 48 hours.
+      </p>
+    </div>
+  </section>
+
+  <article class="container-prose pb-16 md:pb-24">
+    <div class="card">
+      <h2 class="!mt-0 !text-xl sm:!text-2xl !font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">📧 Email</h2>
+      <p class="!mt-4">
+        <a href="mailto:hello@calctube.com" class="btn-primary">hello@calctube.com</a>
+      </p>
+
+      <h2 class="!mt-10 !text-xl sm:!text-2xl !font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">🐛 Bug reports</h2>
+      <p class="!mt-3 text-ink-700 leading-relaxed">
+        Found a math error or broken tool? Email <a href="mailto:bugs@calctube.com">bugs@calctube.com</a> with:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2 text-ink-700 leading-relaxed marker:text-ink-900">
+        <li>The URL of the calculator</li>
+        <li>The values you entered</li>
+        <li>What result you expected vs what you got</li>
+      </ul>
+
+      <h2 class="!mt-10 !text-xl sm:!text-2xl !font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">💡 Calculator requests</h2>
+      <p class="!mt-3 text-ink-700 leading-relaxed">
+        Need a calculator that isn't here yet? Send your suggestion to
+        <a href="mailto:ideas@calctube.com">ideas@calctube.com</a>. We add the most-requested tools first.
+      </p>
+
+      <h2 class="!mt-10 !text-xl sm:!text-2xl !font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">💼 Partnerships & advertising</h2>
+      <p class="!mt-3 text-ink-700 leading-relaxed">
+        For partnership or advertising inquiries: <a href="mailto:partners@calctube.com">partners@calctube.com</a>
+      </p>
+    </div>
+  </article>
+</BaseLayout>

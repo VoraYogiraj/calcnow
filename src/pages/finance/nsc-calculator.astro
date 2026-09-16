@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NscCalculator from '../../components/calculators/NscCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/nsc-calculator';
+
+const meta = {
+  slug: 'nsc-calculator',
+  name: 'NSC Calculator',
+  description: 'Free NSC (National Savings Certificate) calculator. See the exact maturity of a lump sum at the current 7.7% rate over the fixed 5-year term, with a year-by-year accrual table and the Section 80C treatment explained.',
+  category: 'finance' as const,
+  keywords: ['nsc calculator', 'national savings certificate calculator', 'nsc maturity calculator', 'nsc interest rate 7.7', 'nsc calculator post office'],
+  lastUpdated: '2026-08-26',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'NSC Calculator', url: path },
+];
+
+const faqs = [
+  { q: 'What is the current NSC interest rate and who sets it?', a: 'The current NSC (VIII Issue) interest rate is 7.7% per annum, compounded annually but paid only at maturity. The Ministry of Finance, through the Department of Economic Affairs, notifies small-savings rates every quarter. The rate is fixed for the quarter in which you buy the certificate and then stays locked for your whole five-year term even if later quarters change. So a certificate bought this quarter keeps 7.7% for all five years, while a fresh certificate bought next quarter could carry a different rate. Historically the NSC rate has ranged roughly between 6.8% and 8.5%, so this projection assumes 7.7% holds throughout, which it may not exactly.' },
+  { q: 'Can I withdraw NSC before the 5-year term ends?', a: 'As a rule, no. NSC has a fixed five-year term with no partial tenure, and you cannot break it early the way you can a bank fixed deposit. There are only three narrow exceptions: the death of the holder (or of any holder in a joint account), forfeiture by a pledgee who is a Gazetted Officer, or an order of a court of law. Outside those, your money stays locked for the full five years. Because the interest is reinvested and only paid out at maturity, early exit is simply not built into the product, which is its main trade-off against an FD that at least lets you borrow against the deposit.' },
+  { q: 'How does Section 80C treat the NSC deposit and its interest?', a: 'The amount you invest qualifies for a Section 80C deduction of up to ₹1.5 lakh in the year of purchase. The interesting part is the interest itself: because NSC interest is reinvested rather than paid out, the interest accruing in years one to four is treated as a fresh investment and also qualifies for 80C in each of those years, within the same ₹1.5 lakh annual ceiling. Only the fifth and final year interest gets no 80C benefit and is fully taxable. NSC deducts no TDS at all, but you must still declare the accrued interest as income, either year by year on an accrual basis or as a lump sum at maturity.' },
+  { q: 'NSC vs a 5-year tax-saving FD: which is better?', a: 'Both give an 80C deduction and lock your money for five years, so they compete directly, and three differences decide it. First, NSC deducts no TDS, whereas a tax-saving FD deducts TDS once yearly interest crosses ₹40,000 (₹50,000 for senior citizens). Second, NSC interest for years one to four can be re-claimed under 80C, softening the tax, while FD interest is simply taxable each year. Third, rates move independently: NSC is set quarterly by the government, FD rates by each bank, so compare the actual numbers on the day you invest. One point favours the FD: you can take a loan against it, which NSC does not allow, though NSC can be pledged as security.' },
+  { q: 'Can NSC be pledged for a loan, held jointly, or bought at a post office?', a: 'Yes on all three. NSC can be pledged or transferred as security for a loan to banks, housing finance companies and specified authorities by submitting the prescribed transfer form at the post office, a common way to raise liquidity without breaking the certificate. It can be held jointly by up to three adults (Joint A, payable to all holders, or Joint B, payable to any survivor), and it can be bought for a minor by a guardian, or by a minor above ten in their own name. NSC is sold at every post office across India, and since it moved fully to electronic (e-mode) form, many banks are also authorised to issue it.' },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate NSC maturity value',
+    description: 'Step-by-step instructions for projecting the maturity value of a National Savings Certificate at the current 7.7% rate over its fixed five-year term.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter the investment amount', text: 'Enter the lump sum you plan to invest, from the ₹1,000 minimum upward in multiples of ₹100. There is no maximum, but only ₹1.5 lakh of it qualifies for the Section 80C deduction.' },
+      { name: 'Set the interest rate', text: 'The default is 7.7%, the rate notified for the current quarter, which stays fixed for the full five-year term. Change it only to test other scenarios, since the Ministry of Finance revises the rate quarterly for new certificates.' },
+      { name: 'Read the maturity and the accrual table', text: 'The calculator applies M = P times (1 + r/100)^5 and shows the maturity amount, the total interest, and a five-row table of opening balance, interest and closing balance for each year.' },
+      { name: 'Check the 80C and tax notes', text: 'See how much of your deposit and the reinvested interest of years 1 to 4 qualifies for 80C, and which portion of the interest is taxable. NSC deducts no TDS, but the interest is still taxable in your hands.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout title="NSC Calculator India 📜" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-lime-accent/25 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">📜 NSC VIII Issue</span>
+          <span class="chip-yellow">📈 7.7% this quarter</span>
+          <span class="chip-white"><span class="text-ink-500">Term</span><span>5 years fixed</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          NSC Calculator.
+          <span class="text-gradient-brand">Five years, compounded.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Invest <strong>₹1,00,000</strong> in NSC at the current <strong>7.7%</strong> rate and it matures in 5 years at <strong>₹1,44,903</strong>. Your interest is <strong>₹44,903</strong>, compounded annually but paid as a single lump sum at maturity. The deposit gets a Section 80C deduction, and the reinvested interest of years 1 to 4 (about ₹34,544) can be claimed under 80C again; only the final year interest of ₹10,360 is taxable with no shelter. NSC has no TDS.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><NscCalculator client:visible /></div></section>
+  <section class="container-wide pb-10">
+    <div class="max-w-4xl mx-auto bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+      <div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">About the 7.7% rate</div>
+      <p class="text-ink-700 font-medium leading-relaxed !mb-0">
+        7.7% is the rate notified for the current quarter, not a fixed contractual rate for all time. The Ministry of Finance reviews small-savings rates every quarter, and NSC has been reset several times since the VIII Issue began. The rate that applies to your certificate is the one in force on the day you buy it, and it then stays locked for your full five-year term, so this projection assuming a single 7.7% for all five years is accurate for a certificate bought this quarter, even though a certificate bought in a future quarter may carry a different rate. Interest compounds once a year and is paid only at maturity, which is why the year-by-year table above shows the balance rising each year without any payout until year 5.
+      </p>
+    </div>
+  </section>
+  <section class="bg-ink-50 border-y-2 border-ink-900"><div class="container-wide py-12 md:py-16"><div class="max-w-4xl mx-auto"><span class="chip-cyan mb-4">❓ FAQ</span><h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">NSC calculator FAQ.</h2><div class="mt-8 space-y-4">{faqs.map((faq) => (<details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group"><summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4"><span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span></summary><p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p></details>))}</div><div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm"><div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related India calculators</div><div class="flex flex-wrap gap-2"><a href="/finance/ppf-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">PPF</a><a href="/finance/fd-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Fixed deposit</a><a href="/finance/scss-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">SCSS</a><a href="/finance/sukanya-samriddhi-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Sukanya Samriddhi</a><a href="/finance/income-tax-india/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Income tax</a></div></div></div></div></section>
+</BaseLayout>

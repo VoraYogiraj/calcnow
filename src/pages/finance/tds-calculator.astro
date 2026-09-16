@@ -1,0 +1,212 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TdsCalculator from '../../components/calculators/TdsCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/tds-calculator';
+
+const meta = {
+  slug: 'tds-calculator',
+  name: 'TDS Calculator',
+  description: 'Free TDS (Tax Deducted at Source) calculator for India. Pick the section (194C, 194H, 194I, 194J, 194A, 194Q, 194O), enter the payment and PAN status, and get the TDS to deduct, the threshold check and the net payable for FY 2025-26 (AY 2026-27).',
+  category: 'finance' as const,
+  keywords: ['tds calculator', 'tds calculator india', 'tds on professional fees', 'tds section 194j', 'tds rate chart', '206aa no pan tds', 'tds on rent 194i', 'tds on commission 194h'],
+  lastUpdated: '2026-08-26',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'TDS Calculator', url: path },
+];
+
+const faqs = [
+  {
+    q: 'What is TDS and who has to deduct it?',
+    a: 'TDS, or Tax Deducted at Source, is income tax collected at the moment a payment is made rather than at the year end. The payer (the deductor) keeps back a fixed percentage of the payment and deposits it with the government against the payee\'s PAN, then hands over the rest. The person receiving the money (the deductee) later claims that amount as tax already paid. Anyone making specified payments must deduct: companies and firms always, and individuals or HUFs once their business turnover crosses the tax-audit limit. Common cases are salary (192), contractor bills (194C), professional fees (194J), rent (194I) and commission (194H). Each section sets its own rate and its own threshold below which no TDS is due.',
+  },
+  {
+    q: 'What happens if the payee has no PAN (Section 206AA)?',
+    a: 'If the payee does not give a valid PAN, Section 206AA overrides the normal rate: TDS is deducted at the higher of the section rate or 20%. So a professional fee under 194J that would normally be cut at 10% is deducted at 20% with no PAN, and a contractor payment under 194C that would be 1% jumps to 20%. Where the section rate is already 20% or more, the rate does not change. The higher deduction is not a penalty you lose forever; the payee can still claim it back by filing a return, but only if they can link the TDS to their PAN, which is exactly what is missing. In practice, always collect a valid PAN before paying, because 206AA also blocks lower-deduction certificates and can trigger notices for a wrong or inoperative PAN.',
+  },
+  {
+    q: 'What is the difference between 194C, 194J and 194H?',
+    a: 'These three are the most commonly confused because they all cover payments to service providers, but they carry very different rates. Section 194C is for a contractor or sub-contractor doing work (construction, catering, transport, advertising, manufacturing to your specification): 1% if the payee is an individual or HUF, 2% if a company or firm, with a ₹30,000 single-payment or ₹1,00,000 yearly threshold. Section 194J is for professional or technical services (a chartered accountant, lawyer, doctor, designer, consultant or a technical or call-centre service): 10% for professional fees, 2% for technical, threshold ₹50,000. Section 194H is for commission or brokerage paid to an agent for arranging a sale or service: 2% (cut from 5% on 1 October 2024), threshold ₹20,000. The test is the nature of the work, not the invoice title.',
+  },
+  {
+    q: 'How is TDS adjusted against my final tax, and can I get it refunded?',
+    a: 'TDS is not an extra tax; it is an advance instalment of your own income tax. Everything deducted against your PAN during the year is credited to you and appears in Form 26AS and the Annual Information Statement (AIS) on the income-tax portal. When you file your return, you add up your total tax due for the year and subtract the TDS already deducted. If the TDS is more than your final liability, which is common for small contractors, senior citizens on interest, or anyone below the taxable limit, the excess is refunded to your bank account after the return is processed. If it is less, you pay the balance. Always reconcile your invoices against Form 26AS / AIS before filing, because you can only claim credit for TDS that the deductor has actually deposited and reported.',
+  },
+  {
+    q: 'What thresholds changed in Budget 2025, and why verify the current numbers?',
+    a: 'Budget 2025 raised several TDS thresholds with effect from 1 April 2025 to reduce compliance for small payments. The annual rent threshold under 194I went up from ₹2,40,000 to ₹6,00,000, and the 194J professional/technical threshold rose from ₹30,000 to ₹50,000. The 194A bank-interest threshold for senior citizens was raised to ₹1,00,000 (₹50,000 for others). These follow the earlier 1 October 2024 rate cuts that took 194H commission and 194M from 5% to 2% and 194O e-commerce from 1% to 0.1%. Because TDS rates and thresholds are amended in almost every Union Budget and by mid-year CBDT circulars, treat the numbers in this tool as FY 2025-26 (AY 2026-27) figures and confirm them against the latest Finance Act and CBDT notifications before you deduct.',
+  },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate TDS on a payment in India',
+    description: 'Step-by-step instructions for working out the TDS to deduct on a payment, using the correct section rate, the threshold check and the no-PAN Section 206AA rule for FY 2025-26.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Pick the payment type (section)', text: 'Choose the TDS section that matches the payment: 194C contractor, 194J professional or technical, 194H commission, 194I rent, 194A interest, 194Q goods, 194O e-commerce, or 192 salary. Set the sub-type toggle where it appears (payee type, rent type or service type).' },
+      { name: 'Enter the payment amount', text: 'Type the gross payment in rupees before TDS. The tool guards against negative or blank values and clamps them to zero.' },
+      { name: 'Set the PAN status', text: 'Select whether the payee has a valid PAN. If not, Section 206AA applies and the tool deducts at the higher of the section rate or 20%.' },
+      { name: 'Read the TDS and net payable', text: 'The calculator shows the applicable rate, whether the threshold is crossed, the TDS to deduct and the net amount to pay the payee, with the rule shown step by step. For 194Q, TDS applies only to the value above ₹50 lakh.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout title="TDS Calculator India 🧾" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-pink-accent/20 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">🧾 TDS</span>
+          <span class="chip-pink">🇮🇳 India</span>
+          <span class="chip-white"><span class="text-ink-500">FY</span><span>2025-26</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          TDS Calculator.
+          <span class="text-gradient-brand">Deduct at source, correctly.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                On a <strong>194J professional fee of ₹1,00,000</strong> with a valid PAN, TDS is deducted at <strong>10%</strong>. The payment exceeds the <strong>₹50,000</strong> threshold, so TDS = <strong>₹10,000</strong> and the net paid to the professional is <strong>₹90,000</strong>. If the payee had no PAN, Section 206AA would push the rate to 20% (TDS ₹20,000). Below the section threshold, no TDS is deducted.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><TdsCalculator client:visible /></div></section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">📋 TDS rate chart</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+          TDS sections, rates and thresholds.
+        </h2>
+        <p class="text-ink-600 font-semibold mt-3 text-sm">Resident payees, FY 2025-26 (AY 2026-27). Thresholds change most Budgets: verify against the latest Finance Act / CBDT circulars before you deduct.</p>
+
+        <div class="mt-8 overflow-x-auto">
+          <table class="w-full border-collapse text-sm min-w-[640px]">
+            <thead>
+              <tr class="bg-cyan-accent border-[2.5px] border-ink-900">
+                <th class="text-left font-extrabold text-ink-900 px-4 py-3 border-r-2 border-ink-900">Section</th>
+                <th class="text-left font-extrabold text-ink-900 px-4 py-3 border-r-2 border-ink-900">Payment</th>
+                <th class="text-left font-extrabold text-ink-900 px-4 py-3 border-r-2 border-ink-900">Rate (with PAN)</th>
+                <th class="text-left font-extrabold text-ink-900 px-4 py-3">Threshold</th>
+              </tr>
+            </thead>
+            <tbody class="font-medium text-ink-800">
+              <tr class="bg-white border-x-2 border-b-2 border-ink-900">
+                <td class="px-4 py-3 border-r-2 border-ink-100 font-bold">192</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">Salary</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">Average slab rate (not a flat %)</td>
+                <td class="px-4 py-3">Basic exemption limit</td>
+              </tr>
+              <tr class="bg-ink-50 border-x-2 border-b-2 border-ink-900">
+                <td class="px-4 py-3 border-r-2 border-ink-100 font-bold">194A</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">Interest (bank / post-office deposits)</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">10%</td>
+                <td class="px-4 py-3">₹50,000 (₹1,00,000 seniors; ₹5,000 non-bank)</td>
+              </tr>
+              <tr class="bg-white border-x-2 border-b-2 border-ink-900">
+                <td class="px-4 py-3 border-r-2 border-ink-100 font-bold">194C</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">Contractor / sub-contractor</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">1% individual / HUF, 2% company / firm</td>
+                <td class="px-4 py-3">₹30,000 single / ₹1,00,000 yearly</td>
+              </tr>
+              <tr class="bg-ink-50 border-x-2 border-b-2 border-ink-900">
+                <td class="px-4 py-3 border-r-2 border-ink-100 font-bold">194H</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">Commission or brokerage</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">2% (was 5% until 30 Sep 2024)</td>
+                <td class="px-4 py-3">₹20,000</td>
+              </tr>
+              <tr class="bg-white border-x-2 border-b-2 border-ink-900">
+                <td class="px-4 py-3 border-r-2 border-ink-100 font-bold">194I</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">Rent</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">2% plant / machinery, 10% land / building / furniture</td>
+                <td class="px-4 py-3">₹6,00,000 / year (raised in Budget 2025)</td>
+              </tr>
+              <tr class="bg-ink-50 border-x-2 border-b-2 border-ink-900">
+                <td class="px-4 py-3 border-r-2 border-ink-100 font-bold">194J</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">Professional / technical services</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">10% professional, 2% technical / call centre</td>
+                <td class="px-4 py-3">₹50,000 (raised in Budget 2025)</td>
+              </tr>
+              <tr class="bg-white border-x-2 border-b-2 border-ink-900">
+                <td class="px-4 py-3 border-r-2 border-ink-100 font-bold">194O</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">E-commerce operator to seller</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">0.1% (was 1% until 30 Sep 2024)</td>
+                <td class="px-4 py-3">₹5,00,000 (individual / HUF seller)</td>
+              </tr>
+              <tr class="bg-ink-50 border-x-2 border-b-2 border-ink-900">
+                <td class="px-4 py-3 border-r-2 border-ink-100 font-bold">194Q</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">Purchase of goods</td>
+                <td class="px-4 py-3 border-r-2 border-ink-100">0.1% on value over the threshold</td>
+                <td class="px-4 py-3">₹50,00,000 (excess only)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-6 bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm">
+          <div class="font-extrabold text-lg text-ink-900 mb-1" style="font-family: 'Inter Tight', sans-serif;">No PAN? Section 206AA</div>
+          <p class="text-ink-700 font-medium text-sm !m-0">If the payee has no valid PAN, deduct at the <strong>higher of the section rate or 20%</strong>. A 10% professional fee becomes 20%; a 1% contractor payment becomes 20%. Where the section rate is already 20% or more, it stays. Always collect a PAN before paying.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-cyan mb-4">❓ FAQ</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        TDS calculator FAQ.
+      </h2>
+      <div class="mt-8 space-y-4">
+        {faqs.map((faq) => (
+          <details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group">
+            <summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4">
+              <span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+              <span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p>
+          </details>
+        ))}
+      </div>
+
+      <div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+        <div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related India calculators</div>
+        <div class="flex flex-wrap gap-2">
+          <a href="/finance/income-tax-india/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Income tax India</a>
+          <a href="/finance/salary-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Salary</a>
+          <a href="/finance/gst-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">GST</a>
+          <a href="/finance/hra-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">HRA</a>
+          <a href="/finance/advance-tax-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Advance tax</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

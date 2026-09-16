@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GratuityCalculator from '../../components/calculators/GratuityCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/gratuity-calculator';
+
+const meta = {
+  slug: 'gratuity-calculator',
+  name: 'Gratuity Calculator',
+  description: 'Free gratuity calculator for Indian employees. Calculate gratuity under the Payment of Gratuity Act 1972 using the (15 × salary × years) ÷ 26 formula, including the ₹20 lakh tax exemption cap.',
+  category: 'finance' as const,
+  keywords: ['gratuity calculator', 'gratuity calculation formula', 'payment of gratuity act calculator', 'gratuity eligibility 5 years', 'gratuity tax exemption'],
+  lastUpdated: '2026-07-21',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'Gratuity Calculator', url: path },
+];
+
+const faqs = [
+  { q: 'What is the gratuity calculation formula in India?', a: 'For employers covered by the Payment of Gratuity Act, 1972 (establishments with 10 or more employees), gratuity = (15 × last drawn monthly salary × completed years of service) ÷ 26. The 15 represents 15 days of wages for each completed year, and 26 is the number of working days in a month after excluding Sundays. For employers outside the Act, the divisor is 30 instead of 26, which produces a smaller amount for the same salary and tenure. "Salary" means Basic pay plus Dearness Allowance, not gross CTC. This is the single most common mistake people make when estimating their own gratuity.' },
+  { q: 'Do I need 5 years of service to receive gratuity?', a: 'Yes, in almost all cases. Section 4 of the Act requires five years of continuous service before gratuity becomes payable on resignation, retirement, or termination. The five-year rule is waived only when service ends due to death or disablement, in which case gratuity is payable regardless of how long the employee worked. Courts in some jurisdictions have accepted 4 years and 240 days as satisfying the fifth year, following the Madras High Court view, but this is not applied uniformly across India, so treat a full five years as the safe threshold.' },
+  { q: 'How are part-years counted in gratuity?', a: 'Under the Act, any period beyond six months in the final year is rounded up to a full year, and six months or less is ignored. So 10 years and 7 months counts as 11 years, while 10 years and 6 months counts as 10 years. That single month can be worth a meaningful sum: on a ₹50,000 basic-plus-DA salary, one extra counted year adds ₹28,846 to the payout. Employers not covered by the Act typically count only fully completed years with no rounding at all.' },
+  { q: 'How much gratuity is tax-free?', a: 'For non-government employees covered by the Act, gratuity is exempt under Section 10(10)(ii) up to the lowest of three amounts: ₹20 lakh, the actual gratuity received, or the amount produced by the statutory formula. The ₹20 lakh ceiling was raised from ₹10 lakh in March 2018 and is a lifetime limit across all employers, not a per-job limit. If you claimed ₹8 lakh exempt at a previous employer, only ₹12 lakh of headroom remains. Anything above the exempt amount is added to your income and taxed at your slab rate. Central and state government employees receive gratuity fully tax-free with no ceiling.' },
+  { q: 'Is gratuity paid if I resign rather than retire?', a: 'Yes. Gratuity is payable on resignation, retirement, superannuation, termination, death, or disablement, provided the five-year condition is met (or waived for death and disablement). Resigning does not forfeit it. The employer must pay within 30 days of it becoming due, and delayed payment attracts simple interest. Gratuity can be forfeited wholly or partly only in narrow circumstances set out in Section 4(6), such as termination for wilful damage to employer property, riotous conduct, or an offence involving moral turpitude committed during employment.' },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate gratuity in India',
+    description: 'Step-by-step instructions for calculating gratuity under the Payment of Gratuity Act, 1972.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter last drawn salary', text: 'Use Basic pay plus Dearness Allowance from your final month, not gross CTC. Allowances such as HRA and bonuses are excluded.' },
+      { name: 'Enter years and months of service', text: 'Enter completed years, then any additional months. Beyond six months rounds the final year up under the Act.' },
+      { name: 'Confirm whether the Act applies', text: 'Establishments with 10 or more employees are covered and use a divisor of 26. Employers outside the Act use 30.' },
+      { name: 'Read the payout and tax split', text: 'The calculator shows gratuity payable, the portion exempt under Section 10(10)(ii) up to the ₹20 lakh lifetime cap, and any taxable balance.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout title="Gratuity Calculator India 💼" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">💼 Gratuity Act 1972</span>
+          <span class="chip-pink">🛡️ ₹20L exempt</span>
+          <span class="chip-white"><span class="text-ink-500">Divisor</span><span>26</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Gratuity Calculator.
+          <span class="text-gradient-brand">Know your payout.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Gratuity = <strong>(15 × last drawn salary × years of service) ÷ 26</strong>. On a ₹50,000 basic-plus-DA salary after 10 years, that is <strong>₹2,88,462</strong>. You need <strong>5 years</strong> of continuous service, salary means Basic + DA only, and up to <strong>₹20 lakh</strong> is tax-free across your career.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><GratuityCalculator client:visible /></div></section>
+  <section class="bg-ink-50 border-y-2 border-ink-900"><div class="container-wide py-12 md:py-16"><div class="max-w-4xl mx-auto"><span class="chip-cyan mb-4">❓ FAQ</span><h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Gratuity calculator FAQ.</h2><div class="mt-8 space-y-4">{faqs.map((faq) => (<details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group"><summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4"><span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span></summary><p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p></details>))}</div><div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm"><div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related India calculators</div><div class="flex flex-wrap gap-2"><a href="/finance/salary-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Salary / take-home</a><a href="/finance/hra-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">HRA exemption</a><a href="/finance/ppf-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">PPF</a><a href="/finance/income-tax-india/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Income tax</a><a href="/finance/retirement-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Retirement</a></div></div></div></div></section>
+</BaseLayout>

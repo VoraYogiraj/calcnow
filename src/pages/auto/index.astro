@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HubHero from '../../components/ui/HubHero.astro';
+import HubCard from '../../components/ui/HubCard.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+import { buildHubCards } from '../../lib/category-hub';
+
+// Derived from the calculators registry. See src/lib/category-hub.ts.
+// The car loan calculator lives under /finance/ but belongs on this hub too.
+const liveCalcs = buildHubCards('auto', {
+  alsoInclude: ['car-loan-calculator'],
+  order: [
+    'fuel-cost-calculator',
+    'fuel-economy-calculator',
+    'car-depreciation-calculator',
+    'lease-vs-buy-calculator',
+    'car-loan-calculator',
+  ],
+  copy: {
+    'fuel-cost-calculator': { desc: 'Work out the fuel cost of any trip from distance, mileage and fuel price, one-way or round trip.' },
+    'fuel-economy-calculator': { desc: 'Compute MPG or km/L from distance and fuel used, and convert between MPG, km/L and L/100km.' },
+    'car-depreciation-calculator': { name: 'Car Depreciation Calculator', desc: 'Estimate how much a car is worth after each year at a chosen depreciation rate.' },
+    'lease-vs-buy-calculator': { name: 'Lease vs Buy Calculator', desc: 'Compare the total cost of leasing versus financing and keeping a car over the same term.' },
+    // 🚗 in the registry, but Lease vs Buy already uses it on this grid.
+    'car-loan-calculator': { desc: 'Monthly EMI or payment on a car loan from price, down payment, rate and tenure.', icon: '💳' },
+  },
+});
+
+const upcomingCalcs = [
+  { name: 'Cost Per Mile Calculator', desc: 'Total running cost per mile including fuel, insurance and maintenance.', icon: '🛣️' },
+];
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Auto', url: '/auto/' },
+];
+
+const faqs = [
+  { q: 'How do I work out the fuel cost of a trip?', a: 'Divide the trip distance by your vehicle\'s fuel economy to get the fuel used, then multiply by the price per gallon or litre. For example, a 300-mile trip at 30 MPG uses 10 gallons; at $3.50 a gallon that is $35. The fuel cost calculator does this for one-way and round trips in US or metric units.' },
+  { q: 'Is it cheaper to lease or buy a car?', a: 'It depends on how long you keep the car and how much it holds its value. Leasing usually has lower monthly payments but you own nothing at the end; buying costs more up front but you keep an asset with a resale value. The lease-vs-buy calculator compares the total cost of each over the same term so you can see the real difference.' },
+  { q: 'How much does a car depreciate each year?', a: 'A typical car loses around 15–20% of its value each year, with the steepest drop in the first year (often about 20%). Luxury cars, EVs and high-mileage vehicles depreciate differently. The car depreciation calculator lets you set the rate and see the value year by year.' },
+];
+
+const schemas = [
+  buildBreadcrumbSchema(breadcrumbs),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Auto Calculators | Calctube',
+    description: 'Free car calculators: fuel cost, fuel economy, depreciation, lease vs buy and car loan.',
+    url: 'https://calctube.com/auto/',
+    isPartOf: { '@id': 'https://calctube.com/#website' },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.com${c.href}`, name: c.name })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  },
+];
+---
+
+<BaseLayout
+  title="Auto Calculators: Fuel Cost, Economy, Depreciation & Lease"
+  description="Free car calculators: trip fuel cost, fuel economy (MPG/km-L), car depreciation, lease vs buy, and car loan payments. Imperial and metric. No signup."
+  schemas={schemas}
+>
+  <HubHero
+    breadcrumbs={breadcrumbs}
+    chip="🚗 Auto"
+    chipClass="chip-cyan"
+    stats={[{ label: 'Tools', value: String(liveCalcs.length) }]}
+    titleLead="Auto Calculators."
+    titleAccent="The real cost."
+    intro="Everything for running the numbers on a car: trip fuel cost, fuel economy, depreciation, lease versus buy, and loan payments. Each calculator shows the formula and works in US or metric units."
+    orbA="bg-cyan-accent/30"
+    orbB="bg-lime-accent/25"
+  />
+
+  <section class="container-wide pb-16 md:pb-24">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Available now</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {liveCalcs.map((c) => (
+          <HubCard href={c.href} name={c.name} desc={c.desc} icon={c.icon} />
+        ))}
+      </div>
+
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Coming soon</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {upcomingCalcs.map((c) => (
+          <HubCard name={c.name} desc={c.desc} icon={c.icon} soon />
+        ))}
+      </div>
+
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">The real cost of a car</h2>
+      <p class="text-ink-700 leading-relaxed">
+        The sticker price is only the start. Fuel, depreciation, financing and the lease-versus-buy decision often matter more over the life of a car than the headline number. These calculators break each of those down with the formula shown, so you can compare options honestly before you commit.
+      </p>
+
+      <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Frequently asked questions</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card">
+            <summary class="cursor-pointer font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{f.q}</summary>
+            <p class="text-sm text-ink-700 mt-2 !leading-relaxed">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

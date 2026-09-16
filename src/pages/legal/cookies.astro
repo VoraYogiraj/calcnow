@@ -1,0 +1,200 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Legal', url: '/legal/' },
+  { name: 'Cookie Policy', url: '/legal/cookies/' },
+];
+
+const lastUpdated = '2026-05-25';
+---
+
+<BaseLayout
+  title="Cookie Policy"
+  description="Full breakdown of every cookie Calctube uses, why we use it, who provides it, and how to opt out. GDPR + AdSense compliant."
+  schemas={[buildBreadcrumbSchema(breadcrumbs)]}
+>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/25 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/25 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-prose relative pt-10 pb-8 md:pt-14 md:pb-10">
+      <Breadcrumbs items={breadcrumbs} />
+      <span class="chip-yellow mb-4">🍪 Cookies</span>
+      <h1 class="!text-4xl sm:!text-5xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900 mt-4" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+        Cookie <span class="text-gradient-brand">Policy.</span>
+      </h1>
+      <p class="mt-4 text-ink-700 font-medium">Last updated: {lastUpdated}</p>
+    </div>
+  </section>
+
+  <article class="container-prose pb-16 md:pb-24">
+    <h2>What are cookies?</h2>
+    <p>
+      Cookies are small text files stored on your device by your browser when you visit a website. Some cookies are essential. Without them, parts of the site stop working. Others are used for analytics or advertising. This page lists every cookie we use, why we use it, and how you can control them.
+    </p>
+
+    <h2>Your control: Google certified CMP + Consent Mode v2</h2>
+    <p>
+      If you visit Calctube from the EU/EEA, UK, or Switzerland, you'll see a consent banner from
+      Google's certified <a href="https://support.google.com/admanager/answer/13554116" target="_blank" rel="noopener">Funding Choices</a>
+      Consent Management Platform with three choices:
+    </p>
+    <ul>
+      <li><strong>Consent</strong>: analytics and personalized ad cookies are enabled. We see anonymized traffic patterns and you may see relevant ads.</li>
+      <li><strong>Do not consent</strong>: only strictly-necessary cookies and non-personalized ads. The calculators still work perfectly.</li>
+      <li><strong>Manage options</strong>: granular control over each purpose and vendor under the IAB Transparency &amp; Consent Framework.</li>
+    </ul>
+    <p>
+      We pair this CMP with <a href="https://developers.google.com/tag-platform/security/concepts/consent-mode" target="_blank" rel="noopener">Google Consent Mode v2</a>
+      in default-deny mode: until you make a choice, Google Analytics and Google AdSense run in <em>consent-denied</em> mode. No personal identifiers
+      are stored and no personalization happens. Your decision is remembered in cookies managed by Google's CMP (<code>FCNEC</code>, <code>FCCDCF</code>)
+      so the banner doesn't reappear on every visit.
+    </p>
+    <p>
+      Visitors outside the EU/EEA/UK/Switzerland are not legally required to be prompted, so the banner doesn't show automatically, but
+      everyone gets the same default-deny treatment for personalization and analytics until consent is signaled.
+    </p>
+    <p>
+      To change your choice later: clear cookies for <code>calctube.com</code> and the CMP banner will reappear on your next visit (if you're in a covered region),
+      or use <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener nofollow">Google Ads Settings</a> to manage ad personalization across the web.
+    </p>
+
+    <h2>Cookies we use</h2>
+
+    <h3>Strictly necessary</h3>
+    <table class="w-full text-sm border border-ink-200 my-4">
+      <thead class="bg-ink-100">
+        <tr>
+          <th class="text-left p-2 border-b border-ink-200">Cookie</th>
+          <th class="text-left p-2 border-b border-ink-200">Purpose</th>
+          <th class="text-left p-2 border-b border-ink-200">Provider</th>
+          <th class="text-left p-2 border-b border-ink-200">Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="p-2 border-b border-ink-200"><code>FCNEC</code>, <code>FCCDCF</code></td>
+          <td class="p-2 border-b border-ink-200">Stores your consent choice from Google's Funding Choices CMP banner</td>
+          <td class="p-2 border-b border-ink-200">Google (first-party)</td>
+          <td class="p-2 border-b border-ink-200">13 months</td>
+        </tr>
+        <tr>
+          <td class="p-2"><code>__cf_bm</code>, <code>cf_clearance</code></td>
+          <td class="p-2">Bot protection and DDoS mitigation by Cloudflare</td>
+          <td class="p-2">Cloudflare</td>
+          <td class="p-2">Session / 30 min</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="text-sm text-ink-600">
+      <strong>Essential cookies are always set</strong> regardless of your banner choice. They make the site work and protect it from abuse. They contain no personal identifiers.
+    </p>
+
+    <h3>Analytics (only set after you accept)</h3>
+    <table class="w-full text-sm border border-ink-200 my-4">
+      <thead class="bg-ink-100">
+        <tr>
+          <th class="text-left p-2 border-b border-ink-200">Cookie</th>
+          <th class="text-left p-2 border-b border-ink-200">Purpose</th>
+          <th class="text-left p-2 border-b border-ink-200">Provider</th>
+          <th class="text-left p-2 border-b border-ink-200">Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="p-2 border-b border-ink-200"><code>_ga</code></td>
+          <td class="p-2 border-b border-ink-200">Distinguishes unique users (Google Analytics 4)</td>
+          <td class="p-2 border-b border-ink-200">Google Analytics (third-party)</td>
+          <td class="p-2 border-b border-ink-200">2 years</td>
+        </tr>
+        <tr>
+          <td class="p-2 border-b border-ink-200"><code>_ga_PVB5YV8KFP</code></td>
+          <td class="p-2 border-b border-ink-200">Per-property GA4 session state for Calctube</td>
+          <td class="p-2 border-b border-ink-200">Google Analytics</td>
+          <td class="p-2 border-b border-ink-200">2 years</td>
+        </tr>
+        <tr>
+          <td class="p-2"><code>_gid</code></td>
+          <td class="p-2">Distinguishes users for 24-hour windows</td>
+          <td class="p-2">Google Analytics</td>
+          <td class="p-2">24 hours</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Advertising (only set after you accept)</h3>
+    <table class="w-full text-sm border border-ink-200 my-4">
+      <thead class="bg-ink-100">
+        <tr>
+          <th class="text-left p-2 border-b border-ink-200">Cookie</th>
+          <th class="text-left p-2 border-b border-ink-200">Purpose</th>
+          <th class="text-left p-2 border-b border-ink-200">Provider</th>
+          <th class="text-left p-2 border-b border-ink-200">Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="p-2 border-b border-ink-200"><code>__gads</code>, <code>__gpi</code></td>
+          <td class="p-2 border-b border-ink-200">Ad frequency capping and personalization for Google AdSense</td>
+          <td class="p-2 border-b border-ink-200">Google AdSense</td>
+          <td class="p-2 border-b border-ink-200">13 months</td>
+        </tr>
+        <tr>
+          <td class="p-2 border-b border-ink-200"><code>IDE</code>, <code>NID</code></td>
+          <td class="p-2 border-b border-ink-200">Cross-site ad measurement by DoubleClick / Google</td>
+          <td class="p-2 border-b border-ink-200">Google (third-party)</td>
+          <td class="p-2 border-b border-ink-200">13–24 months</td>
+        </tr>
+        <tr>
+          <td class="p-2"><code>FPID</code>, <code>FPLC</code></td>
+          <td class="p-2">First-party identifiers (only if you accept Google personalized ads)</td>
+          <td class="p-2">Google AdSense</td>
+          <td class="p-2">13 months</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="text-sm text-ink-600">
+      Calctube uses Google AdSense (publisher ID <code>pub-1115172981829710</code>) to fund the free tools. Ads only render after you signal consent through the CMP banner, and personalization is off by default until then.
+    </p>
+
+    <h3>Local storage (not a cookie, but worth knowing)</h3>
+    <p>
+      A few calculators (mortgage, EMI, SIP) save your last-used inputs in your browser's <code>localStorage</code> so you don't have to re-enter them on your next visit. This data <strong>never leaves your device</strong>. It isn't sent to any server. Clearing your browser data removes it.
+    </p>
+
+    <h2>Third-party services and where to opt out</h2>
+    <ul>
+      <li><strong>Google Analytics</strong>: opt out browser-wide with the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener nofollow">Google Analytics Opt-out Add-on</a>.</li>
+      <li><strong>Google personalized ads</strong>: manage at <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener nofollow">Google Ads Settings</a>.</li>
+      <li><strong>Cloudflare cookies</strong>: see <a href="https://www.cloudflare.com/cookie-policy/" target="_blank" rel="noopener nofollow">Cloudflare's cookie policy</a>.</li>
+      <li><strong>Industry-wide opt-out</strong> for behavioral ads: <a href="https://www.youronlinechoices.eu/" target="_blank" rel="noopener nofollow">YourOnlineChoices.eu</a> (EU), <a href="https://optout.aboutads.info/" target="_blank" rel="noopener nofollow">DAA WebChoices</a> (US).</li>
+    </ul>
+
+    <h2>Do Not Track &amp; Global Privacy Control</h2>
+    <p>
+      Calctube respects the legal-safe default: until you actively grant consent through Google's CMP banner, we treat your visit as if Do Not Track were on.
+      Analytics still receives an anonymized pageview-only signal (Consent Mode v2's denied-state ping) so we can roughly count traffic, but no identifiers persist and no behavioral profile is built.
+      Browser-level Global Privacy Control (GPC) signals are also honored. If your browser sends GPC, the CMP treats it as a "do not consent" signal automatically.
+    </p>
+
+    <h2>Children's privacy</h2>
+    <p>
+      Calctube is not directed at children under 13. We do not knowingly collect personal information from children. If you believe a child has provided data through our site, email <a href="mailto:privacy@calctube.com">privacy@calctube.com</a> and we will delete it.
+    </p>
+
+    <h2>Changes to this policy</h2>
+    <p>
+      We update this page whenever we add or remove a cookie. Material changes (new third-party providers, new ad partners) trigger Google's CMP to re-prompt you under the IAB TCF rules so you can re-choose.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Cookie questions, complaints, or data subject requests: <a href="mailto:privacy@calctube.com">privacy@calctube.com</a>
+    </p>
+  </article>
+</BaseLayout>

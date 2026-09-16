@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ScssCalculator from '../../components/calculators/ScssCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/scss-calculator';
+
+const meta = {
+  slug: 'scss-calculator',
+  name: 'SCSS Calculator',
+  description: 'Free Senior Citizen Savings Scheme (SCSS) calculator. See the quarterly payout, monthly-equivalent income, annual income and total interest over 5 and 8 years at the current 8.2% rate, with the ₹30 lakh cap built in.',
+  category: 'finance' as const,
+  keywords: ['scss calculator', 'senior citizen savings scheme calculator', 'scss interest calculator', 'scss quarterly payout', 'scss 8.2 percent', 'scss maturity calculator'],
+  lastUpdated: '2026-08-26',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'SCSS Calculator', url: path },
+];
+
+const faqs = [
+  { q: 'What is the current SCSS interest rate, and does it compound?', a: 'The Senior Citizen Savings Scheme pays 8.2% per annum, the rate notified for the current quarter, and it is one of the highest fixed rates any government scheme offers. The crucial point is that this interest is simple and paid out, not compounded: on a ₹15 lakh deposit at 8.2% the account credits ₹30,750 to your bank every quarter, which is ₹1,23,000 a year. That money leaves the account, so it never earns further interest. The principal stays fixed and is returned in full at maturity. The Ministry of Finance revises small-savings rates every quarter, so the rate you open at is not guaranteed to hold for the whole term.' },
+  { q: 'Who is eligible to open an SCSS account?', a: 'The main gate is age 60 or above on the date of opening. Two groups qualify earlier. Anyone who has retired under a Voluntary Retirement Scheme or on superannuation can open an account from age 55, provided they do so within one month of receiving their retirement benefits and the deposit does not exceed those benefits. Retired defence personnel can open an account from age 50, subject to the same benefit-linked conditions. NRIs and Hindu Undivided Families cannot open an SCSS account. It can be held singly or jointly, but a joint account is allowed only with a spouse, and the first holder is treated as the investor for the deposit limit.' },
+  { q: 'What is the maximum I can deposit, and can a couple invest more?', a: 'The ceiling is ₹30 lakh per individual, raised from ₹15 lakh in the 2023 Union Budget. The minimum is ₹1,000, and deposits must be in multiples of ₹1,000. The ₹30 lakh cap is per person across all your SCSS accounts combined, not per account, so opening a second account does not raise your limit. A married couple can, however, hold one account each in their own name, taking a household ceiling to ₹60 lakh, and a spouse-only joint account still counts against the first holder. Any amount deposited above the ceiling is refunded without interest, so it pays to size the deposit to the limit.' },
+  { q: 'How is SCSS taxed, and when is TDS deducted?', a: 'The deposit qualifies for a Section 80C deduction of up to ₹1.5 lakh in the year you invest, but only under the old tax regime. The interest, by contrast, is fully taxable: it is added to your income and taxed at your slab rate, with no exemption on the interest itself. TDS is deducted by the bank once your SCSS interest for the year crosses ₹50,000, which is also the Section 80TTB limit up to which a senior citizen can deduct interest income from banks and post offices. At 8.2%, a deposit above roughly ₹6.1 lakh already breaches the ₹50,000 line. File Form 15H to stop TDS if your total income is below the taxable threshold.' },
+  { q: 'Can I close an SCSS account early, and what does it cost?', a: 'Yes, premature closure is allowed, with a penalty that shrinks the longer you hold. Close after the account has run for at least one year but before two years, and 1.5% of the deposit is forfeited. Close on or after two years but before the 5-year maturity, and the penalty is 1% of the deposit. Closing within the first year is generally not permitted, and any interest already paid to you in an over-credited quarter is recovered from the principal. On the death of the account holder, the account is closed without any penalty and the balance is paid to the nominee or legal heir, with interest at the SCSS rate up to the date of death.' },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate the SCSS quarterly payout and income',
+    description: 'Step-by-step instructions for working out the quarterly payout, annual income and total interest from a Senior Citizen Savings Scheme deposit at the current 8.2% rate.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Enter the deposit amount', text: 'Enter what you plan to deposit, from the ₹1,000 minimum to the ₹30 lakh per-person maximum. The calculator clamps anything above ₹30 lakh back to the legal ceiling.' },
+      { name: 'Set the interest rate', text: 'The default is 8.2%, the rate notified for the current quarter. Change it to test a lower rate, since the Ministry of Finance revises small-savings rates every quarter.' },
+      { name: 'Read the quarterly payout and income', text: 'The calculator shows the quarterly payout, the monthly-equivalent and annual income, and the total interest drawn over the 5-year term and the extended 8-year term.' },
+      { name: 'Check the schedule and tax cue', text: 'Read the year-by-year cumulative income, the deposit-sizing table, and the note on whether your annual interest crosses the ₹50,000 TDS threshold. Your principal returns in full at maturity.' },
+    ],
+  }),
+];
+
+---
+
+<BaseLayout title="SCSS Calculator India 👴" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">👴 SCSS</span>
+          <span class="chip-pink">📈 8.2% quarterly</span>
+          <span class="chip-white"><span class="text-ink-500">Cap</span><span>₹30 lakh</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          SCSS Calculator.
+          <span class="text-gradient-brand">Quarterly income for retirees.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                Deposit <strong>₹15,00,000</strong> in the Senior Citizen Savings Scheme at the current <strong>8.2%</strong> rate and you receive a quarterly payout of <strong>₹30,750</strong>, an annual income of <strong>₹1,23,000</strong> (about ₹10,250 a month). Interest is simple and paid out, not compounded, so over the 5-year term you draw <strong>₹6,15,000</strong> in income while your <strong>₹15,00,000 principal is returned in full</strong> at maturity. Extend once by 3 years and the 8-year income reaches ₹9,84,000.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><ScssCalculator client:visible /></div></section>
+  <section class="container-wide pb-10">
+    <div class="max-w-4xl mx-auto bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+      <div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Who it is for, and how the money moves</div>
+      <p class="text-ink-700 font-medium leading-relaxed !mb-0">
+        SCSS is built for retirees who want a dependable income rather than a growing corpus. The account is open to anyone aged 60 or above, to those who took Voluntary Retirement or superannuation from age 55 (within a month of receiving benefits), and to retired defence personnel from age 50. Interest is simple, not compound: the scheme calculates 8.2% a year on your deposit and pays a quarter of that to your bank account every three months, so the payout is a steady income stream, not a reinvested balance. The principal never changes and is returned whole when the 5-year term ends, or when the once-only 3-year extension ends at year 8. Because the rate is notified quarterly by the Ministry of Finance, a projection at a single fixed rate is a planning estimate, not a promise.
+      </p>
+    </div>
+  </section>
+  <section class="bg-ink-50 border-y-2 border-ink-900"><div class="container-wide py-12 md:py-16"><div class="max-w-4xl mx-auto"><span class="chip-cyan mb-4">❓ FAQ</span><h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">SCSS calculator FAQ.</h2><div class="mt-8 space-y-4">{faqs.map((faq) => (<details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group"><summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4"><span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span></summary><p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p></details>))}</div><div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm"><div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related India calculators</div><div class="flex flex-wrap gap-2"><a href="/finance/fd-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Fixed deposit</a><a href="/finance/nsc-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">NSC</a><a href="/finance/ppf-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">PPF</a><a href="/finance/nps-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">NPS</a><a href="/finance/income-tax-india/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Income tax</a></div></div></div></div></section>
+</BaseLayout>

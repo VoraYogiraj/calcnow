@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import XirrCalculator from '../../components/calculators/XirrCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/xirr-calculator';
+
+const meta = {
+  slug: 'xirr-calculator',
+  name: 'XIRR Calculator',
+  description: 'Free XIRR calculator with a real date-aware IRR solver. Enter any set of dated cash flows (SIP instalments, top-ups, partial redemptions, current value) and get the annualised return that weights every rupee by how long it stayed invested. Negative XIRR is handled correctly.',
+  category: 'finance' as const,
+  keywords: ['xirr calculator', 'xirr formula', 'xirr vs cagr', 'sip xirr', 'mutual fund xirr', 'irregular cash flow return', 'annualised return calculator'],
+  lastUpdated: '2026-08-26',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'XIRR Calculator', url: path },
+];
+
+const faqs = [
+  {
+    q: 'What is XIRR and when should I use it?',
+    a: 'XIRR (extended internal rate of return) is the single annualised rate that makes a stream of dated cash flows net to zero. Use it whenever money enters or leaves at irregular times or in irregular amounts: a monthly SIP, a lump-sum top-up mid-year, a partial redemption, a dividend you withdrew, or a portfolio you keep adding to. Because each instalment is discounted by the actual number of days it stayed invested, XIRR is the fair way to judge such plans. It is the number your mutual fund statement quotes as your personal return, and it can be positive or negative depending on how the investment did.',
+  },
+  {
+    q: 'What is the difference between XIRR, CAGR and absolute return?',
+    a: 'Absolute return is total profit over total outlay with no reference to time: a 30% gain reads the same whether it took one year or ten. CAGR fixes the time problem but assumes one amount goes in and one value comes out, so it cannot handle a SIP. XIRR generalises CAGR to many dated flows, weighting every rupee by how long it was actually invested. For a single investment and a single redemption, XIRR and CAGR give the identical figure. The moment you add a second contribution or take a partial withdrawal, only XIRR stays honest. Our CAGR calculator at /finance/cagr-calculator/ covers the single-in, single-out case.',
+  },
+  {
+    q: 'How do mutual fund apps and Excel calculate XIRR?',
+    a: 'They use exactly the formula on this page. Excel and Google Sheets expose it as =XIRR(values, dates, [guess]), where values holds the signed cash flows and dates holds their dates. Under the hood the function searches for the rate that drives the net present value of those dated flows to zero, the same root this calculator finds by bisection. Fund platforms such as Groww, Zerodha Coin, Kuvera and your CAS statement run the identical calculation on your transaction history, which is why the XIRR they show should match what you get here if you enter every purchase as a negative and the current value as a positive on the valuation date.',
+  },
+  {
+    q: 'What counts as a good XIRR for equity versus debt?',
+    a: 'It depends entirely on the asset class and the period, and past returns never guarantee future ones. Broad Indian equity funds have historically delivered roughly 11% to 13% XIRR over long multi-year holding periods, though any single window can be far higher or lower and start-date luck matters a great deal. Debt funds, fixed deposits and bonds typically sit closer to 6% to 8%, reflecting lower risk. A liquid or overnight fund might show 5% to 7%. Rather than chase a headline number, compare your XIRR against a relevant benchmark and against inflation, because a 12% nominal return with 6% inflation is only about 6% in real terms.',
+  },
+  {
+    q: 'Why does the sign convention matter so much?',
+    a: 'XIRR only has a solution when the cash flows change sign at least once, so the convention is not cosmetic, it is what makes the maths work. Enter money you put in as negative (a purchase or SIP instalment is cash leaving your pocket) and money you got back as positive (a redemption, a dividend, or the current market value on the valuation date). If you sign everything the same way, there is no rate that balances the flows and the calculator will tell you it cannot compute. A common mistake is forgetting to add the current value as a final positive flow, which leaves an all-negative list with no answer.',
+  },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path), buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate XIRR for dated cash flows',
+    description: 'Step-by-step instructions for finding the extended internal rate of return across any set of dated investments and redemptions.',
+    totalTime: 'PT2M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'List every cash flow with its date', text: 'Write down each transaction with its exact date in YYYY-MM-DD form: every SIP instalment, every top-up, every withdrawal, and the current value.' },
+      { name: 'Sign the amounts correctly', text: 'Make money you invested negative and money you received (including the current value) positive. You need at least one negative and one positive flow.' },
+      { name: 'Let the solver find the rate', text: 'The calculator discounts each flow by its actual number of days from the earliest date and uses bisection to find the annual rate that makes them net to zero.' },
+      { name: 'Read the XIRR and compare', text: 'Read the annualised XIRR, then compare it against the absolute return and a naive CAGR to see how much the timing of your flows changed the true return.' },
+    ],
+  }),
+];
+---
+
+<BaseLayout title="XIRR Calculator 📊" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-sky-500/20 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">📊 Σ CFᵢ ÷ (1+r)^(dᵢ/365) = 0</span>
+          <span class="chip-pink">📉 Negative XIRR handled</span>
+          <span class="chip-white"><span class="text-ink-500">Example</span><span>9.97%</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          XIRR Calculator.
+          <span class="text-gradient-brand">Every dated flow, one honest rate.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                XIRR is the annual rate <strong>r</strong> that makes every dated cash flow, discounted by its own days from the first date, sum to zero: <strong>Σ CFᵢ ÷ (1 + r)<sup>(dᵢ ÷ 365)</sup> = 0</strong>. Invest <strong>₹1,00,000 on 2024-01-01</strong> and receive <strong>₹1,10,000 on 2025-01-01</strong> (366 days, a leap year) and the XIRR is <strong>9.97%</strong>. Sign investments negative and redemptions positive. Unlike CAGR, XIRR handles many irregular flows like SIPs, top-ups and partial redemptions, and a negative XIRR simply means a loss.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><XirrCalculator client:visible /></div></section>
+  <section class="bg-ink-50 border-y-2 border-ink-900"><div class="container-wide py-12 md:py-16"><div class="max-w-4xl mx-auto"><span class="chip-cyan mb-4">❓ FAQ</span><h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">XIRR calculator FAQ.</h2><div class="mt-8 space-y-4">{faqs.map((faq) => (<details class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm group"><summary class="cursor-pointer font-bold text-ink-900 list-none flex items-start justify-between gap-4"><span style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="text-ink-500 group-open:rotate-180 transition-transform">▾</span></summary><p class="mt-3 text-ink-700 font-medium leading-relaxed !mb-0">{faq.a}</p></details>))}</div><div class="mt-10 bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm"><div class="text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-3">Related calculators</div><div class="flex flex-wrap gap-2"><a href="/finance/cagr-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">CAGR</a><a href="/finance/sip-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">SIP</a><a href="/finance/lumpsum-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Lumpsum</a><a href="/finance/compound-interest-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">Compound interest</a><a href="/finance/swp-calculator/" class="chip-white no-underline hover:bg-lime-accent transition-colors">SWP</a></div></div></div></div></section>
+</BaseLayout>

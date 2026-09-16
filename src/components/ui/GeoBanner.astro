@@ -1,0 +1,99 @@
+---
+/**
+ * GeoBanner — surfaced on country mortgage pages when a user arrives via auto-redirect
+ * from the Cloudflare Pages middleware (`?geo=auto` query param).
+ *
+ * Behavior:
+ *   • Detects `?geo=auto` in URL on load
+ *   • Renders a sticky-top dismissible banner: "Showing UAE because you're in UAE. [Go global ←]"
+ *   • Clicking "Go global" sets cookie `geo-pref=stay` for 30 days then navigates to `/?nogeo=1`
+ *   • Dismissing the banner only hides it for the session (no cookie)
+ *
+ * The actual UI is rendered client-side to avoid showing for direct/SEO arrivals.
+ */
+import FlagIcon from './FlagIcon.astro';
+
+export interface Props {
+  country: string;     // e.g., "United Arab Emirates"
+  flag: string;        // Legacy emoji fallback (kept for back-compat)
+  slug?: string;       // Country slug for SVG flag (e.g., 'uae')
+}
+const { country, flag, slug } = Astro.props;
+---
+
+<div
+  id="geo-banner"
+  data-country={country}
+  data-flag={flag}
+  class="hidden bg-lime-accent border-b-[2.5px] border-ink-900"
+  role="region"
+  aria-label="Region auto-detection notice"
+>
+  <div class="container-wide py-2.5 sm:py-3 flex items-center justify-between gap-3 flex-wrap">
+    <p class="text-sm sm:text-base font-semibold text-ink-900 !leading-tight !mb-0 flex items-center gap-2 min-w-0">
+      {slug ? <FlagIcon slug={slug} size={24} alt={`${country} flag`} class="flex-shrink-0" /> : <span class="text-xl flex-shrink-0" aria-hidden="true">{flag}</span>}
+      <span class="truncate">
+        Showing <strong class="font-extrabold">{country}</strong> because that&rsquo;s where you are.
+      </span>
+    </p>
+    <div class="flex items-center gap-2 shrink-0">
+      <a
+        href="/?nogeo=1"
+        id="geo-go-global"
+        class="text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl bg-white border-2 border-ink-900 text-ink-900 hover:shadow-sticker-sm hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all no-underline"
+      >
+        Go global ←
+      </a>
+      <button
+        id="geo-dismiss"
+        type="button"
+        class="w-7 h-7 rounded-lg hover:bg-ink-900/10 text-ink-900 inline-flex items-center justify-center transition-colors"
+        aria-label="Dismiss"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var banner = document.getElementById('geo-banner');
+    if (!banner) return;
+
+    // Only show if user arrived via auto-redirect
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('geo') !== 'auto') return;
+
+    // Show banner
+    banner.classList.remove('hidden');
+
+    // "Go global" click — set 30-day cookie + go to homepage
+    var goGlobal = document.getElementById('geo-go-global');
+    if (goGlobal) {
+      goGlobal.addEventListener('click', function () {
+        var maxAge = 60 * 60 * 24 * 30; // 30 days
+        document.cookie = 'geo-pref=stay; path=/; max-age=' + maxAge + '; SameSite=Lax; Secure';
+        // href takes care of navigation to /?nogeo=1
+      });
+    }
+
+    // Dismiss (X) — hide for session only
+    var dismiss = document.getElementById('geo-dismiss');
+    if (dismiss) {
+      dismiss.addEventListener('click', function () {
+        banner.classList.add('hidden');
+      });
+    }
+
+    // Clean ?geo=auto from URL so refresh doesn't re-show banner
+    if (window.history && window.history.replaceState) {
+      params.delete('geo');
+      var qs = params.toString();
+      var newUrl = window.location.pathname + (qs ? '?' + qs : '') + window.location.hash;
+      window.history.replaceState({}, '', newUrl);
+    }
+  })();
+</script>

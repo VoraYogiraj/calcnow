@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema, buildFAQSchema } from '../../lib/seo';
+
+const path = '/finance/hdfc-vs-icici-personal-loan';
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'EMI Calculator', url: '/finance/emi-calculator/' },
+  { name: 'HDFC vs ICICI Personal Loan', url: path },
+];
+const faqs = [
+  { q: 'HDFC or ICICI for a personal loan in India?', a: 'HDFC tends to win on rate for prime borrowers (10.5-11.5% vs ICICI 10.85-12%). ICICI wins on pre-approval speed for existing iMobile customers (sometimes 24-72 hour disbursal vs HDFC\'s 3-5 days). For first-time applicants, HDFC has a slightly better digital-only flow.' },
+  { q: 'What is the lowest personal loan rate in India?', a: 'For prime salaried borrowers (750+ CIBIL, stable income from a top employer) in 2026: HDFC, SBI, and ICICI offer rates around 10.5-11.0%. SBI is slightly cheaper but slower. Public sector banks (BoB, Canara) match the rates but have stricter documentation requirements.' },
+  { q: 'Pre-approved offers from HDFC vs ICICI: what is the catch?', a: 'Both banks aggressively market pre-approved offers to existing customers. HDFC\'s offers are typically valid for 30 days and have stricter eligibility. ICICI\'s iMobile pre-approved offers are valid for 90 days but require the customer to maintain salary credits + minimum balance. Both have small print on processing fees that bring effective APR up by 50-100 bps.' },
+  { q: 'How do prepayment charges compare?', a: 'Both banks waive prepayment penalty for floating-rate retail personal loans as per RBI mandate. Fixed-rate personal loans (less common): HDFC charges 4%, ICICI charges 2-5%. Always check whether your specific loan is floating (most are) or fixed.' },
+];
+const schemas = [buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)];
+
+function emi(p: number, r: number, years: number): number {
+  const m = r / 100 / 12;
+  const n = years * 12;
+  return (p * m * Math.pow(1 + m, n)) / (Math.pow(1 + m, n) - 1);
+}
+const loanAmount = 1000000; // 10L
+const hdfcRate = 11.0;
+const iciciRate = 11.5;
+const tenureYears = 5;
+const hdfcEmi = emi(loanAmount, hdfcRate, tenureYears);
+const iciciEmi = emi(loanAmount, iciciRate, tenureYears);
+const hdfcTotal = hdfcEmi * tenureYears * 12;
+const iciciTotal = iciciEmi * tenureYears * 12;
+const fmtINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+---
+
+<BaseLayout title="HDFC vs ICICI Personal Loan 2026: Rates" description="HDFC vs ICICI Bank personal loan compared. Real EMI on ₹10 lakh, rates, processing fees, pre-approval, prepayment. With 2026 current rates." schemas={schemas}>
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-cyan-accent/30 rounded-full blur-[120px] float-slow"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-cyan">🏦 HDFC</span>
+          <span class="text-xl font-bold text-ink-500">vs</span>
+          <span class="chip-pink">🏢 ICICI</span>
+          <span class="chip-white">🇮🇳 Personal Loan</span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">HDFC vs ICICI <span class="text-gradient-brand">Personal Loan.</span></h1>
+        <div class="mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <p class="text-ink-900 text-base sm:text-lg !m-0 leading-relaxed font-medium"><strong>TL;DR:</strong> HDFC offers slightly lower rates (10.5-12.0% vs ICICI 10.85-12.5%) for prime borrowers. ICICI wins on pre-approval speed for existing iMobile customers. On ₹10L over 5 years: HDFC saves ~₹15,000 in total interest vs ICICI.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-wide pb-12 md:pb-16">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="!text-3xl sm:!text-4xl !mt-0 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">₹10 lakh personal loan over 5 years.</h2>
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-cyan-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-2">🏦 HDFC Bank</div>
+          <div class="text-4xl font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{fmtINR(hdfcEmi)}</div>
+          <div class="text-sm text-ink-800 mt-1 font-bold">/month at {hdfcRate}%</div>
+          <div class="mt-5 space-y-2 text-sm font-semibold">
+            <div class="flex justify-between"><span>Total interest</span><strong>{fmtINR(hdfcTotal - loanAmount)}</strong></div>
+            <div class="flex justify-between"><span>Total payable</span><strong>{fmtINR(hdfcTotal)}</strong></div>
+            <div class="flex justify-between"><span>Processing fee</span><strong>Up to ₹4,999</strong></div>
+            <div class="flex justify-between"><span>Disbursal time</span><strong>Same-day to 3 days</strong></div>
+            <div class="flex justify-between"><span>Min CIBIL</span><strong>720</strong></div>
+            <div class="flex justify-between"><span>Max loan</span><strong>₹40 lakh</strong></div>
+          </div>
+        </div>
+        <div class="bg-pink-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-white mb-2">🏢 ICICI Bank</div>
+          <div class="text-4xl font-extrabold text-white" style="font-family: 'Inter Tight', sans-serif;">{fmtINR(iciciEmi)}</div>
+          <div class="text-sm text-white mt-1 font-bold">/month at {iciciRate}%</div>
+          <div class="mt-5 space-y-2 text-sm font-semibold text-white">
+            <div class="flex justify-between"><span>Total interest</span><strong>{fmtINR(iciciTotal - loanAmount)}</strong></div>
+            <div class="flex justify-between"><span>Total payable</span><strong>{fmtINR(iciciTotal)}</strong></div>
+            <div class="flex justify-between"><span>Processing fee</span><strong>Up to 2.5%</strong></div>
+            <div class="flex justify-between"><span>Disbursal time</span><strong>Same-day (pre-approved)</strong></div>
+            <div class="flex justify-between"><span>Min CIBIL</span><strong>700</strong></div>
+            <div class="flex justify-between"><span>Max loan</span><strong>₹50 lakh</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-5 bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker">
+        <p class="text-ink-900 font-semibold !m-0 leading-relaxed"><strong>Bottom line:</strong> HDFC saves ~₹{Math.round((iciciTotal - hdfcTotal) / 1000)}K over the loan. ICICI is better if you\'re already an iMobile user (pre-approved flow can disburse in hours). For ₹10-40 lakh loans, both are tier-1 options. For ₹40-50 lakh, ICICI is the only one of the two willing to lend that high.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Common questions.</h2>
+        <div class="space-y-3 mt-8">{faqs.map((faq, idx) => (<details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}><summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none"><span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span><span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors"><svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></span></summary><div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div></details>))}</div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

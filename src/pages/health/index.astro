@@ -1,0 +1,159 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HubHero from '../../components/ui/HubHero.astro';
+import HubCard from '../../components/ui/HubCard.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+import { buildHubCards } from '../../lib/category-hub';
+
+// Derived from the calculators registry: see src/lib/category-hub.ts.
+const liveCalcs = buildHubCards('health', {
+  order: [
+    'bmi-calculator',
+    'calorie-calculator',
+    'bmr-calculator',
+    'tdee-calculator',
+    'body-fat-calculator',
+    'ideal-weight-calculator',
+    'water-intake-calculator',
+    'pregnancy-calculator',
+    'ovulation-calculator',
+  ],
+  copy: {
+    'bmi-calculator': { desc: 'Body Mass Index with metric and imperial units. Instant category lookup against WHO ranges.' },
+    'calorie-calculator': { desc: 'Daily calorie target for weight loss, maintenance, or muscle gain, with an estimated timeline.' },
+    'bmr-calculator': { desc: 'Basal Metabolic Rate via Mifflin-St Jeor: calories burned at rest.' },
+    'tdee-calculator': { desc: 'Total Daily Energy Expenditure by activity level, with maintenance calories and macros.' },
+    'body-fat-calculator': { name: 'Body Fat Calculator', desc: 'Body fat percentage via the US Navy tape method, with ACE category ranges.' },
+    'ideal-weight-calculator': { name: 'Ideal Weight Calculator', desc: 'Healthy weight range for your height: Devine, Robinson, Miller, Hamwi and BMI.' },
+    'water-intake-calculator': { name: 'Water Intake Calculator', desc: 'Daily water need from body weight, activity level and climate.' },
+    'pregnancy-calculator': { desc: "Due date, current week and trimester from your last period (Naegele's rule)." },
+    'ovulation-calculator': { desc: 'Your fertile window and estimated ovulation date from your cycle.' },
+  },
+});
+
+const upcomingCalcs = [
+  { name: 'Macro Calculator', desc: 'Protein, carb and fat gram targets from your daily calorie goal.', icon: '🥗' },
+];
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Health', url: '/health/' },
+];
+
+const faqs = [
+  {
+    q: 'Are Calctube health calculators medically accurate?',
+    a: 'Our formulas are sourced from established medical references: WHO BMI ranges, Mifflin-St Jeor for BMR, US Navy for body fat. They produce reasonable estimates for healthy adults but are not a substitute for clinical assessment by a doctor.',
+  },
+  {
+    q: 'Why does the BMI calculator give different categories for the same weight?',
+    a: 'BMI categories depend on the population standards selected. We default to WHO global ranges (underweight <18.5, normal 18.5–24.9, overweight 25–29.9, obese 30+). Asian populations use stricter cutoffs (overweight 23+, obese 27.5+) per WHO Asia-Pacific guidance. Toggle this on the BMI page.',
+  },
+  {
+    q: 'Do you store any of my health data?',
+    a: 'No. All calculations run entirely in your browser. We never see your height, weight, age, or any other input. There is no account or login.',
+  },
+];
+
+const schemas = [
+  buildBreadcrumbSchema(breadcrumbs),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Health Calculators | Calctube',
+    description: 'Free BMI, calorie, body fat, and pregnancy calculators with medical references.',
+    url: 'https://calctube.com/health/',
+    isPartOf: { '@id': 'https://calctube.com/#website' },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: liveCalcs.map((c, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `https://calctube.com${c.href}`,
+        name: c.name,
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="Health Calculators: BMI, Calorie, Body Fat"
+  description="Free, accurate health calculators: BMI, calorie need, body fat percentage, TDEE, BMR, and pregnancy due date. Formulas from WHO and Mifflin-St Jeor. No signup."
+  schemas={schemas}
+>
+  <HubHero
+    breadcrumbs={breadcrumbs}
+    chip="❤️ Health"
+    chipClass="chip-pink"
+    stats={[{ label: 'Tools', value: String(liveCalcs.length) }]}
+    titleLead="Health Calculators."
+    titleAccent="Formulas you can check."
+    intro="BMI, calorie need, body fat percentage, and pregnancy tools. Every formula cites its medical reference: WHO, Mifflin-St Jeor, US Navy method."
+    orbA="bg-pink-accent/25"
+    orbB="bg-cyan-accent/25"
+  />
+
+  <section class="container-wide pb-16 md:pb-24">
+    <h2
+      class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-0 !mb-4"
+      style="font-family: 'Inter Tight', sans-serif;"
+    >
+      Available now
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {liveCalcs.map((c) => (
+        <HubCard href={c.href} name={c.name} desc={c.desc} icon={c.icon} />
+      ))}
+    </div>
+
+    <h2
+      class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
+      style="font-family: 'Inter Tight', sans-serif;"
+    >
+      Coming soon
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {upcomingCalcs.map((c) => (
+        <HubCard name={c.name} desc={c.desc} icon={c.icon} soon />
+      ))}
+    </div>
+
+    <h2
+      class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
+      style="font-family: 'Inter Tight', sans-serif;"
+    >
+      About Calctube health tools
+    </h2>
+    <p class="text-ink-700 leading-relaxed max-w-3xl">
+      Calctube's health calculators target the most-searched fitness and clinical estimators on the web: BMI, calorie need, BMR, body fat percentage, TDEE, and pregnancy due date. Every page shows the exact formula and the medical reference behind it. Calculations run in your browser; we never see or store your inputs.
+    </p>
+    <p class="text-ink-700 leading-relaxed max-w-3xl mt-3">
+      These tools are designed for healthy adults and produce reasonable estimates only. They are not a substitute for clinical assessment, prescription, or diagnosis by a qualified physician.
+    </p>
+
+    <h2
+      class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
+      style="font-family: 'Inter Tight', sans-serif;"
+    >
+      Frequently asked questions
+    </h2>
+    <div class="space-y-3 max-w-3xl">
+      {faqs.map((f) => (
+        <details class="card">
+          <summary class="cursor-pointer font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{f.q}</summary>
+          <p class="text-sm text-ink-700 mt-2 !leading-relaxed">{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

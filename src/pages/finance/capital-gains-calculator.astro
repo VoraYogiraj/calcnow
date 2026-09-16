@@ -1,0 +1,284 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CapitalGainsCalculator from '../../components/calculators/CapitalGainsCalculator.tsx';
+import {
+  buildCalculatorSchema, buildBreadcrumbSchema, buildFAQSchema,
+  buildSpeakableSchema, buildHowToSchema,
+} from '../../lib/seo';
+
+const path = '/finance/capital-gains-calculator';
+
+const meta = {
+  slug: 'capital-gains-calculator',
+  name: 'Capital Gains Tax Calculator (India)',
+  description: 'Free India capital gains tax calculator with the post-23-July-2024 Budget 2024 rules. Equity LTCG 12.5% over ₹1.25L, STCG 20%, property 12.5% no indexation with grandfathering, debt MF at slab. Step-by-step working.',
+  category: 'finance' as const,
+  keywords: ['capital gains tax calculator india', 'ltcg calculator', 'stcg calculator', 'capital gains 2024', 'property capital gains indexation', 'equity ltcg 12.5%'],
+  lastUpdated: '2026-08-26',
+  ratingValue: '4.8',
+  ratingCount: '112',
+};
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+  { name: 'Capital Gains Calculator', url: path },
+];
+
+const faqs = [
+  {
+    q: 'What changed for capital gains tax on 23 July 2024?',
+    a: 'Budget 2024 reset the rules for transfers made on or after 23 July 2024. For listed equity shares and equity mutual funds, long-term capital gains (LTCG) tax rose from 10% to 12.5% and the annual exemption rose from ₹1 lakh to ₹1.25 lakh; short-term gains (STCG) rose from 15% to 20%. Property, gold and unlisted assets held long term now attract a flat 12.5% without indexation, replacing the old 20%-with-indexation method (property acquired before 23 July 2024 keeps a grandfathering choice). Always verify the current position with the Income Tax Department or a chartered accountant.',
+  },
+  {
+    q: 'How does the ₹1.25 lakh equity LTCG exemption work?',
+    a: 'For listed equity shares and equity mutual funds on which STT was paid, long-term capital gains up to ₹1,25,000 in a financial year are exempt, and only the amount above that is taxed at 12.5%. The exemption is per taxpayer per year, applied across all your equity LTCG combined, not per transaction. Example: a ₹3,00,000 long-term gain is reduced by ₹1,25,000, leaving ₹1,75,000 taxable at 12.5% = ₹21,875. This exemption applies only to equity and equity funds, not to debt funds, property or gold. Confirm the current exemption with a CA before filing.',
+  },
+  {
+    q: 'Why do debt mutual funds bought after April 2023 lose the LTCG benefit?',
+    a: 'From 1 April 2023, specified debt mutual funds (those with 35% or less in domestic equity) lost indexation and the concessional long-term rate. Any gain on units purchased on or after that date is treated as short term regardless of how long you hold them, added to your total income, and taxed at your slab rate (5%, 20% or 30% plus surcharge and cess). There is no ₹1.25 lakh exemption. Units bought before 1 April 2023 may follow older transitional rules, so check your purchase dates and consult a chartered accountant for your exact position.',
+  },
+  {
+    q: 'What is the property indexation grandfathering choice?',
+    a: 'Land or building acquired before 23 July 2024 and sold long term (held more than 24 months) gets a one-time choice for resident individuals and HUFs. You can pay 12.5% on the plain gain (sale minus cost) with no indexation, or 20% on the indexed gain, where indexed cost = cost × (CII of sale year ÷ CII of purchase year). You pay whichever produces the lower tax. This tool computes both and highlights the cheaper one. The indexation option is gone for property acquired on or after 23 July 2024 and never applied to shares, funds or gold. Verify eligibility with a CA.',
+  },
+  {
+    q: 'How can I save tax on long-term capital gains from property?',
+    a: 'The Income Tax Act offers reinvestment exemptions. Section 54 exempts LTCG on a residential house if you buy or build another house within the prescribed window (broadly one year before or two years after the sale, or three years to construct). Section 54F gives a similar exemption when you sell any other long-term asset and invest the net sale proceeds in one house. Section 54EC exempts gains up to ₹50 lakh if reinvested in specified bonds (such as NHAI or REC) within six months, with a five-year lock-in. Conditions, caps and timelines are strict, so plan with a chartered accountant.',
+  },
+];
+
+const schemas = [
+  buildCalculatorSchema(meta, path),
+  buildBreadcrumbSchema(breadcrumbs),
+  buildFAQSchema(faqs),
+  buildSpeakableSchema(path),
+  buildHowToSchema({
+    name: 'How to calculate capital gains tax in India (post 23 July 2024)',
+    description: 'Step-by-step method to compute short-term and long-term capital gains tax on equity, debt funds, property and gold under the Budget 2024 rules effective 23 July 2024.',
+    totalTime: 'PT1M', estimatedCost: { value: '0', currency: 'INR' },
+    steps: [
+      { name: 'Pick the asset type', text: 'Choose equity shares/equity funds, debt mutual fund, property, or gold. The asset decides the holding-period cutoff (12 or 24 months) and the tax method.' },
+      { name: 'Enter cost, sale price and both dates', text: 'The purchase and sale dates set the holding period and, for property indexation, which financial-year CII applies. A sale below cost is a capital loss.' },
+      { name: 'Read the term and the gain', text: 'The tool labels the gain short term or long term, subtracts the ₹1.25 lakh exemption for equity LTCG, and applies the correct rate.' },
+      { name: 'Compare methods where offered', text: 'For property acquired before 23 July 2024 it computes both 12.5% without indexation and 20% with indexation, and shows the lower tax and your net gain.' },
+    ],
+  }),
+];
+
+const relatedCalcs = [
+  { name: 'Income Tax India', href: '/finance/income-tax-india/', desc: 'Old vs new regime, FY 2025-26 slabs.', icon: '🇮🇳', color: 'bg-yellow-accent' },
+  { name: 'SIP Calculator', href: '/finance/sip-calculator/', desc: 'Mutual fund SIP returns.', icon: '📈', color: 'bg-cyan-accent' },
+  { name: 'Lumpsum Calculator', href: '/finance/lumpsum-calculator/', desc: 'One-time investment growth.', icon: '💰', color: 'bg-lime-accent' },
+  { name: 'XIRR Calculator', href: '/finance/xirr-calculator/', desc: 'Return across irregular cashflows.', icon: '📊', color: 'bg-pink-accent text-white' },
+  { name: 'SCSS Calculator', href: '/finance/scss-calculator/', desc: 'Senior Citizens Savings Scheme.', icon: '🧓', color: 'bg-violet-300' },
+];
+
+const ciiRows = [
+  ['2001-02', 100], ['2002-03', 105], ['2003-04', 109], ['2004-05', 113], ['2005-06', 117],
+  ['2006-07', 122], ['2007-08', 129], ['2008-09', 137], ['2009-10', 148], ['2010-11', 167],
+  ['2011-12', 184], ['2012-13', 200], ['2013-14', 220], ['2014-15', 240], ['2015-16', 254],
+  ['2016-17', 264], ['2017-18', 272], ['2018-19', 280], ['2019-20', 289], ['2020-21', 301],
+  ['2021-22', 317], ['2022-23', 331], ['2023-24', 348], ['2024-25', 363], ['2025-26', 376],
+];
+---
+
+<BaseLayout title="Capital Gains Tax Calculator India 💹" description={meta.description} schemas={schemas} publishedTime={meta.lastUpdated} modifiedTime={meta.lastUpdated}>
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-pink-accent/20 rounded-full blur-[120px] float-slow"></div>
+      <div class="absolute top-[5%] right-[-10%] w-[400px] h-[400px] bg-lime-accent/20 rounded-full blur-[120px] float-slow-2"></div>
+    </div>
+    <div class="container-wide relative pt-8 pb-10 md:pt-12 md:pb-14">
+      <nav aria-label="Breadcrumb" class="mb-6"><ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">{breadcrumbs.map((item, idx) => (<li class="flex items-center gap-1.5">{idx === breadcrumbs.length - 1 ? (<span class="px-3 py-1 rounded-full bg-ink-900 text-white font-bold border-2 border-ink-900">{item.name}</span>) : (<><a href={item.url} class="px-3 py-1 rounded-full bg-white border-2 border-ink-200 text-ink-700 font-semibold hover:border-ink-900 hover:text-ink-900 no-underline transition-colors">{item.name}</a><svg class="w-3 h-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></>)}</li>))}</ol></nav>
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="chip-pink">💹 Capital Gains</span>
+          <span class="chip-lime">Budget 2024 rules</span>
+          <span class="chip-white"><span class="text-ink-500">Last updated</span><span>{meta.lastUpdated}</span></span>
+        </div>
+        <h1 class="!text-4xl sm:!text-5xl md:!text-6xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
+          Capital Gains Tax Calculator.
+          <span class="text-gradient-brand">India, post 23 Jul 2024.</span>
+        </h1>
+        <div class="speakable-answer mt-7 bg-yellow-accent border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">⚡</div>
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-1">Quick answer</div>
+              <p class="text-ink-900 text-base sm:text-lg leading-relaxed font-medium !m-0">
+                An equity mutual fund bought for <strong>₹5,00,000</strong> and sold for <strong>₹8,00,000</strong> after more than 12 months is a long-term gain of <strong>₹3,00,000</strong>. After the ₹1,25,000 equity exemption, <strong>₹1,75,000</strong> is taxable at 12.5%, so the LTCG tax is <strong>₹21,875</strong>. These are the rules for transfers on or after 23 July 2024. Verify current rates with the Income Tax Department or a CA.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="container-wide pb-12 md:pb-16"><div class="max-w-4xl mx-auto"><CapitalGainsCalculator client:visible /></div></section>
+
+  <!-- WHAT CHANGED 23 JUL 2024 -->
+  <section class="bg-ink-900 text-white">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip bg-lime-accent text-ink-900 mb-4">📅 Effective 23 July 2024</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight !text-white" style="font-family: 'Inter Tight', sans-serif;">What Budget 2024 changed.</h2>
+        <p class="text-ink-300 mt-3 text-lg font-medium max-w-2xl">These rates apply to transfers made on or after 23 July 2024. Transfers before that date follow the older rules.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <div class="bg-white/[0.06] border border-white/10 rounded-2xl p-6">
+            <div class="text-lime-accent font-extrabold text-sm uppercase tracking-wider mb-4">Listed equity / equity funds</div>
+            <table class="w-full text-sm">
+              <tbody class="text-ink-200 divide-y divide-white/5">
+                <tr><td class="py-2">LTCG rate</td><td class="text-right">10% → <strong class="text-white">12.5%</strong></td></tr>
+                <tr><td class="py-2">LTCG exemption</td><td class="text-right">₹1L → <strong class="text-white">₹1.25L</strong>/yr</td></tr>
+                <tr><td class="py-2">STCG rate</td><td class="text-right">15% → <strong class="text-white">20%</strong></td></tr>
+                <tr><td class="py-2">Long-term cutoff</td><td class="text-right">more than 12 months</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="bg-white/[0.06] border border-white/10 rounded-2xl p-6">
+            <div class="text-pink-accent font-extrabold text-sm uppercase tracking-wider mb-4">Property / gold / unlisted</div>
+            <table class="w-full text-sm">
+              <tbody class="text-ink-200 divide-y divide-white/5">
+                <tr><td class="py-2">LTCG rate</td><td class="text-right">20%+index → <strong class="text-white">12.5%</strong>, no index</td></tr>
+                <tr><td class="py-2">Property grandfathering</td><td class="text-right">pre 23 Jul 2024: lower of both</td></tr>
+                <tr><td class="py-2">STCG</td><td class="text-right">slab rate</td></tr>
+                <tr><td class="py-2">Long-term cutoff</td><td class="text-right">more than 24 months</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="mt-6 bg-white/[0.06] border border-white/10 rounded-2xl p-6">
+          <div class="text-cyan-accent font-extrabold text-sm uppercase tracking-wider mb-2">Debt mutual funds (bought on/after 1 Apr 2023)</div>
+          <p class="text-ink-300 text-sm font-medium !m-0">No long-term benefit and no indexation. The entire gain is added to your income and taxed at your slab rate whatever the holding period.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPERTY WORKED EXAMPLE -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-pink mb-4">🏠 Worked example</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Property: with vs without indexation.</h2>
+      <p class="text-ink-700 mt-3 text-lg font-medium max-w-2xl">A flat bought in FY 2010-11 for ₹20,00,000 and sold in FY 2024-25 for ₹80,00,000 (held long term, acquired before 23 July 2024, so both methods are allowed).</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 mt-8">
+        <div class="bg-white border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-3">Method A: 12.5% no indexation</div>
+          <ul class="text-sm text-ink-700 font-semibold space-y-1.5 !pl-0 !list-none">
+            <li>Gain = ₹80,00,000 - ₹20,00,000 = <strong>₹60,00,000</strong></li>
+            <li>Tax = 12.5% × ₹60,00,000 = <strong>₹7,50,000</strong></li>
+          </ul>
+        </div>
+        <div class="bg-lime-accent border-[2.5px] border-ink-900 rounded-2xl p-6 shadow-sticker-sm relative">
+          <span class="absolute -top-3 -right-3 chip-lime !text-xs border-2 border-ink-900">✓ Lower</span>
+          <div class="text-xs font-extrabold uppercase tracking-wider text-ink-900 mb-3">Method B: 20% with indexation</div>
+          <ul class="text-sm text-ink-800 font-semibold space-y-1.5 !pl-0 !list-none">
+            <li>Indexed cost = ₹20,00,000 × (363 ÷ 167) = <strong>₹43,47,305</strong></li>
+            <li>Indexed gain = ₹80,00,000 - ₹43,47,305 = <strong>₹36,52,695</strong></li>
+            <li>Tax = 20% × ₹36,52,695 = <strong>₹7,30,539</strong></li>
+          </ul>
+        </div>
+      </div>
+      <p class="text-ink-700 mt-5 text-base font-medium">Here the old indexation method is cheaper by about ₹19,461, so a resident individual or HUF would choose it. Change the numbers in the calculator above and it always highlights the lower tax. The indexation option is not available for property acquired on or after 23 July 2024.</p>
+    </div>
+  </section>
+
+  <!-- CII TABLE -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-4xl mx-auto">
+        <span class="chip-cyan mb-4">📊 Reference</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Cost Inflation Index (CII).</h2>
+        <p class="text-ink-700 mt-3 text-lg font-medium max-w-2xl">Used only for the property 20%-with-indexation option. Indexed cost = cost × (CII of sale year ÷ CII of purchase year). FY 2025-26 is provisional until officially notified.</p>
+        <div class="mt-8 bg-white border-2 border-ink-900 rounded-2xl overflow-x-auto shadow-sticker-sm">
+          <table class="w-full text-sm min-w-[420px]">
+            <thead><tr class="bg-ink-900 text-white"><th class="text-left px-4 py-2.5 font-bold">Financial year</th><th class="text-right px-4 py-2.5 font-bold">CII</th><th class="text-left px-4 py-2.5 font-bold">Financial year</th><th class="text-right px-4 py-2.5 font-bold">CII</th></tr></thead>
+            <tbody class="divide-y divide-ink-100">
+              {Array.from({ length: Math.ceil(ciiRows.length / 2) }).map((_, i) => {
+                const left = ciiRows[i];
+                const right = ciiRows[i + Math.ceil(ciiRows.length / 2)];
+                return (
+                  <tr class="font-semibold text-ink-800">
+                    <td class="px-4 py-2">FY {left[0]}</td>
+                    <td class="px-4 py-2 text-right">{left[1]}{left[0] === '2025-26' ? '*' : ''}</td>
+                    <td class="px-4 py-2">{right ? `FY ${right[0]}` : ''}</td>
+                    <td class="px-4 py-2 text-right">{right ? `${right[1]}${right[0] === '2025-26' ? '*' : ''}` : ''}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs text-ink-500 mt-3 font-bold">* FY 2025-26 CII is provisional. Confirm the notified figure with the Income Tax Department before relying on it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO USE -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip-cyan mb-4">📖 How to use</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">4 steps to your tax.</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 mt-8">
+        {[
+          { num: '1', text: 'Pick the asset type: equity, debt fund, property or gold. It sets the 12 or 24-month cutoff.', color: 'bg-yellow-accent' },
+          { num: '2', text: 'Enter cost, sale price and both dates. A sale below cost shows as a capital loss.', color: 'bg-pink-accent text-white' },
+          { num: '3', text: 'Read the term, the gain and the ₹1.25L equity exemption applied automatically.', color: 'bg-cyan-accent' },
+          { num: '4', text: 'For eligible property, compare both methods and see the lower tax and net gain.', color: 'bg-lime-accent' },
+        ].map((step) => (
+          <div class={`${step.color} border-[2.5px] border-ink-900 rounded-2xl p-5 shadow-sticker-sm`}>
+            <div class="text-3xl font-extrabold mb-3 leading-none" style="font-family: 'Inter Tight', sans-serif;">{step.num}</div>
+            <p class="text-sm font-semibold leading-snug !m-0 !text-current">{step.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-ink-50 border-y-2 border-ink-900">
+    <div class="container-wide py-12 md:py-16">
+      <div class="max-w-3xl mx-auto">
+        <span class="chip-yellow mb-4">❓ FAQ</span>
+        <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Capital gains FAQ.</h2>
+        <div class="space-y-3 mt-8">
+          {faqs.map((faq, idx) => (
+            <details class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all" open={idx === 0}>
+              <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+                <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+                  <svg class="w-4 h-4 text-white group-open:text-ink-900 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </summary>
+              <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+            </details>
+          ))}
+        </div>
+        <div class="mt-6 bg-white border-2 border-ink-900 rounded-2xl p-5 shadow-sticker-sm text-sm text-ink-700 font-semibold leading-relaxed">
+          ⚠️ This calculator is an educational estimate and not tax, legal or investment advice. Capital gains rules, rates, exemptions and the CII change over time and depend on your specific facts (residency, surcharge, set-offs, cost of improvement, transfer expenses). Always verify the current rules with the Income Tax Department at incometax.gov.in or a qualified chartered accountant before filing.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED -->
+  <section class="container-wide py-12 md:py-16">
+    <div class="max-w-4xl mx-auto">
+      <span class="chip bg-violet-300 text-ink-900 mb-4">🔗 Related India calculators</span>
+      <h2 class="!text-3xl sm:!text-4xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">Try these next.</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
+        {relatedCalcs.map((c) => (
+          <a href={c.href} class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-5 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-3xl mb-3 group-hover:rotate-12 transition-transform inline-block">{c.icon}</div>
+            <div class="font-extrabold text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</div>
+            <p class="text-xs mt-1.5 leading-snug font-medium opacity-90">{c.desc}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

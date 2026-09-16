@@ -1,0 +1,161 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HubHero from '../../components/ui/HubHero.astro';
+import HubCard from '../../components/ui/HubCard.astro';
+import { buildBreadcrumbSchema } from '../../lib/seo';
+import { buildHubCards } from '../../lib/category-hub';
+
+// Derived from the calculators registry: adding an entry there is enough to
+// list it here. Copy overrides keep the longer hub blurbs; anything without one
+// falls back to the registry description.
+const calcs = buildHubCards('finance', {
+  order: [
+    'mortgage-calculator',
+    'loan-calculator',
+    'car-loan-calculator',
+    'salary-calculator',
+    'simple-interest-calculator',
+    'sales-tax-calculator',
+    'budget-calculator',
+    'retirement-calculator',
+    'inflation-calculator',
+    'net-worth-calculator',
+    'emi-calculator',
+    'compound-interest-calculator',
+    'sip-calculator',
+    'step-up-sip-calculator',
+    'lumpsum-calculator',
+    'swp-calculator',
+    'cagr-calculator',
+    'xirr-calculator',
+    'fd-calculator',
+    'ppf-calculator',
+    'epf-calculator',
+    'nps-calculator',
+    'gratuity-calculator',
+    'sukanya-samriddhi-calculator',
+    'nsc-calculator',
+    'scss-calculator',
+    'post-office-mis-calculator',
+    'apy-calculator',
+    'rd-calculator',
+    'hra-calculator',
+    'gst-calculator',
+    'income-tax-india',
+    'capital-gains-calculator',
+    'tds-calculator',
+    'advance-tax-calculator',
+  ],
+  copy: {
+    'mortgage-calculator': { desc: 'Monthly payments, PITI breakdown, PMI, extra payments, biweekly savings across 160+ countries.' },
+    'loan-calculator': { desc: 'General-purpose loan payment calculator for any term.' },
+    'car-loan-calculator': { desc: 'Car loan EMI from price, down payment, interest rate and tenure.' },
+    'salary-calculator': { desc: 'CTC to in-hand take-home pay: EPF, professional tax, and both tax regimes.' },
+    'simple-interest-calculator': { desc: 'Interest on principal only: SI = P × R × T, with the maturity total.' },
+    'sales-tax-calculator': { desc: 'Add or remove VAT, GST, or US sales tax at any rate, both ways.' },
+    'budget-calculator': { desc: 'Split take-home income into needs, wants and savings: the 50/30/20 rule.' },
+    'retirement-calculator': { desc: 'Project your retirement savings with compound growth and inflation-adjusted values.' },
+    'inflation-calculator': { desc: 'Purchasing power over time: what is $X from [year] worth today?' },
+    'net-worth-calculator': { desc: 'Track assets vs liabilities to see your true net worth and debt-to-asset ratio.' },
+    'emi-calculator': { desc: 'Indian-style equated monthly installment calculator with bank-by-bank breakdowns.' },
+    'compound-interest-calculator': { desc: 'See how investments and savings grow over time.' },
+    'sip-calculator': { desc: 'Indian mutual fund SIP returns calculator with goal planning.' },
+    'lumpsum-calculator': { desc: "One-time investment growth, plus what the corpus is worth in today's money." },
+    'cagr-calculator': { desc: 'Compound annual growth rate between any two values, with doubling time.' },
+    'fd-calculator': { desc: 'Fixed deposit maturity and interest by bank.' },
+    'ppf-calculator': { desc: 'Public Provident Fund returns over 15 years.' },
+    'epf-calculator': { desc: 'Provident fund corpus at retirement, with the 8.33% EPS pension split shown separately.' },
+    'nps-calculator': { desc: 'Pension corpus at 60, the mandatory 40% annuity, and your estimated monthly pension.' },
+    'gratuity-calculator': { desc: 'Gratuity under the 1972 Act: (15 × salary × years) ÷ 26, with the ₹20 lakh exemption.' },
+    'sukanya-samriddhi-calculator': { name: 'Sukanya Samriddhi', desc: 'SSY maturity at 21 years, including the six deposit-free years most calculators skip.' },
+    'nsc-calculator': { desc: 'National Savings Certificate maturity at 7.7%, with the year-by-year 80C reinvestment nuance.' },
+    'scss-calculator': { desc: 'Senior Citizen Savings Scheme quarterly income at 8.2%, up to the ₹30 lakh limit.' },
+    'post-office-mis-calculator': { name: 'Post Office MIS', desc: 'Monthly income from the Post Office Monthly Income Scheme at 7.4%.' },
+    'apy-calculator': { name: 'Atal Pension Yojana', desc: 'APY monthly contribution by entry age and chosen pension, from the official chart.' },
+    'swp-calculator': { name: 'SWP Calculator', desc: 'Systematic Withdrawal Plan: monthly income, corpus growth, and when it runs out.' },
+    'step-up-sip-calculator': { name: 'Step-Up SIP', desc: 'A SIP that rises each year, and how much more it builds than a flat SIP.' },
+    'xirr-calculator': { name: 'XIRR Calculator', desc: 'Annualized return across dated, irregular cash flows, the way fund apps compute it.' },
+    'capital-gains-calculator': { desc: 'Capital gains tax by asset type under the post-July-2024 rules, with the property indexation choice.' },
+    'tds-calculator': { name: 'TDS Calculator', desc: 'Tax deducted at source by section, with rates, thresholds and the no-PAN rule.' },
+    'advance-tax-calculator': { desc: 'Advance tax liability and the 15 Jun / Sep / Dec / Mar installment schedule.' },
+    'rd-calculator': { desc: 'Recurring deposit maturity calculator for Indian banks.' },
+    'hra-calculator': { desc: 'House Rent Allowance exemption for Indian income tax.' },
+    'gst-calculator': { desc: 'India GST inclusive/exclusive amount and rate finder.' },
+    'income-tax-india': { desc: 'Old vs New regime with state Professional Tax & HRA tier, across all 16 states.' },
+  },
+});
+
+// Comparison and guide pages: editorial content, not registry calculators.
+// Styled like the /guides/ hub cards (colour, icon, tag) rather than HubCard,
+// so the section reads as editorial rather than as unfinished calculator cards.
+const guides = [
+  { name: 'Old vs New Regime', href: '/finance/old-vs-new-tax-regime-india/', desc: "Side-by-side comparison of India's two income-tax regimes.", icon: '🪙', color: 'bg-yellow-accent', tag: 'India tax', cta: 'See the comparison' },
+  { name: 'Indian City EMI Calculators', href: '/finance/mortgage-calculator/cities/', desc: 'Home loan EMI by Indian city: Mumbai, Bengaluru, Chennai, Delhi-NCR and 280+ more with local stamp duty and lender notes.', icon: '🏙️', color: 'bg-cyan-accent', tag: 'Home loans', cta: 'Browse the cities' },
+  { name: 'SBI vs HDFC Home Loan', href: '/finance/sbi-vs-hdfc-home-loan/', desc: 'Compare SBI and HDFC home loan rates, processing speed, and real EMI.', icon: '🏦', color: 'bg-lime-accent', tag: 'Banks', cta: 'See the comparison' },
+  { name: 'HDFC vs ICICI Personal Loan', href: '/finance/hdfc-vs-icici-personal-loan/', desc: 'HDFC vs ICICI personal loan: EMI, rates, and disbursal speed compared.', icon: '💳', color: 'bg-pink-accent', tag: 'Personal loans', cta: 'See the comparison' },
+  { name: 'FHA vs Conventional Mortgage', href: '/finance/fha-vs-conventional-mortgage/', desc: 'US homebuyer comparison: FHA vs conventional down payment, rates, and PMI.', icon: '🇺🇸', color: 'bg-cyan-accent', tag: 'US mortgages', cta: 'See the comparison' },
+  { name: 'PPF vs ELSS', href: '/finance/ppf-vs-elss-investment/', desc: 'Section 80C comparison: PPF vs ELSS over 15-year returns.', icon: '🌱', color: 'bg-lime-accent', tag: 'Section 80C', cta: 'See the comparison' },
+  { name: 'SIP vs Lump Sum', href: '/finance/sip-vs-lump-sum-investment/', desc: 'Which investment style wins: SIP vs lump sum over 10 years.', icon: '📈', color: 'bg-yellow-accent', tag: 'Investing', cta: 'See the comparison' },
+  { name: '10-Year vs 30-Year Mortgage', href: '/finance/10-year-vs-30-year-mortgage/', desc: 'Total interest, EMI, and payoff tradeoffs between short and long mortgages.', icon: '🏠', color: 'bg-pink-accent', tag: 'Mortgages', cta: 'See the comparison' },
+  { name: '15-Year vs 30-Year Mortgage', href: '/finance/15-year-vs-30-year-mortgage/', desc: 'The classic mid-tenure decision for US homebuyers.', icon: '⏳', color: 'bg-lime-accent', tag: 'Mortgages', cta: 'See the comparison' },
+];
+
+const breadcrumbs = [
+  { name: 'Home', url: '/' },
+  { name: 'Finance', url: '/finance/' },
+];
+---
+
+<BaseLayout
+  title="Finance Calculators: Mortgage, Loan, EMI, Tax"
+  description="Free finance calculators for mortgages, loans, EMIs, taxes, salary, compound interest, and more. Accurate, fast, no signup."
+  schemas={[buildBreadcrumbSchema(breadcrumbs)]}
+>
+  <HubHero
+    breadcrumbs={breadcrumbs}
+    chip="💰 Finance"
+    chipClass="chip-lime"
+    stats={[
+      { label: 'Tools', value: String(calcs.length) },
+      { label: 'Comparisons', value: String(guides.length) },
+    ]}
+    titleLead="Finance Calculators."
+    titleAccent="Every number shown."
+    intro="Mortgage, loan, EMI, tax, salary, and investment calculators. All free, all instant."
+  />
+
+  <section class="container-wide pb-16 md:pb-24">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {
+        calcs.map((c) => (
+          <HubCard href={c.href} name={c.name} desc={c.desc} icon={c.icon} />
+        ))
+      }
+    </div>
+
+    <h2
+      class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
+      style="font-family: 'Inter Tight', sans-serif;"
+    >
+      Comparisons &amp; guides
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {
+        guides.map((c) => (
+          <a
+            href={c.href}
+            class={`group ${c.color} border-[2.5px] border-ink-900 rounded-3xl p-6 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200 flex flex-col`}
+          >
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-4xl group-hover:rotate-12 transition-transform inline-block">{c.icon}</span>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider bg-white/70 border-2 border-ink-900 rounded-full px-2.5 py-0.5 text-ink-900">{c.tag}</span>
+            </div>
+            <h3 class="!text-xl md:!text-2xl !font-extrabold !text-ink-900 !m-0 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">{c.name}</h3>
+            <p class="text-sm text-ink-800 mt-2.5 leading-snug font-medium flex-1">{c.desc}</p>
+            <div class="mt-4 font-extrabold text-ink-900 text-sm">{c.cta} →</div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

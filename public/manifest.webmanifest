@@ -1,0 +1,32 @@
+{
+  "name": "Calctube — Free Online Calculators",
+  "short_name": "Calctube",
+  "description": "100+ free, fast, accurate calculators. Mortgage, BMI, EMI, SIP, currency, tax, percentage and more. No signup. Mobile-first. Free forever.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1b73f5",
+  "background_color": "#ffffff",
+  "lang": "en",
+  "categories": ["finance", "productivity", "education", "utilities"],
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

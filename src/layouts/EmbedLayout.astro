@@ -1,0 +1,78 @@
+---
+/**
+ * Chrome-free layout for /embed/* widgets rendered inside a third-party iframe.
+ *
+ * Deliberately NOT BaseLayout: no site header, footer, nav, AdSense or analytics.
+ * Running ad and tracking scripts inside somebody else's page is how an embed gets
+ * removed, and it would make the widget far heavier than the host page expects.
+ *
+ * These pages are noindex: they duplicate the calculator that already ranks on its
+ * own URL, so they must not compete with it. The canonical points at that page.
+ */
+import '../styles/global.css';
+import { SITE } from '../lib/seo';
+
+interface Props {
+  title: string;
+  canonical: string;   // the real calculator page this widget mirrors
+  calcName: string;
+}
+
+const { title, canonical, calcName } = Astro.props;
+const attributionUrl = `${canonical}?utm_source=embed&utm_medium=widget`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <!-- Never index the widget itself — the calculator page is the canonical one. -->
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href={canonical} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Inter+Tight:wght@700;800;900&display=swap"
+    />
+    <style>
+      /* Transparent so the widget sits on the host page's own background. */
+      html,
+      body {
+        background: transparent;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="p-3 sm:p-4">
+      <slot />
+
+      <p class="mt-3 text-center text-xs text-ink-500">
+        <a
+          href={attributionUrl}
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border-2 border-ink-200 font-bold text-ink-700 hover:border-ink-900 hover:text-ink-900 no-underline transition-colors"
+        >
+          🧮 Powered by {SITE.name}
+        </a>
+      </p>
+    </div>
+
+    <script>
+      // Report height to the host page so the iframe can size itself. The host
+      // opts in by listening for this message (see the snippet on /embed/).
+      const post = () => {
+        const h = Math.ceil(document.documentElement.getBoundingClientRect().height);
+        parent.postMessage({ type: 'calctube:height', slug: location.pathname, height: h }, '*');
+      };
+      new ResizeObserver(post).observe(document.body);
+      window.addEventListener('load', post);
+      post();
+    </script>
+  </body>
+</html>

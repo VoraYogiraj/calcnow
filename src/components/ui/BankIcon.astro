@@ -1,0 +1,33 @@
+---
+/**
+ * Renders a bank logo from public/banks/{slug}.svg.
+ * If slug is missing, falls back to emoji prop for graceful degradation.
+ *
+ * Props:
+ *   slug:     Bank slug (e.g., 'hdfc', 'sbi', 'icici')
+ *   size:     Rendered px size — defaults to 32. Square.
+ *   alt:      Accessible alt text. Defaults to the bank slug humanized.
+ *   emoji:    Optional fallback emoji if the SVG asset isn't found.
+ *   class:    Extra classes
+ */
+export interface Props {
+  slug: string;
+  size?: number;
+  alt?: string;
+  emoji?: string;
+  class?: string;
+}
+const { slug, size = 32, alt, emoji, class: className = '' } = Astro.props;
+const altText = alt || slug.replace(/-/g, ' ');
+---
+
+<img
+  src={`/banks/${slug}.svg`}
+  alt={altText}
+  width={size}
+  height={size}
+  loading="lazy"
+  decoding="async"
+  class={`inline-block rounded-full ${className}`}
+  style={`width: ${size}px; height: ${size}px;`}
+/>

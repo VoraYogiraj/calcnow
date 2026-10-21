@@ -14,8 +14,8 @@ Brand note: Project name remains temporary; domain references retained as-is.
 - Hosting recommendation: Cloudflare Pages (free tier) — already configured with Pages Function middleware for geo-redirect and bot bypass.
 
 # SECTION A — PROJECT OVERVIEW
-What exists: A production-grade static calculator hub (Calctube / rebranded CalcNow) with 60 calculator components, 132 Astro pages, extensive programmatic SEO data (mortgage locales, EMI banks, currency pairs, city-bank grids), a complete design system (sticker aesthetic, Inter Tight typography), and full deployment automation (GitHub Actions -> Cloudflare Pages + IndexNow ping).
-What does NOT exist (before P0-01 implementation): No centralized automated test framework. After P0-01: Vitest installed; BMI and EMI regression tests passing (10 tests).
+What exists: A production-grade static calculator hub (Calctube / rebranded CalcNow) with 70 calculator components (verified by find; corrected from initial miscount), 132 Astro pages, extensive programmatic SEO data (mortgage locales, EMI banks, currency pairs, city-bank grids), a complete design system (sticker aesthetic, Inter Tight typography), and full deployment automation (GitHub Actions -> Cloudflare Pages + IndexNow ping).
+What does NOT exist (before P0-01 implementation): Vitest installed; 28 regression tests passing (exit 0); 5 test files. After P0-01: Vitest installed; BMI + EMI + Mortgage + APY + Depreciation regression tests passing (28 tests); Vitest v3.2.7 installed.
 
 # SECTION B — ARCHITECTURE
 - Framework: Astro 5 (SSG) with React 18 islands (`client:visible` hydration on calculator widgets).
@@ -26,7 +26,7 @@ What does NOT exist (before P0-01 implementation): No centralized automated test
 - Shared components: `BaseLayout.astro` (SEO, meta, schema, analytics loader, CSP), `Logo.astro`, `Breadcrumbs.astro`, `CalcSearch.tsx`, `GeoBanner.astro`.
 
 # SECTION C — CALCULATOR INVENTORY (VERIFIED FROM FILE SYSTEM)
-Components inspected directly: 60 .tsx files.
+Components inspected directly: 70 .tsx files.
 Key verified calculators (full content read):
 - BMI (`BmiCalculator.tsx`): Formula = kg / m2; metric/imperial toggle; WHO categories; edge case: height <= 0 or weight <= 0 returns placeholder (line 15). Safe.
 - EMI (`EmiCalculator.tsx`): Standard annuity formula; guards for months === 0 and monthlyRate === 0; INR formatting with `Intl.NumberFormat`. Accurate.
@@ -139,7 +139,7 @@ P0 — Critical:
 
 P1 — Important:
 - Verify currency rate source and document update frequency. Evidence: `CurrencyConverter` relies on external API; no update schedule documented. Action: Inspect `src/lib/currency.ts` and document rate source, refresh interval, and fallback behavior.
-- Inspect all 60 calculator components for missing validation (e.g., zero division, negative inputs, boundary conditions). Evidence: Only BMI and EMI were fully verified; others not individually tested. Action: Systematic review of each component, adding guard clauses where missing.
+- Inspect all 70 calculator components (verified by find; corrected from initial miscount) for missing validation (e.g., zero division, negative inputs, boundary conditions). Evidence: Only BMI and EMI were fully verified; others not individually tested. Action: Systematic review of each component, adding guard clauses where missing.
 - Confirm sitemap exclusions align with intended SEO strategy (bank-state, city-bank, embed widgets excluded). Evidence: `astro.config.mjs` filter logic explicitly excludes these; verify no unintended exclusions of indexable pages.
 
 P2 — SEO / UX Improvements:

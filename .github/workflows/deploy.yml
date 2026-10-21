@@ -43,6 +43,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Run regression tests
+        run: npm test
+
       - name: Deploy to Cloudflare Pages
         # wrangler-action@v4 already migrated to node24 on 2026-05-12 — no change.
         uses: cloudflare/wrangler-action@v4

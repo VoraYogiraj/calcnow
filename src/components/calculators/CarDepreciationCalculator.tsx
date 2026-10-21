@@ -6,7 +6,9 @@ export default function CarDepreciationCalculator() {
   const [years, setYears] = useState(5);  // years to hold
 
   const r = useMemo(() => {
-    const factor = 1 - rate / 100;
+    // Annual depreciation cannot exceed 100% — a higher rate would invert the
+    // remaining-value factor and produce negative car values.
+    const factor = 1 - Math.min(rate, 100) / 100;
     const rows = [];
     for (let y = 0; y <= years; y++) {
       const value = price * Math.pow(factor, y);
@@ -20,10 +22,10 @@ export default function CarDepreciationCalculator() {
 
   const fmt = (n: number) => Math.round(n).toLocaleString();
 
-  const field = (id: string, label: string, val: number, set: (n: number) => void, ring: string, step = 1) => (
+  const field = (id: string, label: string, val: number, set: (n: number) => void, ring: string, step = 1, max?: number) => (
     <div>
       <label htmlFor={id} className="block text-xs font-extrabold uppercase tracking-wider text-ink-700 mb-2">{label}</label>
-      <input id={id} type="number" min={0} step={step} value={val} onChange={(e) => set(Math.max(0, Number(e.target.value) || 0))}
+      <input id={id} type="number" min={0} max={max} step={step} value={val} onChange={(e) => set(Math.min(max ?? Infinity, Math.max(0, Number(e.target.value) || 0)))}
         className={`w-full px-3.5 py-3 bg-white border-[2.5px] border-ink-900 rounded-xl text-base font-bold focus:outline-none focus:ring-4 ${ring} transition-all`} inputMode="decimal" />
     </div>
   );
@@ -40,7 +42,7 @@ export default function CarDepreciationCalculator() {
 
         <div className="p-5 sm:p-7 bg-ink-50 grid grid-cols-1 sm:grid-cols-3 gap-4">
           {field('cd-price', 'Purchase price', price, setPrice, 'focus:ring-cyan-accent', 500)}
-          {field('cd-rate', 'Annual depreciation (%)', rate, setRate, 'focus:ring-lime-accent', 0.5)}
+          {field('cd-rate', 'Annual depreciation (%)', rate, setRate, 'focus:ring-lime-accent', 0.5, 100)}
           {field('cd-years', 'Years to hold', years, setYears, 'focus:ring-violet-300', 1)}
         </div>
 

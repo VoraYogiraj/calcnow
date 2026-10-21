@@ -14,3 +14,6 @@ Verification:
 - `npx vitest run`: 23 passing (BMI 5, EMI 5, Mortgage 7, APY 6).
 - `npm run build`: exit 0, 1675 pages, sitemap regenerated, IndexNow 913 URLs submitted.
 - No deploy. Brand preserved.
+=== BATCH 6 FINDINGS (verified by direct read) ===
+- Auto (4): CarLoan (formula verified safe — amortization); FuelCost (division guard verified at line 13: `eff = efficiency > 0 ? efficiency : 1`; previous agent claim of 'unguarded division' = FALSE); LeaseVsBuy (verified safe); CarDepreciation (rate input: min={0} only, NO max bound — DEFECT CONFIRMED line 43, allows >100% depreciation rate).
+- Tools (1): WordCounter (word split logic verified safe; no formula errors).

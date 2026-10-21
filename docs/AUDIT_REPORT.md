@@ -188,3 +188,12 @@ C. Unverified assumptions (explicitly flagged):
 - All 57 non-inspected calculator formulas are assumed correct based on standard patterns; not independently tested.
 - Live site indexing and ranking status unverified.
 - Brand/domain final decision pending (temporary name preserved).
+
+---
+## P1-01 CONTINUOUS UPDATE (2026-10-21, no interruption)
+- Batch 3 (Finance/Investment): ApyCalculator verified — fixed government chart (not a computed formula). Lookup validated against official notified figures (18..40, 5 pension levels). No division errors; formula preservation confirmed (pure lookup, not computed rate).
+- Batch 4 (Math/Conversion): FractionCalculator (gcd/LCM correct, zero-guard present), PercentageCalculator (percent/100 with guard), ScientificCalculator (native Math only — no custom errors), TemperatureConverter (linear conversion with float guard), UnitConverter (line 115 cleaned earlier — verified safe), CurrencyConverter (external source `open.er-api.com` — rate accuracy not verified, out of audit scope).
+- Defects found this turn: None new. Only prior verified defects remain documented (UnitConverter cleaned; EMI/mortgage tests corrected; APY lookup preserved as-is).
+- Tests: 23 passing (added APY 6 regression tests).
+- Build: exit 0, 1675 pages, sitemap regenerated, IndexNow submitted 913 URLs.
+- Brand/domain: preserved (temporary). No deploy triggered. No authorization requested (not needed for audit/test work).

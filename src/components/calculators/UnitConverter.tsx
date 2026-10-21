@@ -112,8 +112,8 @@ export default function UnitConverter({ initialCategory = 'length', initialFrom 
   const switchCat = (key: string) => {
     const c = CATEGORIES.find((x) => x.key === key)!;
     setCatKey(key);
-    setFromSym(c.units[Math.min(0, c.units.length - 1)].sym);
-    setToSym(c.units[Math.min(1, c.units.length - 1)].sym);
+    setFromSym(c.units[0].sym);
+    setToSym(c.units[1].sym);
     setValue(1);
   };
   const swap = () => { setFromSym(to.sym); setToSym(from.sym); };

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { calculateEMI } from '../../lib/calculations/emi';
 
 function formatINR(value: number): string {
   if (value >= 10000000) return `₹${(value / 10000000).toFixed(2)} Cr`;
@@ -16,16 +17,6 @@ function formatINRFull(value: number): string {
     currency: 'INR',
     maximumFractionDigits: 0,
   }).format(value);
-}
-
-function calculateEMI(principal: number, annualRatePct: number, months: number) {
-  const monthlyRate = annualRatePct / 100 / 12;
-  if (months === 0) return { emi: 0, totalInterest: 0, totalPaid: 0 };
-  if (monthlyRate === 0) {
-    return { emi: principal / months, totalInterest: 0, totalPaid: principal };
-  }
-  const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
-  return { emi, totalInterest: emi * months - principal, totalPaid: emi * months };
 }
 
 export default function EmiCalculator() {

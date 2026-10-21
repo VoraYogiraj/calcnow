@@ -1,0 +1,45 @@
+{
+  "audit_date": "2026-10-21",
+  "repo": "D:\Projects\calctube",
+  "branch": "main",
+  "total_calculator_components": 60,
+  "total_page_files": 132,
+  "inventory_notes": "Inventoried by file-system scan of src/components/calculators/ (60 .tsx) and src/pages/ (132 .astro). Component-level formulas inspected by subagent review; full manual verification of every formula requires dedicated test pass.",
+  "categories": {
+    "finance": ["MortgageCalculator","EmiCalculator","SipCalculator","FdCalculator","CompoundInterestCalculator","SimpleInterestCalculator","LoanCalculator","CarLoanCalculator","SalaryCalculator","GstCalculator","HraCalculator","TdsCalculator","IncomeTaxIndiaCalculator","RetirementCalculator","InflationCalculator","BudgetCalculator","NetWorthCalculator","CagrCalculator","ApyCalculator","CapitalGainsCalculator","GratuityCalculator","EpfCalculator","NpsCalculator","NscCalculator","ScssCalculator","PpfCalculator","RdCalculator","SukanyaSamriddhiCalculator","LumpsumCalculator","SwpCalculator","StepUpSipCalculator","PostOfficeMisCalculator","XirrCalculator","AdvanceTaxCalculator","ApCalculator","CarDepreciationCalculator","LeaseVsBuyCalculator","FuelCostCalculator","FuelEconomyCalculator"],
+    "health": ["BmiCalculator","BmrCalculator","TdeeCalculator","CalorieDeficitCalculator","BodyFatCalculator","IdealWeightCalculator","WaterIntakeCalculator","OvulationCalculator","PregnancyCalculator","AgeCalculator"],
+    "math": ["PercentageCalculator","FractionCalculator","TipCalculator","DiscountCalculator","RatioCalculator","CgpaCalculator","GpaCalculator","GradeCalculator","ScientificCalculator","UnitConverter","TemperatureConverter","CurrencyConverter","WordCounter"],
+    "conversion": ["CurrencyConverter","UnitConverter","TemperatureConverter","TimeZoneConverter"],
+    "date-time": ["AgeCalculator","DateDifferenceCalculator","CountdownCalculator"],
+    "construction": ["ConcreteCalculator","PaintCalculator","BrickCalculator","RoofingCalculator","TileCalculator"],
+    "auto": ["CarLoanCalculator","FuelCostCalculator","FuelEconomyCalculator","LeaseVsBuyCalculator","CarDepreciationCalculator"],
+    "tools": ["WordCounter"]
+  },
+  "verified_status": "NOT FULLY VERIFIED — Component files read; individual formula accuracy (e.g., BMI = kg/m2, EMI annuity formula) confirmed against standard references for top calculators only. Remaining 50+ components not individually tested.",
+  "key_defects_found": [
+    "No centralized unit-test file for calculators; no test framework configured besides Astro build.",
+    "Potential division-by-zero in compound-interest if rate=0; not explicitly guarded in all components.",
+    "CurrencyConverter relies on external rate source (not verified live in audit).",
+    "Embedding pages (/embed/) mirror calculators and are noindexed (intended).",
+    "Programmatic pSEO pages (mortgage/[country], emi/[bank]) rely on static data files (mortgage-locales.ts, emi-banks.ts) — data freshness unverified."
+  ],
+  "seo_implementation": {
+    "sitemap": "astro.config.mjs generates sitemap with filter exclusions (bank-state, city-bank, embed widgets, /legal/); priorities 0.4-1.0; changefreq weekly/monthly.",
+    "robots": "public/robots.txt allows all bots + explicit AI bot allow (GPTBot, PerplexityBot, ClaudeBot, etc.); Sitemap declared.",
+    "structured_data": "BaseLayout.astro emits WebApplication + BreadcrumbList + FAQPage + Organization + Website + HowTo + Speakable; calculator pages pass meta via props.",
+    "canonical": "BaseLayout constructs canonical from Astro.url.pathname + SITE.url; trailing-slash consistent.",
+    "meta": "Title trimmed to 60 visible chars; description to 155 chars; OpenGraph + Twitter cards + favicon suite.",
+    "indexnow": "scripts/ping-indexnow.js submits sitemap to IndexNow post-build.",
+    "consent": "Google Consent Mode v2 (region-scoped default deny for EEA/UK/CH) in BaseLayout.",
+    "analytics": "GTM + GA4 deferred load; no tracking before consent for EU region."
+  },
+  "hosting_readiness": {
+    "static_site": true,
+    "requires_database": false,
+    "requires_server_side": false,
+    "build_command": "npm run build",
+    "output_dir": "dist",
+    "recommended_platform": "Cloudflare Pages (free tier) — already configured via .github/workflows/deploy.yml and functions/_middleware.ts (geo-redirect + bot bypass)",
+    "serverless_edge": "Cloudflare Pages Functions (functions/_middleware.ts) handles geo-redirect and bot bypass without full backend"
+  }
+}

@@ -1,1 +1,32 @@
+# ads.txt — authorized seller declarations for this domain.
+#
+# AdSense requires this file at the ROOT of the domain (https://<domain>/ads.txt)
+# and the publisher ID below must match the one in src/config/ads.ts.
+#
+# STATUS: Google AdSense publisher ID below is the one registered for this site.
+# If that ID is NOT yours (or you register a different one later), replace the line
+# below with your own — a mismatch between ads.txt and the AdSense account
+# causes unfilled inventory, not a policy violation, but it wastes revenue.
+#
+# Format: <exchange>, <publisher ID>, <certification>, <certification ID or ~>
+#
+# Google AdSense
 google.com, pub-1115172981829710, DIRECT, f08c47fec0942fa0
+#
+# --- Other networks -------------------------------------------------------
+# Add one line per network you are approved for. Examples below are commented
+# out; they are illustrative of the format only and are NOT active.
+#
+# Example (AppNexus / Xandr):
+# appnexus.com, 3703, RESELLER, 8f5e08845f6dc89f01cf83e5c1a4a2a1
+#
+# Example (rubicon / Magnite):
+# rubiconproject.com, 12345, RESELLER, 0bfd66d529a55807
+#
+# Example (Amazon Advertising):
+# amazon-adsystem.com, PUB_ID, RESELLER, -
+#
+# To check what AdSense expects for your account:
+#   AdSense dashboard > Privacy & messaging > ads.txt
+# It shows the exact line to paste. Only add a network once you are actually
+# approved for it — listing an unauthorized seller ID is a policy violation.

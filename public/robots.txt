@@ -72,4 +72,4 @@ Disallow: /
 User-agent: DotBot
 Disallow: /
 
-Sitemap: https://calctube.com/sitemap-index.xml
+Sitemap: https://calctube.pages.dev/sitemap-index.xml

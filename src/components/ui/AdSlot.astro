@@ -1,0 +1,47 @@
+---
+/**
+ * A reserved ad container.
+ *
+ * Layout-shift safety: the wrapper always occupies its final size (min-height
+ * set to the slot's height) even when ads are disabled, so enabling ads later
+ * cannot push surrounding content around (CLS stays at 0).
+ *
+ * When ADS_ENABLED is false the wrapper renders nothing at all — no <ins>,
+ * no network request, no tracking pixel. The reserved space is only painted
+ * once ads are actually switched on, so the disabled site has no empty gap.
+ */
+import { ADS_ENABLED, ADSENSE_CLIENT, AD_SLOTS, type AdSlotName } from '../../config/ads';
+
+export interface Props {
+  /** Which slot to render. */
+  slot: AdSlotName;
+  /** Format hint passed to AdSense. */
+  format?: 'auto' | 'horizontal' | 'rectangle' | 'vertical';
+  /** Reserved height in px. Must match the real slot height to avoid CLS. */
+  height?: number;
+  /** Extra classes on the wrapper. */
+  class?: string;
+}
+
+const { slot, format = 'auto', height = 90, class: className = '' } = Astro.props;
+---
+
+{
+  ADS_ENABLED && (
+    <div
+      aria-label="Advertisement"
+      class={`w-full flex justify-center overflow-hidden ${className}`}
+      style={`min-height:${height}px;`}
+      data-ad-slot={slot}
+    >
+      <ins
+        class="adsbygoogle"
+        style={`display:block; width:100%; max-width:${Math.max(height * 3, 300)}px; height:${height}px;`}
+        data-ad-client={ADSENSE_CLIENT}
+        data-ad-slot={AD_SLOTS[slot]}
+        data-ad-format={format}
+        data-full-width-responsive="true"
+      />
+    </div>
+  )
+}

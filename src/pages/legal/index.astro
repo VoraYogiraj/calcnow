@@ -9,13 +9,13 @@ const schemas = [buildBreadcrumbSchema(breadcrumbs)];
 
 const docs = [
   { title: 'Privacy Policy', href: '/legal/privacy/', desc: 'What data we collect, how consent works, and your rights.', icon: '🔒', color: 'bg-cyan-accent' },
-  { title: 'Terms of Service', href: '/legal/terms/', desc: 'The rules for using Calctube and its calculators.', icon: '📜', color: 'bg-lime-accent' },
+  { title: 'Terms of Service', href: '/legal/terms/', desc: 'The rules for using FreeCalculations and its calculators.', icon: '📜', color: 'bg-lime-accent' },
   { title: 'Cookie Policy', href: '/legal/cookies/', desc: 'Which cookies we use, why, and how to control them.', icon: '🍪', color: 'bg-yellow-accent' },
   { title: 'Disclaimer', href: '/legal/disclaimer/', desc: 'Why calculator results are information, not advice.', icon: '⚠️', color: 'bg-yellow-accent' },
 ];
 ---
 
-<BaseLayout title="Legal: Privacy, Terms & Cookies" description="Calctube's legal documents: privacy policy, terms of service, and cookie policy." noindex={true}>
+<BaseLayout title="Legal: Privacy, Terms & Cookies" description="FreeCalculations's legal documents: privacy policy, terms of service, and cookie policy." noindex={true}>
   <section class="container-wide pt-10 pb-16 md:pt-14 md:pb-24">
     <nav aria-label="Breadcrumb" class="mb-6">
       <ol class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
@@ -38,7 +38,7 @@ const docs = [
       <h1 class="!text-4xl sm:!text-5xl !font-extrabold !tracking-tight !leading-[1.05] text-ink-900 mt-4" style="font-family: 'Inter Tight', sans-serif; letter-spacing: -0.035em;">
         The fine print, <span class="text-gradient-brand">findable.</span>
       </h1>
-      <p class="mt-4 text-lg text-ink-700 font-medium leading-relaxed">Everything about how Calctube handles your data and what you agree to by using our calculators.</p>
+      <p class="mt-4 text-lg text-ink-700 font-medium leading-relaxed">Everything about how FreeCalculations handles your data and what you agree to by using our calculators.</p>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10 max-w-3xl">
       {docs.map((d) => (

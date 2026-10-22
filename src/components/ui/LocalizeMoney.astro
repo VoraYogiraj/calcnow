@@ -42,7 +42,7 @@
   if (initial.code !== 'USD') localize(initial);
 
   // setStoredCurrency() fires this when the widget dropdown changes.
-  window.addEventListener('calctube:currency', (e) => {
+  window.addEventListener('freecalculations:currency', (e) => {
     localize(getCurrency((e as CustomEvent<string>).detail));
   });
 </script>

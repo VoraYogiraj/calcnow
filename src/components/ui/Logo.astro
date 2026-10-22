@@ -1,6 +1,6 @@
 ---
 /**
- * Calctube logo — multiple sticker-style theme variants.
+ * FreeCalculations logo — multiple sticker-style theme variants.
  *
  * Props:
  *   theme:    one of 'divide' | 'equal' | 'multiply' | 'percent' | 'letter-c' | 'play' | 'wordmark' | 'mono'
@@ -58,7 +58,7 @@ const wrapperProps = href ? { href } : {};
 <Wrapper
   {...wrapperProps}
   class={`inline-flex items-center ${s.gap} no-underline group ${className}`}
-  aria-label="Calctube, home"
+  aria-label="FreeCalculations, home"
 >
   {
     theme !== 'wordmark' && (
@@ -129,11 +129,11 @@ const wrapperProps = href ? { href } : {};
       >
         {theme === 'wordmark' ? (
           <span>
-            c<span class={wordAccentClass}>÷</span>lctube
+            <span class="font-extrabold">free</span><span class={wordAccentClass}>÷</span>calculations
           </span>
         ) : (
           <span>
-            calc<span class={wordAccentClass}>tube</span>
+            <span class="font-extrabold">free</span><span class={wordAccentClass}>calculations</span>
           </span>
         )}
       </span>

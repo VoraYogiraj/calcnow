@@ -19,7 +19,7 @@ export interface CurrencyOption {
 
 /**
  * 30 most commonly-used currencies. Covers ~95% of global mortgage / loan / EMI traffic
- * for Calctube. Ordered by approximate global usage in finance contexts.
+ * for FreeCalculations. Ordered by approximate global usage in finance contexts.
  */
 export const CURRENCIES: CurrencyOption[] = [
   { code: 'USD', symbol: '$',   label: 'US Dollar',           locale: 'en-US', flag: '🇺🇸' },
@@ -98,7 +98,7 @@ export function formatMoneyCompact(value: number, currency: CurrencyOption): str
 /**
  * Auto-detect currency from browser. Used by global calculator pages.
  * Order of signals:
- *   1. Stored user preference (localStorage `calctube-currency`)
+ *   1. Stored user preference (localStorage `freecalculations-currency`)
  *   2. navigator.language (e.g., 'en-IN' → INR, 'en-AE' → AED)
  *   3. Intl.DateTimeFormat resolved locale
  *   4. Default (USD)
@@ -110,7 +110,7 @@ export function detectClientCurrency(): CurrencyOption {
 
   // 1. User preference
   try {
-    const stored = window.localStorage.getItem('calctube-currency');
+    const stored = window.localStorage.getItem('freecalculations-currency');
     if (stored) {
       const found = BY_CODE.get(stored.toUpperCase());
       if (found) return found;
@@ -201,14 +201,14 @@ export function rescaleAmount(value: number, from: CurrencyOption, to: CurrencyO
 export function setStoredCurrency(code: string): void {
   if (typeof window === 'undefined') return;
   try {
-    window.localStorage.setItem('calctube-currency', code.toUpperCase());
+    window.localStorage.setItem('freecalculations-currency', code.toUpperCase());
   } catch {
     /* localStorage unavailable */
   }
   // Broadcast so non-widget copy (the hero "Quick answer" figures) follows the
   // dropdown too. Without this the headline and the calculator can disagree.
   try {
-    window.dispatchEvent(new CustomEvent('calctube:currency', { detail: code.toUpperCase() }));
+    window.dispatchEvent(new CustomEvent('freecalculations:currency', { detail: code.toUpperCase() }));
   } catch {
     /* CustomEvent unavailable */
   }

@@ -53,16 +53,16 @@ const schemas = [
   {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Date & Time Calculators | Calctube',
+    name: 'Date & Time Calculators | FreeCalculations',
     description: 'Free age, date difference, countdown, and business day calculators. Fast, accurate, no signup.',
-    url: 'https://calctube.pages.dev/date-time/',
-    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
+    url: 'https://freecalculations.pages.dev/date-time/',
+    isPartOf: { '@id': 'https://freecalculations.pages.dev/#website' },
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: liveCalcs.map((c, i) => ({
         '@type': 'ListItem',
         position: i + 1,
-        url: `https://calctube.pages.dev${c.href}`,
+        url: `https://freecalculations.pages.dev${c.href}`,
         name: c.name,
       })),
     },
@@ -123,7 +123,7 @@ const schemas = [
       <div class="card bg-lime-accent/20 mt-12">
         <h3 class="!mt-0 !text-xl !font-extrabold text-ink-900" style="font-family: 'Inter Tight', sans-serif;">Need a calculator we haven't built yet?</h3>
         <p class="text-sm text-ink-700 mt-2 leading-relaxed">
-          Email <a href="mailto:ideas@calctube.com" class="text-brand-600 font-semibold">ideas@calctube.com</a> with the specific tool you need. Requested calculators ship within 7 days.
+          Email <a href="mailto:ideas@freecalculations.com" class="text-brand-600 font-semibold">ideas@freecalculations.com</a> with the specific tool you need. Requested calculators ship within 7 days.
         </p>
       </div>
     </div>

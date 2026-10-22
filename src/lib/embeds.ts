@@ -3,7 +3,7 @@
  * powers each one.
  *
  * Embeds exist to earn links: a publisher who drops a calculator into their post
- * keeps the "Powered by Calctube" attribution, which is a genuine editorial link
+ * keeps the "Powered by FreeCalculations" attribution, which is a genuine editorial link
  * from a topically relevant page. Deriving the list from the calculators registry
  * means a newly registered calculator becomes embeddable automatically.
  */

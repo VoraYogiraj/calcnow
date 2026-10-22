@@ -42,7 +42,7 @@ const breadcrumbs = [
 
 const faqs = [
   {
-    q: 'Are Calctube health calculators medically accurate?',
+    q: 'Are FreeCalculations health calculators medically accurate?',
     a: 'Our formulas are sourced from established medical references: WHO BMI ranges, Mifflin-St Jeor for BMR, US Navy for body fat. They produce reasonable estimates for healthy adults but are not a substitute for clinical assessment by a doctor.',
   },
   {
@@ -60,16 +60,16 @@ const schemas = [
   {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Health Calculators | Calctube',
+    name: 'Health Calculators | FreeCalculations',
     description: 'Free BMI, calorie, body fat, and pregnancy calculators with medical references.',
-    url: 'https://calctube.pages.dev/health/',
-    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
+    url: 'https://freecalculations.pages.dev/health/',
+    isPartOf: { '@id': 'https://freecalculations.pages.dev/#website' },
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: liveCalcs.map((c, i) => ({
         '@type': 'ListItem',
         position: i + 1,
-        url: `https://calctube.pages.dev${c.href}`,
+        url: `https://freecalculations.pages.dev${c.href}`,
         name: c.name,
       })),
     },
@@ -132,10 +132,10 @@ const schemas = [
       class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
       style="font-family: 'Inter Tight', sans-serif;"
     >
-      About Calctube health tools
+      About FreeCalculations health tools
     </h2>
     <p class="text-ink-700 leading-relaxed max-w-3xl">
-      Calctube's health calculators target the most-searched fitness and clinical estimators on the web: BMI, calorie need, BMR, body fat percentage, TDEE, and pregnancy due date. Every page shows the exact formula and the medical reference behind it. Calculations run in your browser; we never see or store your inputs.
+      FreeCalculations's health calculators target the most-searched fitness and clinical estimators on the web: BMI, calorie need, BMR, body fat percentage, TDEE, and pregnancy due date. Every page shows the exact formula and the medical reference behind it. Calculations run in your browser; we never see or store your inputs.
     </p>
     <p class="text-ink-700 leading-relaxed max-w-3xl mt-3">
       These tools are designed for healthy adults and produce reasonable estimates only. They are not a substitute for clinical assessment, prescription, or diagnosis by a qualified physician.

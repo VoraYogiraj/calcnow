@@ -64,12 +64,12 @@ const schemas = [
     '@type': 'CollectionPage',
     name: 'India Income Tax Calculator: All States FY 2025-26',
     description: meta.description,
-    url: `https://calctube.pages.dev${path}/`,
-    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
+    url: `https://freecalculations.pages.dev${path}/`,
+    isPartOf: { '@id': 'https://freecalculations.pages.dev/#website' },
     hasPart: indiaStates.map((s) => ({
       '@type': 'WebPage',
       name: `Income Tax Calculator: ${s.name}`,
-      url: `https://calctube.pages.dev/finance/income-tax-india/${s.slug}/`,
+      url: `https://freecalculations.pages.dev/finance/income-tax-india/${s.slug}/`,
     })),
   },
 ];

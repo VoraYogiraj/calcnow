@@ -44,13 +44,13 @@ const schemas = [
   {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Construction Calculators | Calctube',
+    name: 'Construction Calculators | FreeCalculations',
     description: 'Free material estimators for concrete, paint, tile, brick and roofing, in imperial and metric units.',
-    url: 'https://calctube.pages.dev/construction/',
-    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
+    url: 'https://freecalculations.pages.dev/construction/',
+    isPartOf: { '@id': 'https://freecalculations.pages.dev/#website' },
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.pages.dev${c.href}`, name: c.name })),
+      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://freecalculations.pages.dev${c.href}`, name: c.name })),
     },
   },
   {
@@ -96,7 +96,7 @@ const schemas = [
 
       <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Estimate materials without the guesswork</h2>
       <p class="text-ink-700 leading-relaxed">
-        Most online material estimators either oversimplify (no waste factor, no allowance for openings or pitch) or hide the working behind a signup. Calctube's construction tools show the formula, the assumptions used (coverage rates, bricks per square foot, shingle bundles per square), and let you adjust the waste percentage, so DIY homeowners and quantity surveyors alike can verify every number before ordering.
+        Most online material estimators either oversimplify (no waste factor, no allowance for openings or pitch) or hide the working behind a signup. FreeCalculations's construction tools show the formula, the assumptions used (coverage rates, bricks per square foot, shingle bundles per square), and let you adjust the waste percentage, so DIY homeowners and quantity surveyors alike can verify every number before ordering.
       </p>
 
       <h2 class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4" style="font-family: 'Inter Tight', sans-serif;">Frequently asked questions</h2>

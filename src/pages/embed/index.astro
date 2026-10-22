@@ -20,8 +20,8 @@ const byCategory = [...new Set(embeddableCalculators.map((c) => c.category))].ma
 
 const faqs = [
   {
-    q: 'Is embedding a Calctube calculator free?',
-    a: 'Yes, free for any site, personal or commercial, with no signup, no API key and no usage limits. The only condition is that you keep the "Powered by Calctube" attribution link visible.',
+    q: 'Is embedding a FreeCalculations calculator free?',
+    a: 'Yes, free for any site, personal or commercial, with no signup, no API key and no usage limits. The only condition is that you keep the "Powered by FreeCalculations" attribution link visible.',
   },
   {
     q: 'Will the widget slow down my page?',
@@ -126,7 +126,7 @@ const schemas = [
         Terms of use
       </h2>
       <p class="text-ink-700 leading-relaxed font-medium">
-        Use the widgets on any site, commercial or not, as long as the "Powered by Calctube" link stays
+        Use the widgets on any site, commercial or not, as long as the "Powered by FreeCalculations" link stays
         visible and followable. Please don't modify the calculation logic or present the results as your
         own. Calculations are estimates; the same disclaimers on our own pages apply.
       </p>
@@ -157,7 +157,7 @@ const schemas = [
     const copy = document.getElementById('copy');
 
     const build = (slug, name) =>
-      `<iframe src="${origin}/embed/${slug}/" title="${name}" width="100%" height="520"\n        style="border:0;max-width:680px" loading="lazy"></iframe>\n<script>\n  addEventListener('message', (e) => {\n    if (e.origin !== '${origin}' || e.data?.type !== 'calctube:height') return;\n    document.querySelectorAll('iframe[src^="${origin}/embed/"]').forEach((f) => {\n      if (f.contentWindow === e.source) f.height = e.data.height;\n    });\n  });\n<\/script>`;
+      `<iframe src="${origin}/embed/${slug}/" title="${name}" width="100%" height="520"\n        style="border:0;max-width:680px" loading="lazy"></iframe>\n<script>\n  addEventListener('message', (e) => {\n    if (e.origin !== '${origin}' || e.data?.type !== 'freecalculations:height') return;\n    document.querySelectorAll('iframe[src^="${origin}/embed/"]').forEach((f) => {\n      if (f.contentWindow === e.source) f.height = e.data.height;\n    });\n  });\n<\/script>`;
 
     const sync = () => {
       const opt = picker.options[picker.selectedIndex];
@@ -175,7 +175,7 @@ const schemas = [
 
     // Size the on-page preview from the widget's own height messages.
     addEventListener('message', (e) => {
-      if (e.data?.type === 'calctube:height' && e.source === preview.contentWindow) {
+      if (e.data?.type === 'freecalculations:height' && e.source === preview.contentWindow) {
         preview.height = e.data.height;
       }
     });

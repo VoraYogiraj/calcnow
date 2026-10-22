@@ -62,7 +62,7 @@ const useCases = [
   {
     title: 'Buying a home?',
     icon: '🏠',
-    desc: 'Estimate mortgage, compare loan terms, plan down payment.',
+    desc: 'Mortgage and EMI calculators to compare loans and plan payments.',
     cta: 'Mortgage Calculator',
     href: '/finance/mortgage-calculator/',
     chipColor: 'chip-lime',
@@ -70,7 +70,7 @@ const useCases = [
   {
     title: 'Tracking fitness?',
     icon: '💪',
-    desc: 'BMI, calorie need, and macros to hit your goals.',
+    desc: 'BMI, calorie and TDEE calculators to track fitness.',
     cta: 'BMI Calculator',
     href: '/health/bmi-calculator/',
     chipColor: 'chip-pink',
@@ -78,7 +78,7 @@ const useCases = [
   {
     title: 'Investing in your future?',
     icon: '📈',
-    desc: 'See how compound interest and SIP returns build wealth.',
+    desc: 'SIP, compound interest and returns calculators for investing.',
     cta: 'SIP Calculator',
     href: '/finance/sip-calculator/',
     chipColor: 'chip-yellow',
@@ -86,7 +86,7 @@ const useCases = [
   {
     title: 'Filing taxes?',
     icon: '🪙',
-    desc: 'Compare old vs new regime by Indian state.',
+    desc: 'Income tax and salary calculators for filing.',
     cta: 'Old vs New Regime',
     href: '/finance/old-vs-new-tax-regime-india/',
     chipColor: 'chip-cyan',
@@ -95,28 +95,32 @@ const useCases = [
 
 const faqs = [
   {
-    q: 'Are all calculators really free?',
-    a: 'Yep. 100% free, no signup, no email gate, no premium tier. We make money from ads, never your data.',
+    q: 'Are all FreeCalculations calculators really free?',
+    a: 'Yes. Every calculator is free to use with no signup, no login and no usage limits. The site is supported by a small number of ads.',
   },
   {
-    q: 'How accurate is the math?',
-    a: 'Every formula is sourced from authoritative references (IRS, USDA, central banks, etc.) and tested against known outputs before publishing. Each page shows the formula used.',
+    q: 'How accurate are the results?',
+    a: 'Calculators use standard published formulas and are tested against known examples. Results are estimates for information only and not financial, medical or legal advice.',
   },
   {
     q: 'Is my data private?',
     a: 'Yes. Calculations run entirely in your browser. The values you enter never leave your device.',
   },
   {
-    q: 'Does it work on phones?',
-    a: 'Built mobile-first. One-handed, in a coffee shop, in 5 seconds. That\'s the bar.',
+    q: 'Do I need to create an account?',
+    a: 'No. There is no login or signup anywhere on the site. Open any calculator and start.',
   },
   {
-    q: 'Can I embed a calculator on my site?',
-    a: 'Yes. Every page has a free embed code with a small "Powered by Calctube" link as the only requirement.',
+    q: 'Do the calculators work on mobile?',
+    a: 'Yes. Every calculator is responsive and works on phones, tablets and desktops.',
+  },
+  {
+    q: 'Can I embed a calculator on my website?',
+    a: 'Yes, where an embed option is shown; attribution to FreeCalculations is required.',
   },
   {
     q: 'How do I request a new calculator?',
-    a: 'Email ideas@calctube.com or use the contact form. We ship a new calc roughly every 3 days.',
+    a: 'Use the request form below and tell us what you need to calculate.',
   },
 ];
 
@@ -124,8 +128,8 @@ const schemas = [buildFAQSchema(faqs)];
 ---
 
 <BaseLayout
-  title="Calctube: Free Online Calculators"
-  description="100+ free, fast, accurate calculators. Mortgage, BMI, EMI, SIP, currency, tax, percentage and more. No signup. Mobile-first. Free forever."
+  title="FreeCalculations – 70+ Free Online Calculators, No Signup"
+  description="Free online calculators for loans, EMI, SIP, tax, BMI, percentages and unit conversion. No signup, no limits, instant results on any device."
   schemas={schemas}
 >
   <!-- GEO SUGGESTION — replaces the old homepage geo-redirect. The edge
@@ -188,21 +192,14 @@ const schemas = [buildFAQSchema(faqs)];
           class="fade-in fade-in-delay-1 !text-5xl xs:!text-6xl sm:!text-7xl md:!text-8xl lg:!text-[9rem] !font-extrabold !tracking-tight !leading-[0.95] text-ink-900"
           style="font-family: 'Inter Tight', 'Inter', sans-serif;"
         >
-          Every calc.
-          <br />
-          <span class="relative inline-block">
-            <span class="text-gradient-brand">One tap.</span>
-            <span class="absolute -right-8 -top-2 sm:-right-10 sm:-top-4 text-4xl sm:text-5xl md:text-6xl rotate-12">✨</span>
-          </span>
+          Free Online Calculators – No Signup, Unlimited
         </h1>
 
         <!-- Tag -->
         <p
           class="fade-in fade-in-delay-2 mt-5 md:mt-7 text-base sm:text-lg md:text-xl text-ink-700 max-w-2xl mx-auto leading-relaxed font-medium"
         >
-          Mortgage, BMI, tax, EMI, currency, percentage, and 100+ more.
-          <br class="hidden sm:block" />
-          <span class="text-ink-900 font-bold">Built different.</span> Free forever.
+          Work out your EMI, SIP returns, income tax, BMI, percentages and conversions in seconds. Every calculator on FreeCalculations is 100% free, runs in your browser, and never asks you to log in.
         </p>
 
         <!-- Search -->
@@ -275,7 +272,7 @@ const schemas = [buildFAQSchema(faqs)];
       <div>
         <span class="chip-yellow mb-4">🔥 Trending now</span>
         <h2 class="!text-4xl sm:!text-5xl md:!text-6xl !mt-4 !mb-3 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
-          The hits.
+          Most Used Free Calculators
         </h2>
         <p class="text-base md:text-lg text-ink-600 max-w-2xl">
           Most-used calculators by real humans this week.
@@ -375,20 +372,20 @@ const schemas = [buildFAQSchema(faqs)];
     <div class="container-wide py-16 md:py-20">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
         <div class="stat-block">
-          <CountUp to={totalCount} suffix="+" className="stat-num text-gradient-brand" client:visible />
+          <span class="stat-num text-gradient-electric">70+</span>
           <div class="stat-label">Calculators</div>
         </div>
         <div class="stat-block">
-          <CountUp to={100} suffix="%" className="stat-num text-gradient-sunset" client:visible />
-          <div class="stat-label">Free forever</div>
+          <span class="stat-num text-gradient-sunset">100%</span>
+          <div class="stat-label">Free</div>
         </div>
         <div class="stat-block">
           <span class="stat-num text-gradient-electric">0</span>
-          <div class="stat-label">Signups required</div>
+          <div class="stat-label">Signups Required</div>
         </div>
         <div class="stat-block">
-          <CountUp to={5} suffix="s" className="stat-num text-gradient-brand" client:visible />
-          <div class="stat-label">Avg load time</div>
+          <span class="stat-num text-gradient-electric">∞</span>
+          <div class="stat-label">No Usage Limits</div>
         </div>
       </div>
     </div>
@@ -493,9 +490,9 @@ const schemas = [buildFAQSchema(faqs)];
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h3 class="!text-2xl !mt-0 !mb-3 !text-white" style="font-family: 'Inter Tight', sans-serif;">⚡ Sub-second.</h3>
+          <h3 class="!text-2xl !mt-0 !mb-3 !text-white" style="font-family: 'Inter Tight', sans-serif;">⚡ No signup, ever</h3>
           <p class="text-ink-300 leading-relaxed">
-            Static pages on a global CDN. Calculators run in your browser. Zero API calls. Zero loading screens.
+            Open a calculator and use it. No account, no email, no paywall. 100% free forever.
           </p>
         </div>
 
@@ -506,9 +503,9 @@ const schemas = [buildFAQSchema(faqs)];
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 class="!text-2xl !mt-0 !mb-3 !text-white" style="font-family: 'Inter Tight', sans-serif;">🎯 Verified math.</h3>
+          <h3 class="!text-2xl !mt-0 !mb-3 !text-white" style="font-family: 'Inter Tight', sans-serif;">🎯 Formulas explained</h3>
           <p class="text-ink-300 leading-relaxed">
-            Every formula cites its authoritative source (IRS, USDA, central banks). Tested against known outputs.
+            Each calculator shows how the result is worked out using standard published formulas.
           </p>
         </div>
 
@@ -587,18 +584,17 @@ const schemas = [buildFAQSchema(faqs)];
       <div class="absolute top-1/3 left-8 text-2xl float-slow" style="animation-delay: -2s;" aria-hidden="true">⚡</div>
 
       <div class="relative z-10 px-6 md:px-12 py-16 md:py-24 text-center">
-        <h2 class="!text-4xl sm:!text-5xl md:!text-6xl !mt-0 !leading-[1.05] !text-ink-900 !font-extrabold max-w-3xl mx-auto" style="font-family: 'Inter Tight', sans-serif;">
-          Missing a calc? <span class="text-pink-accent">We'll build it.</span>
+          <h2 class="!text-4xl sm:!text-5xl md:!text-6xl !mt-0 !leading-[1.05] !text-ink-900 !font-extrabold max-w-3xl mx-auto" style="font-family: 'Inter Tight', sans-serif;">
+          Missing a calculator?
         </h2>
         <p class="text-ink-800 mt-5 text-base md:text-lg max-w-xl mx-auto leading-relaxed font-medium">
-          New calculators shipping every 3 days based on what real people request.
-          Drop a note. We usually ship within 7 days.
+          Tell us what you need and we may add it. Requests are reviewed regularly.
         </p>
         <div class="mt-9 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto sm:max-w-none">
           <a href="/contact/" class="btn-primary w-full sm:w-auto">
             Request a calculator →
           </a>
-          <a href="mailto:ideas@calctube.com" class="btn-secondary w-full sm:w-auto !bg-white">
+          <a href="mailto:ideas@freecalculations.online" class="btn-secondary w-full sm:w-auto !bg-white">
             Email us
           </a>
         </div>

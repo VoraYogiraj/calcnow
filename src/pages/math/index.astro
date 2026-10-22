@@ -43,11 +43,11 @@ const breadcrumbs = [
 
 const faqs = [
   {
-    q: 'Do Calctube math calculators show the working?',
+    q: 'Do FreeCalculations math calculators show the working?',
     a: 'Yes. Every result shows the formula used, the substituted values, and the steps to the answer. The goal is to teach the math, not just hand over a number.',
   },
   {
-    q: 'Can I use Calctube math calculators for homework?',
+    q: 'Can I use FreeCalculations math calculators for homework?',
     a: 'Yes, they are accurate and free. We recommend writing out the working yourself afterwards so the method sticks.',
   },
   {
@@ -61,16 +61,16 @@ const schemas = [
   {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Math Calculators | Calctube',
+    name: 'Math Calculators | FreeCalculations',
     description: 'Free percentage, fraction, scientific, and statistics calculators with worked steps.',
-    url: 'https://calctube.pages.dev/math/',
-    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
+    url: 'https://freecalculations.pages.dev/math/',
+    isPartOf: { '@id': 'https://freecalculations.pages.dev/#website' },
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: liveCalcs.map((c, i) => ({
         '@type': 'ListItem',
         position: i + 1,
-        url: `https://calctube.pages.dev${c.href}`,
+        url: `https://freecalculations.pages.dev${c.href}`,
         name: c.name,
       })),
     },
@@ -133,10 +133,10 @@ const schemas = [
       class="!text-2xl sm:!text-3xl !font-extrabold text-ink-900 !mt-12 !mb-4"
       style="font-family: 'Inter Tight', sans-serif;"
     >
-      About Calctube math tools
+      About FreeCalculations math tools
     </h2>
     <p class="text-ink-700 leading-relaxed max-w-3xl">
-      Math is best learned by seeing the steps, not just the answer. Every Calctube math calculator shows the formula, substitutes your values, and walks the working out line by line. The goal is for the underlying method to stick, so the next time you encounter the same kind of problem, you can do it on paper.
+      Math is best learned by seeing the steps, not just the answer. Every FreeCalculations math calculator shows the formula, substitutes your values, and walks the working out line by line. The goal is for the underlying method to stick, so the next time you encounter the same kind of problem, you can do it on paper.
     </p>
 
     <h2

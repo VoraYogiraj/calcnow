@@ -75,7 +75,7 @@ export default function CalcSearch({ calculators }: Props) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onKeyDown={handleKey}
-          placeholder="Search 100+ calculators…"
+          placeholder="Search 70+ free calculators…"
           className="w-full pl-12 pr-12 py-4 text-base md:text-lg font-semibold rounded-2xl border-[2.5px] border-ink-900 bg-white shadow-sticker focus:outline-none focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-[6px_6px_0_0_rgba(15,23,42,0.9)] transition-all placeholder:font-medium placeholder:text-ink-400 text-ink-900"
           aria-label="Search calculators"
           aria-autocomplete="list"

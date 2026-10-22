@@ -68,7 +68,7 @@ const attributionUrl = `${canonical}?utm_source=embed&utm_medium=widget`;
       // opts in by listening for this message (see the snippet on /embed/).
       const post = () => {
         const h = Math.ceil(document.documentElement.getBoundingClientRect().height);
-        parent.postMessage({ type: 'calctube:height', slug: location.pathname, height: h }, '*');
+        parent.postMessage({ type: 'freecalculations:height', slug: location.pathname, height: h }, '*');
       };
       new ResizeObserver(post).observe(document.body);
       window.addEventListener('load', post);

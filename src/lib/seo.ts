@@ -4,12 +4,11 @@
  */
 
 export const SITE = {
-  name: 'Calctube',
+  name: 'FreeCalculations',
   domain: 'calctube.pages.dev',
   url: 'https://calctube.pages.dev',
-  description:
-    'Free online calculators for finance, health, math, conversions, and more. Fast, accurate, no signup required.',
-  twitter: '@calctube',
+  description: 'Free online calculators for everyday needs. No signup, no limits, instant results.',
+  twitter: '@freecalculations',
   defaultOgImage: '/og-default.png',
 };
 
@@ -60,7 +59,7 @@ export function buildOrganizationSchema() {
     publishingPrinciples: `${SITE.url}/about/`,
     sameAs: [
       `https://twitter.com/${SITE.twitter.replace('@', '')}`,
-      'https://www.linkedin.com/company/calctube/',
+      'https://www.linkedin.com/company/freecalculations/',
     ],
   };
 }
@@ -77,7 +76,7 @@ export function buildEditorialTeamSchema() {
     name: `${SITE.name} Editorial Team`,
     parentOrganization: { '@id': `${SITE.url}/#organization` },
     description:
-      'The Calctube editorial team researches lender rates, tax regulations, and currency flows from primary sources (RBI, SAMA, HMRC, Bank Indonesia, CBO, and equivalent regulators), and updates page content quarterly. Calculator formulas are derived from standard financial mathematics (annuity, simple interest, compound interest) and verified against published bank EMI schedules.',
+      'The FreeCalculations editorial team researches lender rates, tax regulations, and currency flows from primary sources (RBI, SAMA, HMRC, Bank Indonesia, CBO, and equivalent regulators), and updates page content quarterly. Calculator formulas are derived from standard financial mathematics (annuity, simple interest, compound interest) and verified against published bank EMI schedules.',
     knowsAbout: [
       'Indian banking products (RBI repo-linked loans, MCLR, PMAY-CLSS)',
       'Mortgage products across 22 countries',

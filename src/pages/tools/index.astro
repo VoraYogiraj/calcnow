@@ -32,13 +32,13 @@ const schemas = [
   {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Text Tools | Calctube',
+    name: 'Text Tools | FreeCalculations',
     description: 'Free browser-based text tools: word counter, character counter and more.',
-    url: 'https://calctube.pages.dev/tools/',
-    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
+    url: 'https://freecalculations.pages.dev/tools/',
+    isPartOf: { '@id': 'https://freecalculations.pages.dev/#website' },
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.pages.dev${c.href}`, name: c.name })),
+      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://freecalculations.pages.dev${c.href}`, name: c.name })),
     },
   },
   {

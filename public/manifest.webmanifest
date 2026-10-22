@@ -1,7 +1,7 @@
 {
-  "name": "Calctube — Free Online Calculators",
-  "short_name": "Calctube",
-  "description": "100+ free, fast, accurate calculators. Mortgage, BMI, EMI, SIP, currency, tax, percentage and more. No signup. Mobile-first. Free forever.",
+  "name": "FreeCalculations — Free Online Calculators",
+  "short_name": "FreeCalculations",
+  "description": "70+ free online calculators. No signup, no limits, instant results.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -1,5 +1,5 @@
 /**
- * Master list of all calculators on Calctube.
+ * Master list of all calculators on FreeCalculations.
  * Single source of truth — used by homepage, search, sitemap, and category pages.
  *
  * When you add a new calculator:
@@ -29,42 +29,42 @@ export const categoryMeta: Record<CalcCategory, { label: string; href: string; c
     href: '/finance/',
     color: 'emerald',
     icon: '💰',
-    description: 'Mortgage, loan, tax, salary, EMI, SIP, and investment calculators.',
+    description: 'Free loan, EMI, mortgage, SIP, tax and salary calculators.',
   },
   health: {
     label: 'Health',
     href: '/health/',
     color: 'rose',
     icon: '❤️',
-    description: 'BMI, calorie, body fat, pregnancy, and fitness tools.',
+    description: 'Free BMI, calorie, body fat and pregnancy due date calculators.',
   },
   math: {
     label: 'Math',
     href: '/math/',
     color: 'violet',
     icon: '🧮',
-    description: 'Percentage, fraction, scientific, statistics, and probability.',
+    description: 'Free percentage, fraction, GPA, CGPA and scientific calculators.',
   },
   conversion: {
     label: 'Conversions',
     href: '/conversions/',
     color: 'amber',
     icon: '🔄',
-    description: 'Units, currency, temperature, time zone, length, and weight.',
+    description: 'Free unit, currency, temperature and time zone converters.',
   },
   'date-time': {
     label: 'Date & Time',
     href: '/date-time/',
     color: 'sky',
     icon: '📅',
-    description: 'Age, date difference, business days, countdown, and time card.',
+    description: 'Free age, date difference and countdown calculators.',
   },
   construction: {
     label: 'Construction',
     href: '/construction/',
     color: 'orange',
     icon: '🔨',
-    description: 'Concrete, paint, tile, roofing, wallpaper, and material estimators.',
+    description: 'Free concrete, paint, tile, brick and roofing estimators.',
   },
   auto: {
     label: 'Auto',

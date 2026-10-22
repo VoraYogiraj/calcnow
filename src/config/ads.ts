@@ -19,9 +19,9 @@ export const ADSENSE_CLIENT = 'ca-pub-1115172981829710';
 
 /** Ad slot unit names — the ad unit IDs come from your AdSense dashboard. */
 export const AD_SLOTS = {
-  header: 'calctube-header',
-  inContent: 'calctube-in-content',
-  footer: 'calctube-footer',
+  header: 'freecalculations-header',
+  inContent: 'freecalculations-in-content',
+  footer: 'freecalculations-footer',
 } as const;
 
 export type AdSlotName = keyof typeof AD_SLOTS;

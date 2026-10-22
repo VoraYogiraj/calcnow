@@ -26,15 +26,15 @@ const groups = [...byFrom.entries()]
 const huge = currencyPairs.filter((p) => p.popularity === 'huge');
 
 const faqs = [
-  { q: 'How many currency converters does Calctube offer?', a: `Calctube currently offers ${currencyPairs.length} live currency converters covering all major global pairs, GCC remittance corridors, Indian diaspora flows, African and Latin American emerging currencies, and Pacific markets.` },
+  { q: 'How many currency converters does FreeCalculations offer?', a: `FreeCalculations currently offers ${currencyPairs.length} live currency converters covering all major global pairs, GCC remittance corridors, Indian diaspora flows, African and Latin American emerging currencies, and Pacific markets.` },
   { q: 'How accurate are the rates?', a: 'Rates are mid-market reference rates updated at build time. For live transactional rates (with bank or remitter spread), check your provider. Wise, Remitly, Western Union, and direct bank rails will all differ from mid-market by 0.3–3%.' },
   { q: 'Which is the most-searched currency pair?', a: 'Globally, EUR/USD has the highest forex trading volume. For Indian remittance users, USD/INR is most-searched, followed by AED/INR (UAE diaspora), GBP/INR (UK), CAD/INR (Canada), and AUD/INR (Australia).' },
-  { q: 'Are these rates good for forex trading?', a: 'No. Calctube rates are for reference and remittance planning, not for trading. Forex traders should use a regulated broker with live tick data and a trading platform.' },
+  { q: 'Are these rates good for forex trading?', a: 'No. FreeCalculations rates are for reference and remittance planning, not for trading. Forex traders should use a regulated broker with live tick data and a trading platform.' },
 ];
 ---
 
 <BaseLayout
-  title={`Currency Converter: ${currencyPairs.length}+ Live Exchange Rates | Calctube`}
+  title={`Currency Converter: ${currencyPairs.length}+ Live Exchange Rates | FreeCalculations`}
   description={`Free currency converters for ${currencyPairs.length}+ pairs. USD INR, EUR GBP, AED SAR remittance rates, plus 30+ exotic emerging-market pairs. Mid-market rates, no signup.`}
   schemas={[buildBreadcrumbSchema(breadcrumbs), buildFAQSchema(faqs)]}
 >

@@ -46,11 +46,11 @@ const schemas = [
     '@type': 'CollectionPage',
     name: 'Construction Calculators | Calctube',
     description: 'Free material estimators for concrete, paint, tile, brick and roofing, in imperial and metric units.',
-    url: 'https://calctube.com/construction/',
-    isPartOf: { '@id': 'https://calctube.com/#website' },
+    url: 'https://calctube.pages.dev/construction/',
+    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.com${c.href}`, name: c.name })),
+      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.pages.dev${c.href}`, name: c.name })),
     },
   },
   {

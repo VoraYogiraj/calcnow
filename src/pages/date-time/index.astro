@@ -55,14 +55,14 @@ const schemas = [
     '@type': 'CollectionPage',
     name: 'Date & Time Calculators | Calctube',
     description: 'Free age, date difference, countdown, and business day calculators. Fast, accurate, no signup.',
-    url: 'https://calctube.com/date-time/',
-    isPartOf: { '@id': 'https://calctube.com/#website' },
+    url: 'https://calctube.pages.dev/date-time/',
+    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: liveCalcs.map((c, i) => ({
         '@type': 'ListItem',
         position: i + 1,
-        url: `https://calctube.com${c.href}`,
+        url: `https://calctube.pages.dev${c.href}`,
         name: c.name,
       })),
     },

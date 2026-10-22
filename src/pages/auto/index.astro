@@ -48,11 +48,11 @@ const schemas = [
     '@type': 'CollectionPage',
     name: 'Auto Calculators | Calctube',
     description: 'Free car calculators: fuel cost, fuel economy, depreciation, lease vs buy and car loan.',
-    url: 'https://calctube.com/auto/',
-    isPartOf: { '@id': 'https://calctube.com/#website' },
+    url: 'https://calctube.pages.dev/auto/',
+    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.com${c.href}`, name: c.name })),
+      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.pages.dev${c.href}`, name: c.name })),
     },
   },
   {

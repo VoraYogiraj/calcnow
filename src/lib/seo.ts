@@ -5,8 +5,8 @@
 
 export const SITE = {
   name: 'Calctube',
-  domain: 'calctube.com',
-  url: 'https://calctube.com',
+  domain: 'calctube.pages.dev',
+  url: 'https://calctube.pages.dev',
   description:
     'Free online calculators for finance, health, math, conversions, and more. Fast, accurate, no signup required.',
   twitter: '@calctube',

@@ -34,11 +34,11 @@ const schemas = [
     '@type': 'CollectionPage',
     name: 'Text Tools | Calctube',
     description: 'Free browser-based text tools: word counter, character counter and more.',
-    url: 'https://calctube.com/tools/',
-    isPartOf: { '@id': 'https://calctube.com/#website' },
+    url: 'https://calctube.pages.dev/tools/',
+    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.com${c.href}`, name: c.name })),
+      itemListElement: liveCalcs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://calctube.pages.dev${c.href}`, name: c.name })),
     },
   },
   {

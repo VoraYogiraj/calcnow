@@ -62,14 +62,14 @@ const schemas = [
     '@type': 'CollectionPage',
     name: 'Health Calculators | Calctube',
     description: 'Free BMI, calorie, body fat, and pregnancy calculators with medical references.',
-    url: 'https://calctube.com/health/',
-    isPartOf: { '@id': 'https://calctube.com/#website' },
+    url: 'https://calctube.pages.dev/health/',
+    isPartOf: { '@id': 'https://calctube.pages.dev/#website' },
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: liveCalcs.map((c, i) => ({
         '@type': 'ListItem',
         position: i + 1,
-        url: `https://calctube.com${c.href}`,
+        url: `https://calctube.pages.dev${c.href}`,
         name: c.name,
       })),
     },

@@ -5,9 +5,9 @@
 
 export const SITE = {
   name: 'FreeCalculations',
-  domain: 'calctube.pages.dev',
-  url: 'https://calctube.pages.dev',
-  description: 'Free online calculators for everyday needs. No signup, no limits, instant results.',
+  domain: 'freecalculations.online',
+  url: 'https://freecalculations.online',
+  description: '70+ free online calculators for EMI, SIP, income tax, GST, mortgage, BMI and more. No signup, no limits, instant results right in your browser.',
   twitter: '@freecalculations',
   defaultOgImage: '/og-default.png',
 };

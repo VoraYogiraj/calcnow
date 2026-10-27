@@ -2,67 +2,24 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CalcSearch from '../components/ui/CalcSearch.tsx';
 import CountUp from '../components/ui/CountUp.tsx';
-import {
-  calculators,
-  popularCalculators,
-  categoryMeta,
-  totalCalculatorCount,
-  calculatorsByCategory,
-  type CalcCategory,
-} from '../data/calculators';
-import { buildFAQSchema } from '../lib/seo';
+import { calculators, popularCalculators, categoryMeta, calculatorsByCategory, type CalcCategory } from '../data/calculators';
+import { buildFAQSchema, buildWebsiteSchema, buildOrganizationSchema, SITE } from '../lib/seo';
+import { totalCalculatorCount } from '../data/calculators';
 
 const totalCount = totalCalculatorCount;
-const categories: CalcCategory[] = [
-  'finance',
-  'health',
-  'math',
-  'conversion',
-  'date-time',
-  'construction',
-];
-
-const categoryColorBg: Record<string, string> = {
-  emerald: 'bg-emerald-100',
-  rose: 'bg-rose-100',
-  violet: 'bg-violet-100',
-  amber: 'bg-amber-100',
-  sky: 'bg-sky-100',
-  orange: 'bg-orange-100',
-};
-
-const categoryColorIcon: Record<string, string> = {
-  emerald: 'bg-emerald-400',
-  rose: 'bg-rose-400',
-  violet: 'bg-violet-400',
-  amber: 'bg-amber-400',
-  sky: 'bg-sky-400',
-  orange: 'bg-orange-400',
-};
-
-const popularColors = [
-  'bg-lime-accent',
-  'bg-pink-accent text-white',
-  'bg-yellow-accent',
-  'bg-cyan-accent',
-  'bg-violet-300',
-  'bg-orange-300',
-  'bg-rose-300',
-  'bg-emerald-300',
-];
 
 // Marquee items — featured calculators that scroll in the strip
 const marqueeItems = [
-  '🏠 Mortgage', '💰 Tax', '⚖️ BMI', '📈 SIP', '💱 Currency', '🔥 TDEE',
-  '🇮🇳 EMI', '🎂 Age', '🧮 Percentage', '🧱 Concrete', '🍽️ Tip', '💪 Body Fat',
-  '🍎 Calorie', '📆 Date', '🌡️ Temperature', '🪙 Income Tax', '💼 Salary',
+  '🏠 Mortgage Calculator', '💰 Tax Calculator', '⚖️ BMI Calculator', '📈 SIP Calculator', '💱 Currency Converter', '🔥 TDEE Calculator',
+  '🇮🇳 EMI Calculator', '🎂 Age Calculator', '🧮 Percentage Calculator', '🧱 Concrete Calculator', '🍽️ Tip Calculator', '💪 Body Fat Calculator',
+  '🍎 Calorie Calculator', '📆 Date Calculator', '🌡️ Temperature Converter', '🪙 Income Tax Calculator', '💼 Salary Calculator',
 ];
 
 const useCases = [
   {
     title: 'Buying a home?',
     icon: '🏠',
-    desc: 'Mortgage and EMI calculators to compare loans and plan payments.',
+    desc: 'Estimate your monthly mortgage payment, compare loan terms and plan your down payment.',
     cta: 'Mortgage Calculator',
     href: '/finance/mortgage-calculator/',
     chipColor: 'chip-lime',
@@ -70,24 +27,24 @@ const useCases = [
   {
     title: 'Tracking fitness?',
     icon: '💪',
-    desc: 'BMI, calorie and TDEE calculators to track fitness.',
+    desc: 'Check BMI, daily calorie needs and macros to reach your goals.',
     cta: 'BMI Calculator',
     href: '/health/bmi-calculator/',
     chipColor: 'chip-pink',
   },
   {
-    title: 'Investing in your future?',
+    title: 'Investing for the future?',
     icon: '📈',
-    desc: 'SIP, compound interest and returns calculators for investing.',
+    desc: 'See how compound interest and SIP returns build wealth over time.',
     cta: 'SIP Calculator',
     href: '/finance/sip-calculator/',
     chipColor: 'chip-yellow',
   },
   {
-    title: 'Filing taxes?',
+    title: 'Filing taxes in India?',
     icon: '🪙',
-    desc: 'Income tax and salary calculators for filing.',
-    cta: 'Old vs New Regime',
+    desc: 'Compare the old and new tax regime with state-wise professional tax.',
+    cta: 'Old vs New Tax Regime Calculator',
     href: '/finance/old-vs-new-tax-regime-india/',
     chipColor: 'chip-cyan',
   },
@@ -95,187 +52,410 @@ const useCases = [
 
 const faqs = [
   {
-    q: 'Are all FreeCalculations calculators really free?',
-    a: 'Yes. Every calculator is free to use with no signup, no login and no usage limits. The site is supported by a small number of ads.',
+    q: 'Are all calculators really free?',
+    a: 'Yes. Every calculator on FreeCalculations is 100% free to use, with no signup, no email gate and no premium tier. We keep the site free with ads, and we never sell your personal data.',
   },
   {
-    q: 'How accurate are the results?',
-    a: 'Calculators use standard published formulas and are tested against known examples. Results are estimates for information only and not financial, medical or legal advice.',
+    q: 'How accurate are the calculators?',
+    a: 'We use standard, widely accepted formulas and test each calculator against known results. Results are estimates for planning and information only, so check important financial, tax or medical decisions with a qualified professional.',
   },
   {
     q: 'Is my data private?',
-    a: 'Yes. Calculations run entirely in your browser. The values you enter never leave your device.',
+    a: "Yes. Calculations run in your browser, and we don't ask you to create an account or share personal details.",
   },
   {
-    q: 'Do I need to create an account?',
-    a: 'No. There is no login or signup anywhere on the site. Open any calculator and start.',
+    q: 'Do the calculators work on phones?',
+    a: 'Yes. All calculators are mobile-first and work on any phone, tablet or desktop browser, with no app to install.',
   },
   {
-    q: 'Do the calculators work on mobile?',
-    a: 'Yes. Every calculator is responsive and works on phones, tablets and desktops.',
+    q: 'Do I need to sign up or log in?',
+    a: 'No. There is no signup, no login and no limit on how many calculators you can use.',
+  },
+  {
+    q: 'Do you have calculators for India?',
+    a: 'Yes. We offer EMI, home loan, SIP, FD, GST, HRA, salary (CTC to in-hand) and income tax calculators, including an old vs new tax regime comparison with state-wise professional tax.',
   },
   {
     q: 'Can I embed a calculator on my website?',
-    a: 'Yes, where an embed option is shown; attribution to FreeCalculations is required.',
+    a: 'Yes. Use our Embed a calculator page to add our calculators to your site for free. (Link "Embed a calculator" to the existing embed page.)',
   },
   {
     q: 'How do I request a new calculator?',
-    a: 'Use the request form below and tell us what you need to calculate.',
+    a: 'Use the Request a calculator link below and tell us what you need. We add new calculators regularly based on what people ask for.',
   },
 ];
 
-const schemas = [buildFAQSchema(faqs)];
+const trendingCalculators = [
+  {
+    slug: 'mortgage-calculator',
+    name: 'Mortgage Calculator',
+    description: 'Estimate your monthly mortgage payment, total interest and full amortization schedule.',
+    icon: '🏠',
+    href: '/finance/mortgage-calculator/',
+  },
+  {
+    slug: 'loan-calculator',
+    name: 'Loan Calculator',
+    description: 'Work out monthly payments on a personal, auto or any other loan.',
+    icon: '💵',
+    href: '/finance/loan-calculator/',
+  },
+  {
+    slug: 'emi-calculator',
+    name: 'EMI Calculator',
+    description: 'Calculate loan EMI for home, car or personal loans, with an interest and repayment breakdown.',
+    icon: '🇮🇳',
+    href: '/finance/emi-calculator/',
+  },
+  {
+    slug: 'sip-calculator',
+    name: 'SIP Calculator',
+    description: 'Estimate mutual fund SIP returns and plan your investment goal.',
+    icon: '📈',
+    href: '/finance/sip-calculator/',
+  },
+  {
+    slug: 'compound-interest-calculator',
+    name: 'Compound Interest Calculator',
+    description: 'See how savings and investments grow over time with compounding.',
+    icon: '💹',
+    href: '/finance/compound-interest-calculator/',
+  },
+  {
+    slug: 'simple-interest-calculator',
+    name: 'Simple Interest Calculator',
+    description: 'Find interest on principal using SI = P × R × T.',
+    icon: '🧾',
+    href: '/finance/simple-interest-calculator/',
+  },
+  {
+    slug: 'salary-calculator',
+    name: 'Salary Calculator',
+    description: 'Convert CTC to in-hand salary with EPF, professional tax and both tax regimes.',
+    icon: '💼',
+    href: '/finance/salary-calculator/',
+  },
+  {
+    slug: 'income-tax-india',
+    name: 'Income Tax Calculator India',
+    description: 'Compare the old and new tax regime with HRA and state professional tax across all 16 states.',
+    icon: '🪙',
+    href: '/finance/income-tax-india/',
+  },
+  {
+    slug: 'bmi-calculator',
+    name: 'BMI Calculator',
+    description: 'Check your body mass index using metric or imperial units.',
+    icon: '⚖️',
+    href: '/health/bmi-calculator/',
+  },
+  {
+    slug: 'tdee-calculator',
+    name: 'TDEE Calculator',
+    description: 'Find out how many calories you burn each day based on your activity level.',
+    icon: '🔥',
+    href: '/health/tdee-calculator/',
+  },
+  {
+    slug: 'pregnancy-calculator',
+    name: 'Pregnancy Due Date Calculator',
+    description: 'Estimate your due date and key pregnancy milestones.',
+    icon: '🤰',
+    href: '/health/pregnancy-calculator/',
+  },
+  {
+    slug: 'calorie-calculator',
+    name: 'Calorie Calculator',
+    description: 'Get your daily calorie needs for weight loss, maintenance or weight gain.',
+    icon: '🍎',
+    href: '/health/calorie-calculator/',
+  },
+  {
+    slug: 'percentage-calculator',
+    name: 'Percentage Calculator',
+    description: 'Find X% of Y, percentage change, increase and decrease in seconds.',
+    icon: '％',
+    href: '/math/percentage-calculator/',
+  },
+  {
+    slug: 'cgpa-to-percentage-calculator',
+    name: 'CGPA to Percentage Calculator',
+    description: 'Convert CGPA to percentage and back for CBSE, VTU, Anna University and Mumbai University.',
+    icon: '🎓',
+    href: '/math/cgpa-to-percentage-calculator/',
+  },
+  {
+    slug: 'fraction-calculator',
+    name: 'Fraction Calculator',
+    description: 'Add, subtract, multiply, divide and simplify fractions.',
+    icon: '½',
+    href: '/math/fraction-calculator/',
+  },
+  {
+    slug: 'gpa-calculator',
+    name: 'GPA Calculator',
+    description: 'Calculate weighted GPA on the 4.0 scale from your courses and credit hours.',
+    icon: '🎓',
+    href: '/math/gpa-calculator/',
+  },
+  {
+    slug: 'unit-converter',
+    name: 'Unit Converter',
+    description: 'Convert length, weight, volume, temperature and area units.',
+    icon: '📏',
+    href: '/conversions/unit-converter/',
+  },
+  {
+    slug: 'currency-converter-hub',
+    name: 'Currency Converter',
+    description: 'Convert between 240+ currency pairs, with year-ago and 5-year rates.',
+    icon: '💱',
+    href: '/conversions/currency/',
+  },
+  {
+    slug: 'time-zone-converter',
+    name: 'Time Zone Converter',
+    description: 'Convert times between EST, IST, GMT, PST and more, with daylight saving.',
+    icon: '🌐',
+    href: '/conversions/time-zone-converter/',
+  },
+  {
+    slug: 'age-calculator',
+    name: 'Age Calculator',
+    description: 'Find your exact age in years, months, days, hours and minutes.',
+    icon: '🎂',
+    href: '/date-time/age-calculator/',
+  },
+  {
+    slug: 'fuel-cost-calculator',
+    name: 'Fuel Cost Calculator',
+    description: 'Estimate trip fuel cost from distance, mileage and fuel price.',
+    icon: '⛽',
+    href: '/auto/fuel-cost-calculator/',
+  },
+];
+
+const categories = [
+  {
+    key: 'finance',
+    label: 'Finance Calculators',
+    description: 'Mortgage, loan, EMI, SIP, tax, salary and investment calculators.',
+    link: '/finance/',
+    color: 'emerald',
+    icon: '💰',
+    calculators: [
+      { name: 'Mortgage Calculator', href: '/finance/mortgage-calculator/' },
+      { name: 'Home Loan EMI Calculator', href: '/finance/emi-calculator/' },
+      { name: 'SIP Calculator', href: '/finance/sip-calculator/' },
+      { name: 'Tax & GST Calculators', href: '/finance/' },
+      { name: 'Investment Calculators', href: '/finance/' },
+    ],
+  },
+  {
+    key: 'health',
+    label: 'Health Calculators',
+    description: 'BMI, calorie, TDEE, body fat and pregnancy calculators.',
+    link: '/health/',
+    color: 'rose',
+    icon: '❤️',
+    calculators: [
+      { name: 'BMI Calculator', href: '/health/bmi-calculator/' },
+      { name: 'Calorie Calculator', href: '/health/calorie-calculator/' },
+      { name: 'TDEE Calculator', href: '/health/tdee-calculator/' },
+      { name: 'Body Fat Calculator', href: '/health/body-fat-calculator/' },
+      { name: 'Pregnancy Calculator', href: '/health/pregnancy-calculator/' },
+    ],
+  },
+  {
+    key: 'math',
+    label: 'Math Calculators',
+    description: 'Percentage, fraction, discount, tip and grade calculators.',
+    link: '/math/',
+    color: 'violet',
+    icon: '🧮',
+    calculators: [
+      { name: 'Percentage Calculator', href: '/math/percentage-calculator/' },
+      { name: 'Fraction Calculator', href: '/math/fraction-calculator/' },
+      { name: 'Discount Calculator', href: '/math/discount-calculator/' },
+      { name: 'Tip Calculator', href: '/math/tip-calculator/' },
+      { name: 'Grade Calculator', href: '/math/grade-calculator/' },
+    ],
+  },
+  {
+    key: 'conversion',
+    label: 'Conversions',
+    description: 'Unit, currency, temperature and time zone converters.',
+    link: '/conversions/',
+    color: 'amber',
+    icon: '🔄',
+    calculators: [
+      { name: 'Unit Converter', href: '/conversions/unit-converter/' },
+      { name: 'Currency Converter', href: '/conversions/currency/' },
+      { name: 'Temperature Converter', href: '/conversions/temperature-converter/' },
+      { name: 'Time Zone Converter', href: '/conversions/time-zone-converter/' },
+    ],
+  },
+  {
+    key: 'date-time',
+    label: 'Date & Time Calculators',
+    description: 'Age, date difference and countdown calculators.',
+    link: '/date-time/',
+    color: 'sky',
+    icon: '📅',
+    calculators: [
+      { name: 'Age Calculator', href: '/date-time/age-calculator/' },
+      { name: 'Date Difference', href: '/date-time/date-difference-calculator/' },
+      { name: 'Countdown Timer', href: '/date-time/countdown-timer/' },
+    ],
+  },
+  {
+    key: 'construction',
+    label: 'Construction Calculators',
+    description: 'Concrete, paint, tile, brick and roofing material estimators.',
+    link: '/construction/',
+    color: 'orange',
+    icon: '🔨',
+    calculators: [
+      { name: 'Concrete Calculator', href: '/construction/concrete-calculator/' },
+      { name: 'Paint Calculator', href: '/construction/paint-calculator/' },
+      { name: 'Tile Calculator', href: '/construction/tile-calculator/' },
+      { name: 'Brick Calculator', href: '/construction/brick-calculator/' },
+      { name: 'Roofing Calculator', href: '/construction/roofing-calculator/' },
+    ],
+  },
+];
+
+const websiteSchema = buildWebsiteSchema();
+const organizationSchema = buildOrganizationSchema();
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq, index) => ({
+    '@type': 'Question',
+    name: faq.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.a,
+    },
+  })),
+};
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: trendingCalculators.map((calc, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: calc.name,
+    url: `https://freecalculations.online${calc.href}`,
+  })),
+};
 ---
 
 <BaseLayout
-  title="FreeCalculations – 70+ Free Online Calculators, No Signup"
-  description="Free online calculators for loans, EMI, SIP, tax, BMI, percentages and unit conversion. No signup, no limits, instant results on any device."
-  schemas={schemas}
+  title="Free Online Calculators – No Signup | FreeCalculations"
+  description="70+ free online calculators for EMI, SIP, income tax, GST, mortgage, BMI and more. No signup, no limits, instant results right in your browser."
+  canonical="/"
+  schemas={[websiteSchema, organizationSchema, faqSchema, itemListSchema]}
+  htmlLang="en"
+  ogImage="/og-default.png"
 >
-  <!-- GEO SUGGESTION — replaces the old homepage geo-redirect. The edge
-       middleware sets a `geo-suggest=<slug>` cookie (users only, never bots);
-       this banner offers the country calculator instead of forcing it. -->
-  <div id="geo-suggest-banner" class="hidden bg-ink-900 text-white" data-nosnippet>
-    <div class="container-wide py-2.5 flex items-center justify-between gap-3 text-sm">
-      <p class="!m-0 font-semibold truncate">
-        🌍 We have a dedicated mortgage calculator for <span id="geo-suggest-name" class="text-lime-accent font-extrabold"></span>
-      </p>
-      <div class="flex items-center gap-2 flex-shrink-0">
-        <a id="geo-suggest-link" href="/finance/mortgage-calculator/" class="px-3 py-1 rounded-full bg-lime-accent text-ink-900 font-extrabold text-xs no-underline hover:opacity-90">Open →</a>
-        <button id="geo-suggest-dismiss" type="button" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 font-bold" aria-label="Dismiss">✕</button>
-      </div>
+  <!-- Announcement bar -->
+  <div class="container-wide py-2.5 flex items-center justify-between gap-3 text-sm bg-amber-50 border border-amber-200 rounded-lg mx-4 my-4">
+    <p class="!m-0 font-semibold truncate">Built for India too: EMI, SIP, GST and Income Tax calculators</p>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <a href="/finance/" class="px-3 py-1 rounded-full bg-amber-500 text-white font-extrabold text-xs no-underline hover:opacity-90" aria-label="Explore India calculators">Explore →</a>
+      <button type="button" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 font-bold text-amber-900" aria-label="Dismiss">✕</button>
     </div>
   </div>
-  <script is:inline>
-    (function () {
-      try {
-        if (localStorage.getItem('geo-pref') === 'stay') return;
-        var m = document.cookie.match(/(?:^|; )geo-suggest=([a-z-]+)/);
-        if (!m) return;
-        var slug = m[1];
-        var name = slug.split('-').map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
-        document.getElementById('geo-suggest-name').textContent = name;
-        document.getElementById('geo-suggest-link').setAttribute('href', '/finance/mortgage-calculator/' + slug + '/');
-        document.getElementById('geo-suggest-banner').classList.remove('hidden');
-        document.getElementById('geo-suggest-dismiss').addEventListener('click', function () {
-          localStorage.setItem('geo-pref', 'stay');
-          document.getElementById('geo-suggest-banner').classList.add('hidden');
-        });
-      } catch (e) {}
-    })();
-  </script>
 
-  <!-- ============================================== -->
-  <!--   HERO — AURORA + STICKER VIBE                  -->
-  <!-- ============================================== -->
+  <!-- Hero -->
   <section class="relative overflow-hidden bg-white">
-    <!-- Aurora background blur layers -->
     <div class="absolute inset-0 -z-10" aria-hidden="true" style="contain: layout style paint;">
       <div class="absolute top-[-10%] left-[-5%] w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-brand-400/40 rounded-full blur-[60px] md:blur-[120px] float-slow"></div>
       <div class="absolute top-[-5%] right-[-10%] w-[250px] h-[250px] md:w-[500px] md:h-[500px] bg-pink-accent/30 rounded-full blur-[60px] md:blur-[120px] float-slow-2"></div>
       <div class="hidden md:block absolute bottom-[-15%] left-[30%] w-[600px] h-[600px] bg-lime-accent/30 rounded-full blur-[140px] float-slow" style="animation-delay: -3s;"></div>
     </div>
 
-    <!-- Grain texture -->
     <div class="absolute inset-0 -z-10 bg-grain opacity-50" aria-hidden="true"></div>
 
     <div class="container-wide relative pt-10 pb-14 md:pt-16 md:pb-20 lg:pt-20 lg:pb-24">
       <div class="max-w-5xl mx-auto text-center">
-        <!-- ✨ Sticker pill -->
         <div class="fade-in inline-flex items-center gap-2 chip-lime mb-7">
           <span class="text-base">✨</span>
-          <span>{totalCount}+ Free Calculators · 0 Signups · Lifetime Free</span>
+          <span>{totalCount}+ FREE CALCULATORS · NO SIGNUP · UNLIMITED USE</span>
         </div>
 
-        <!-- Massive headline -->
-        <h1
-          class="fade-in fade-in-delay-1 !text-5xl xs:!text-6xl sm:!text-7xl md:!text-8xl lg:!text-[9rem] !font-extrabold !tracking-tight !leading-[0.95] text-ink-900"
-          style="font-family: 'Inter Tight', 'Inter', sans-serif;"
-        >
-          Free Online Calculators – No Signup, Unlimited
+        <h1 class="fade-in fade-in-delay-1 !text-5xl xs:!text-6xl sm:!text-7xl md:!text-8xl lg:!text-[9rem] !font-extrabold !tracking-tight !leading-[0.95] text-ink-900" style="font-family: 'Inter Tight', 'Inter', sans-serif;">
+          Free Online Calculators
+          <span class="bg-gradient-to-r from-brand-600 to-pink-accent bg-clip-text text-transparent">for every calculation.</span>
         </h1>
 
-        <!-- Tag -->
-        <p
-          class="fade-in fade-in-delay-2 mt-5 md:mt-7 text-base sm:text-lg md:text-xl text-ink-700 max-w-2xl mx-auto leading-relaxed font-medium"
-        >
-          Work out your EMI, SIP returns, income tax, BMI, percentages and conversions in seconds. Every calculator on FreeCalculations is 100% free, runs in your browser, and never asks you to log in.
+        <p class="fade-in fade-in-delay-2 mt-5 md:mt-7 text-base sm:text-lg md:text-xl text-ink-700 max-w-2xl mx-auto leading-relaxed font-medium">
+          Calculate EMI, SIP returns, income tax, GST, mortgage payments, BMI, percentages and more with free online calculators that need no signup. Fast, accurate and unlimited, on any device.
         </p>
 
-        <!-- Search -->
-        <!-- z-30 so the search dropdown stacks above later .fade-in siblings -->
-        <div class="fade-in fade-in-delay-3 mt-9 md:mt-12 relative z-30">
-          <CalcSearch calculators={calculators} client:load />
-        </div>
+        <p class="text-lg font-bold text-brand-700 mt-4">No login. No limits. Always free.</p>
 
-        <!-- Quick-launch grid — 6 direct calculator tiles, fully above-fold -->
-        <!-- Replaces vague "Try Mortgage" + "Browse all" CTAs that caused 73% bounce -->
-        <div class="fade-in fade-in-delay-4 mt-7 md:mt-8 relative z-10">
-          <p class="text-xs font-bold uppercase tracking-widest text-ink-400 mb-4 text-center">Popular right now</p>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 max-w-2xl mx-auto">
-            {[
-              { icon: '🏠', name: 'Mortgage',    href: '/finance/mortgage-calculator/',              color: 'bg-lime-accent' },
-              { icon: '⚖️', name: 'BMI',          href: '/health/bmi-calculator/',                   color: 'bg-pink-accent' },
-              { icon: '🇮🇳', name: 'EMI',         href: '/finance/emi-calculator/',                  color: 'bg-yellow-accent' },
-              { icon: '📈', name: 'SIP',           href: '/finance/sip-calculator/',                  color: 'bg-cyan-accent' },
-              { icon: '💱', name: 'Currency',      href: '/conversions/currency/',                    color: 'bg-violet-300' },
-              { icon: '🪙', name: 'Income Tax',    href: '/finance/income-tax-india/maharashtra/',    color: 'bg-orange-300' },
-            ].map((c) => (
-              <a
-                href={c.href}
-                class={`group ${c.color} border-2 border-ink-900 rounded-2xl px-4 py-3.5 flex items-center gap-2.5 shadow-sticker-sm hover:shadow-sticker hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-150 no-underline`}
-              >
-                <span class="text-xl sm:text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">{c.icon}</span>
-                <span class="font-extrabold text-ink-900 text-sm sm:text-base leading-tight flex-1">{c.name}</span>
-                <svg class="w-3.5 h-3.5 flex-shrink-0 text-ink-900/50 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
-            ))}
-          </div>
-          <div class="text-center mt-5">
-            <a href="#popular" class="text-sm font-semibold text-ink-500 hover:text-ink-900 underline decoration-2 underline-offset-4 decoration-ink-200 hover:decoration-ink-900 transition-all">
-              See all {totalCount}+ calculators ↓
-            </a>
-          </div>
+        <div class="fade-in fade-in-delay-3 mt-9 md:mt-12 relative z-30">
+          <CalcSearch calculators={[]} client:load placeholder="Search {totalCount}+ free calculators…" aria-label="Search calculators" />
         </div>
       </div>
     </div>
 
-    <!-- Bottom transition -->
     <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-ink-900 -z-10" aria-hidden="true"></div>
   </section>
 
-  <!-- ============================================== -->
-  <!--   MARQUEE STRIP — Featured calculators          -->
-  <!-- ============================================== -->
-  <section class="bg-ink-900 text-white py-6 md:py-8 border-y-4 border-ink-900 overflow-hidden">
+  <!-- Popular chips -->
+  <section class="container-wide py-8 md:py-12">
+    <h2 class="text-xs font-bold uppercase tracking-widest text-ink-400 mb-4 text-center">Most popular calculators</h2>
+    <div class="flex flex-wrap justify-center gap-3 md:gap-4">
+      {[
+        { icon: '🏠', name: 'Mortgage', href: '/finance/mortgage-calculator/', 'aria-label': 'Mortgage Calculator' },
+        { icon: '⚖️', name: 'BMI', href: '/health/bmi-calculator/', 'aria-label': 'BMI Calculator' },
+        { icon: '🇮🇳', name: 'EMI', href: '/finance/emi-calculator/', 'aria-label': 'EMI Calculator' },
+        { icon: '📈', name: 'SIP', href: '/finance/sip-calculator/', 'aria-label': 'SIP Calculator' },
+        { icon: '💱', name: 'Currency', href: '/conversions/currency/', 'aria-label': 'Currency Converter' },
+        { icon: '🪙', name: 'Income Tax', href: '/finance/income-tax-india/', 'aria-label': 'Income Tax Calculator India' },
+      ].map((c) => (
+        <a
+          href={c.href}
+          class="group inline-flex items-center gap-2 bg-white border-2 border-ink-900 rounded-full px-4 py-2.5 shadow-sticker-sm hover:shadow-sticker hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-150 no-underline"
+          aria-label={`${c.name} Calculator`}
+        >
+          <span class="text-lg group-hover:scale-110 transition-transform">{c.icon}</span>
+          <span class="font-extrabold text-ink-900 text-sm leading-tight">{c.name}</span>
+        </a>
+      ))}
+    </div>
+    <div class="text-center mt-6">
+      <a href="#popular" class="text-sm font-semibold text-ink-500 hover:text-ink-900 underline decoration-2 underline-offset-4 decoration-ink-200 hover:decoration-ink-900 transition-all">See all {totalCount}+ calculators ↓</a>
+    </div>
+  </section>
+
+  <!-- Marquee ticker -->
+  <section class="bg-ink-900 text-white py-6 md:py-8 border-y-4 border-ink-900 overflow-hidden" aria-label="Featured calculators ticker">
     <div class="marquee">
       <div class="marquee-track gap-8 md:gap-12">
-        {
-          [...marqueeItems, ...marqueeItems].map((item) => (
-            <span class="inline-flex items-center text-lg md:text-2xl font-extrabold tracking-tight whitespace-nowrap">
-              {item}
-              <span class="mx-8 md:mx-12 text-lime-accent">●</span>
-            </span>
-          ))
-        }
+        {[...marqueeItems, ...marqueeItems].map((item, index) => (
+          <span class="inline-flex items-center text-lg md:text-2xl font-extrabold tracking-tight whitespace-nowrap" aria-hidden={index >= marqueeItems.length} tabindex={index >= marqueeItems.length ? -1 : undefined}>
+            {item}
+            <span class="mx-8 md:mx-12 text-lime-accent">●</span>
+          </span>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!--   POPULAR — Bento style                         -->
-  <!-- ============================================== -->
+  <!-- Trending section -->
   <section id="popular" class="container-wide py-16 md:py-24 relative">
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10 md:mb-14">
       <div>
-        <span class="chip-yellow mb-4">🔥 Trending now</span>
+        <span class="chip-yellow mb-4">🔥 Popular tools</span>
         <h2 class="!text-4xl sm:!text-5xl md:!text-6xl !mt-4 !mb-3 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
-          Most Used Free Calculators
+          Most-used free online calculators
         </h2>
         <p class="text-base md:text-lg text-ink-600 max-w-2xl">
-          Most-used calculators by real humans this week.
+          From loan EMI and SIP returns to BMI and percentages, these are the calculators people open most.
         </p>
       </div>
       <a
@@ -287,42 +467,26 @@ const schemas = [buildFAQSchema(faqs)];
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-      {
-        popularCalculators.map((calc, idx) => {
-          const bgClass = popularColors[idx % popularColors.length];
-          const isLive = calc.status === 'live';
-          const cardClass = `group relative ${bgClass} border-2 border-ink-900 rounded-3xl p-5 sm:p-6 no-underline shadow-sticker ${isLive ? 'hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200' : 'opacity-80'}`;
-          const inner = (
-            <>
-              {!isLive && (
-                <span class="absolute -top-2 -right-2 chip-white !text-[9px] !px-2 !py-0.5">
-                  Soon
-                </span>
-              )}
-              <div class={`text-4xl sm:text-5xl mb-3 sm:mb-4 inline-block ${isLive ? 'transition-transform group-hover:scale-110 group-hover:rotate-6' : ''}`}>
-                {calc.icon}
-              </div>
-              <div class="font-extrabold text-ink-900 text-sm sm:text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">
-                {calc.name}
-              </div>
-              <p class="text-xs sm:text-sm text-ink-800 mt-1.5 leading-snug line-clamp-2 font-medium">
-                {calc.description}
-              </p>
-            </>
-          );
-          return isLive ? (
-            <a href={calc.href} class={cardClass}>{inner}</a>
-          ) : (
-            <div class={cardClass} aria-disabled="true">{inner}</div>
-          );
-        })
-      }
+      {trendingCalculators.map((calc, idx) => {
+        const bgClass = ['bg-lime-accent', 'bg-pink-accent text-white', 'bg-yellow-accent', 'bg-cyan-accent', 'bg-violet-300', 'bg-orange-300', 'bg-rose-300', 'bg-emerald-300'][idx % 8];
+        return (
+          <a href={calc.href} class={`group relative ${bgClass} border-2 border-ink-900 rounded-3xl p-5 sm:p-6 no-underline shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
+            <div class="text-4xl sm:text-5xl mb-3 sm:mb-4 inline-block transition-transform group-hover:scale-110 group-hover:rotate-6">
+              {calc.icon}
+            </div>
+            <div class="font-extrabold text-ink-900 text-sm sm:text-base leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+              {calc.name}
+            </div>
+            <p class="text-xs sm:text-sm text-ink-800 mt-1.5 leading-snug line-clamp-2 font-medium">
+              {calc.description}
+            </p>
+          </a>
+        );
+      })}
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!--   USE CASES BENTO                               -->
-  <!-- ============================================== -->
+  <!-- Use cases section -->
   <section class="relative bg-ink-50 border-y-2 border-ink-900 overflow-hidden">
     <div class="absolute inset-0 bg-grid opacity-50" aria-hidden="true"></div>
 
@@ -330,137 +494,105 @@ const schemas = [buildFAQSchema(faqs)];
       <div class="text-center max-w-2xl mx-auto mb-12 md:mb-16">
         <span class="chip-pink mb-4">💡 Use cases</span>
         <h2 class="!text-4xl sm:!text-5xl md:!text-6xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
-          What's the vibe?
+          Find the right calculator for what you're doing
         </h2>
         <p class="text-base md:text-lg text-ink-700 mt-4 font-medium">
-          Pick what you're trying to do. We'll send you to the right tool.
+          Pick your goal and we'll point you to the best free calculator for it.
         </p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-        {
-          useCases.map((uc) => (
-            <a
-              href={uc.href}
-              class="group relative bg-white border-2 border-ink-900 rounded-3xl p-6 md:p-7 flex flex-col
-                     shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)]
-                     hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200 no-underline"
-            >
-              <span class={`${uc.chipColor} self-start mb-4`}>Now</span>
-              <div class="text-5xl mb-4 transition-transform group-hover:rotate-12">{uc.icon}</div>
-              <h3 class="!text-xl !mt-0 !mb-2 !text-ink-900 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
-                {uc.title}
-              </h3>
-              <p class="text-sm text-ink-700 flex-1 leading-relaxed font-medium">{uc.desc}</p>
-              <div class="mt-5 inline-flex items-center gap-1 text-sm font-extrabold text-ink-900 group-hover:gap-2 transition-all">
-                {uc.cta}
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </a>
-          ))
-        }
+        {useCases.map((uc) => (
+          <a
+            href={uc.href}
+            class="group relative bg-white border-2 border-ink-900 rounded-3xl p-6 md:p-7 flex flex-col shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200 no-underline"
+          >
+            <span class={`${uc.chipColor} self-start mb-4`}>Now</span>
+            <div class="text-5xl mb-4 transition-transform group-hover:rotate-12">{uc.icon}</div>
+            <h3 class="!text-xl !mt-0 !mb-2 !text-ink-900 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+              {uc.title}
+            </h3>
+            <p class="text-sm text-ink-700 flex-1 leading-relaxed font-medium">{uc.desc}</p>
+            <div class="mt-5 inline-flex items-center gap-1 text-sm font-extrabold text-ink-900 group-hover:gap-2 transition-all">
+              {uc.cta}
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!--   STATS — BIG NUMBERS                           -->
-  <!-- ============================================== -->
+  <!-- Stats strip -->
   <section class="relative bg-white border-b-2 border-ink-900 overflow-hidden">
     <div class="container-wide py-16 md:py-20">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
         <div class="stat-block">
-          <span class="stat-num text-gradient-electric">70+</span>
-          <div class="stat-label">Calculators</div>
+          <span class="stat-num text-gradient-electric">{totalCount}+</span>
+          <div class="stat-label">Free calculators</div>
         </div>
         <div class="stat-block">
           <span class="stat-num text-gradient-sunset">100%</span>
-          <div class="stat-label">Free</div>
+          <div class="stat-label">Free to use</div>
         </div>
         <div class="stat-block">
           <span class="stat-num text-gradient-electric">0</span>
-          <div class="stat-label">Signups Required</div>
+          <div class="stat-label">Signups required</div>
         </div>
         <div class="stat-block">
           <span class="stat-num text-gradient-electric">∞</span>
-          <div class="stat-label">No Usage Limits</div>
+          <div class="stat-label">Unlimited uses</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!--   CATEGORIES — bento grid mix                   -->
-  <!-- ============================================== -->
+  <!-- Categories section -->
   <section id="categories" class="container-wide py-16 md:py-24">
     <div class="text-center max-w-2xl mx-auto mb-12 md:mb-16">
       <span class="chip-cyan mb-4">📂 Categories</span>
       <h2 class="!text-4xl sm:!text-5xl md:!text-6xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
-        Browse the
-        <span class="text-gradient-electric">whole library</span>
+        Browse free calculators by category
       </h2>
       <p class="text-base md:text-lg text-ink-600 mt-4 font-medium">
-        Everything organized. Nothing buried.
+        Finance, health, math, conversions, dates and construction, all organized in one place.
       </p>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-      {
-        categories.map((cat) => {
-          const meta = categoryMeta[cat];
-          const calcs = calculatorsByCategory(cat).slice(0, 5);
-          return (
-            <div class={`group relative ${categoryColorBg[meta.color] || 'bg-ink-100'} border-2 border-ink-900 rounded-3xl p-6 md:p-7 flex flex-col shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200`}>
-              <div class="flex items-center gap-3 mb-4">
-                <div class={`w-14 h-14 rounded-2xl ${categoryColorIcon[meta.color] || 'bg-ink-400'} border-2 border-ink-900 shadow-sticker-sm flex items-center justify-center text-2xl text-white group-hover:rotate-6 transition-transform`}>
-                  {meta.icon}
-                </div>
-                <h3 class="!text-2xl !my-0 !text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{meta.label}</h3>
-              </div>
-              <p class="text-sm text-ink-800 mb-5 leading-relaxed font-medium">{meta.description}</p>
-              <ul class="space-y-1.5 mb-5 flex-1">
-                {calcs.map((c) => {
-                  const isLive = c.status === 'live';
-                  const liInner = (
-                    <>
-                      <span class="text-base flex-shrink-0">{c.icon}</span>
-                      <span class={`truncate ${isLive ? 'group-hover/item:underline' : ''}`}>{c.name}</span>
-                      {!isLive && (
-                        <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-white border border-ink-300 text-ink-600 uppercase tracking-wider flex-shrink-0">
-                          Soon
-                        </span>
-                      )}
-                    </>
-                  );
-                  return (
-                    <li>
-                      {isLive ? (
-                        <a href={c.href} class="flex items-center gap-2.5 text-sm text-ink-900 hover:text-brand-700 no-underline py-1 font-semibold group/item">{liInner}</a>
-                      ) : (
-                        <div class="flex items-center gap-2.5 text-sm text-ink-500 py-1 font-semibold" aria-disabled="true">{liInner}</div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-              <a
-                href={meta.href}
-                class="inline-flex items-center gap-1 text-sm font-extrabold text-ink-900 hover:text-brand-700 no-underline mt-auto underline decoration-2 underline-offset-4 hover:decoration-brand-500"
-              >
-                View all {meta.label.toLowerCase()} →
-              </a>
+      {categories.map((cat) => (
+        <div class="group relative bg-white border-2 border-ink-900 rounded-3xl p-6 md:p-7 flex flex-col shadow-sticker hover:shadow-[8px_8px_0_0_rgba(15,23,42,0.9)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200">
+          <div class="flex items-center gap-3 mb-4">
+            <div class={`w-14 h-14 rounded-2xl bg-${cat.color}-400 border-2 border-ink-900 shadow-sticker-sm flex items-center justify-center text-2xl text-white group-hover:rotate-6 transition-transform`}>
+              {cat.icon}
             </div>
-          );
-        })
-      }
+            <h3 class="!text-2xl !my-0 !text-ink-900" style="font-family: 'Inter Tight', sans-serif;">{cat.label}</h3>
+          </div>
+          <p class="text-sm text-ink-800 mb-5 leading-relaxed font-medium">{cat.description}</p>
+          <ul class="space-y-1.5 mb-5 flex-1">
+            {cat.calculators.map((c) => (
+              <li>
+                <a href={c.href} class="flex items-center gap-2.5 text-sm text-ink-900 hover:text-brand-700 no-underline py-1 font-semibold group/item">
+                  <span class="text-base flex-shrink-0">•</span>
+                  <span class="truncate group-hover/item:underline">{c.name}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a
+            href={cat.link}
+            class="inline-flex items-center gap-1 text-sm font-extrabold text-ink-900 hover:text-brand-700 no-underline mt-auto underline decoration-2 underline-offset-4 hover:decoration-brand-500"
+          >
+            View all {cat.label.toLowerCase()} →
+          </a>
+        </div>
+      ))}
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!--   WHY — DARK SECTION WITH AURORA                -->
-  <!-- ============================================== -->
+  <!-- Why section -->
   <section class="relative overflow-hidden bg-ink-950 text-white">
     <div class="absolute inset-0 -z-0" aria-hidden="true">
       <div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-500/30 rounded-full blur-[120px] float-slow"></div>
@@ -471,96 +603,122 @@ const schemas = [buildFAQSchema(faqs)];
 
     <div class="container-wide relative z-10 py-20 md:py-28">
       <div class="text-center max-w-3xl mx-auto mb-14 md:mb-20">
-        <span class="chip bg-lime-accent text-ink-900 mb-4">⚡ Built different</span>
+        <span class="chip bg-lime-accent text-ink-900 mb-4">⚡ Why FreeCalculations</span>
         <h2 class="!text-4xl sm:!text-5xl md:!text-6xl !mt-4 !text-white !leading-[1.05]" style="font-family: 'Inter Tight', sans-serif;">
-          No popups. No signups.
-          <br />
-          <span class="text-gradient-electric">Just calculations.</span>
+          Free online calculators with no popups and no signups
         </h2>
         <p class="text-base md:text-lg text-ink-300 mt-5 font-medium">
-          Most calculator sites are bloated with ads and signup walls. We built the opposite.
+          Most calculator sites bury you in ads and signup walls. We built the opposite.
         </p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
-        <!-- Card 1 — speed -->
         <div class="relative bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-3xl p-7 hover:bg-white/[0.08] hover:border-lime-accent/40 transition-all">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-lime-accent to-emerald-500 flex items-center justify-center mb-5 shadow-glow-lime">
             <svg class="w-7 h-7 text-ink-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h3 class="!text-2xl !mt-0 !mb-3 !text-white" style="font-family: 'Inter Tight', sans-serif;">⚡ No signup, ever</h3>
+          <h3 class="!text-2xl !mt-0 !mb-3 !text-white" style="font-family: 'Inter Tight', sans-serif;">⚡ Fast on any device</h3>
           <p class="text-ink-300 leading-relaxed">
-            Open a calculator and use it. No account, no email, no paywall. 100% free forever.
+            Lightweight pages on a global CDN, and every calculation runs in your browser, so results appear instantly on phone or desktop.
           </p>
         </div>
 
-        <!-- Card 2 — accuracy -->
         <div class="relative bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-3xl p-7 hover:bg-white/[0.08] hover:border-pink-accent/40 transition-all">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-accent to-rose-500 flex items-center justify-center mb-5 shadow-glow-pink">
             <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 class="!text-2xl !mt-0 !mb-3 !text-white" style="font-family: 'Inter Tight', sans-serif;">🎯 Formulas explained</h3>
+          <h3 class="!text-2xl !mt-0 !mb-3 !text-white" style="font-family: 'Inter Tight', sans-serif;">🎯 Accurate results</h3>
           <p class="text-ink-300 leading-relaxed">
-            Each calculator shows how the result is worked out using standard published formulas.
+            We use standard, well-known formulas and test our calculators against known results, so you can trust the numbers.
           </p>
         </div>
 
-        <!-- Card 3 — privacy -->
         <div class="relative bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-3xl p-7 hover:bg-white/[0.08] hover:border-cyan-accent/40 transition-all">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-accent to-brand-500 flex items-center justify-center mb-5 shadow-glow">
             <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h3 class="!text-2xl !mt-0 !mb-3 !text-white" style="font-family: 'Inter Tight', sans-serif;">🔒 Private af.</h3>
+          <h3 class="!text-2xl !mt-0 !mb-3 !text-white" style="font-family: 'Inter Tight', sans-serif;">🔒 Private by design</h3>
           <p class="text-ink-300 leading-relaxed">
-            Your numbers never leave your browser. No accounts. No personal-data tracking. Real privacy, not the buzzword.
+            No accounts, and we never ask for personal details. The numbers you enter stay in your browser.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!--   FAQ                                           -->
-  <!-- ============================================== -->
+  <!-- About / SEO text section -->
+  <section class="container-prose py-16 md:py-24">
+    <div class="text-center max-w-2xl mx-auto">
+      <h2 class="!text-4xl sm:!text-5xl md:!text-6xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
+        Free online calculators for everyday finance, health and math
+      </h2>
+      <p class="text-base md:text-lg text-ink-700 mt-6 leading-relaxed">
+        FreeCalculations is a growing library of free online calculators for the decisions you make every day. Work out a home loan EMI, plan a SIP, compare the old and new income tax regime, or add GST to a price. Check your BMI and daily calories, convert units and currencies, find a percentage or calculate your exact age.
+      </p>
+      <p class="text-base md:text-lg text-ink-700 mt-4 leading-relaxed">
+        Every calculator is free, works on mobile and desktop, and needs no signup or download. Enter your numbers, get instant results and move on with your day. We include tools for users worldwide and dedicated calculators for India, covering EMI, SIP, FD, GST, HRA and income tax.
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3 text-sm">
+        <a href="/finance/mortgage-calculator/" class="text-ink-700 hover:text-brand-700 underline decoration-2 underline-offset-4">Mortgage Calculator</a>
+        <span class="text-ink-400">·</span>
+        <a href="/finance/emi-calculator/" class="text-ink-700 hover:text-brand-700 underline decoration-2 underline-offset-4">EMI Calculator</a>
+        <span class="text-ink-400">·</span>
+        <a href="/finance/sip-calculator/" class="text-ink-700 hover:text-brand-700 underline decoration-2 underline-offset-4">SIP Calculator</a>
+        <span class="text-ink-400">·</span>
+        <a href="/finance/income-tax-india/" class="text-ink-700 hover:text-brand-700 underline decoration-2 underline-offset-4">Income Tax Calculator India</a>
+        <span class="text-ink-400">·</span>
+        <a href="/finance/gst-calculator/" class="text-ink-700 hover:text-brand-700 underline decoration-2 underline-offset-4">GST Calculator</a>
+        <span class="text-ink-400">·</span>
+        <a href="/health/bmi-calculator/" class="text-ink-700 hover:text-brand-700 underline decoration-2 underline-offset-4">BMI Calculator</a>
+        <span class="text-ink-400">·</span>
+        <a href="/date-time/age-calculator/" class="text-ink-700 hover:text-brand-700 underline decoration-2 underline-offset-4">Age Calculator</a>
+        <span class="text-ink-400">·</span>
+        <a href="/math/percentage-calculator/" class="text-ink-700 hover:text-brand-700 underline decoration-2 underline-offset-4">Percentage Calculator</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ section -->
   <section class="container-prose py-16 md:py-24">
     <div class="text-center max-w-2xl mx-auto mb-10 md:mb-14">
       <span class="chip-yellow mb-4">❓ FAQ</span>
       <h2 class="!text-4xl sm:!text-5xl md:!text-6xl !mt-4 !leading-tight" style="font-family: 'Inter Tight', sans-serif;">
-        Quick answers.
+        Frequently asked questions
       </h2>
+      <p class="text-base md:text-lg text-ink-600">
+        Quick answers.
+      </p>
     </div>
 
     <div class="space-y-3">
-      {
-        faqs.map((faq, idx) => (
-          <details
-            class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all overflow-hidden"
-            open={idx === 0}
-          >
-            <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
-              <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
-              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
-                <svg
-                  class="w-4 h-4 text-white group-open:text-ink-900 transition-all group-open:rotate-180"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="3"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </span>
-            </summary>
-            <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
-          </details>
-        ))
-      }
+      {faqs.map((faq, idx) => (
+        <details
+          class="group bg-white border-2 border-ink-900 rounded-2xl shadow-sticker-sm hover:shadow-sticker transition-all overflow-hidden"
+          open={idx === 0}
+        >
+          <summary class="cursor-pointer p-5 md:p-6 font-extrabold text-ink-900 flex items-center justify-between gap-4 list-none">
+            <span class="text-base md:text-lg" style="font-family: 'Inter Tight', sans-serif;">{faq.q}</span>
+            <span class="flex-shrink-0 w-9 h-9 rounded-full bg-ink-900 group-open:bg-lime-accent flex items-center justify-center transition-colors">
+              <svg
+                class="w-4 h-4 text-white group-open:text-ink-900 transition-all group-open:rotate-180"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </summary>
+          <div class="px-5 md:px-6 pb-5 md:pb-6 text-ink-700 leading-relaxed font-medium">{faq.a}</div>
+        </details>
+      ))}
     </div>
 
     <div class="text-center mt-10">
@@ -571,24 +729,17 @@ const schemas = [buildFAQSchema(faqs)];
     </div>
   </section>
 
-  <!-- ============================================== -->
-  <!--   CTA — Big sticker block                       -->
-  <!-- ============================================== -->
+  <!-- CTA band -->
   <section class="px-4 sm:px-6 lg:px-8 pb-20">
     <div class="relative overflow-hidden bg-lime-accent border-2 border-ink-900 rounded-[2rem] md:rounded-[3rem] shadow-sticker max-w-6xl mx-auto">
       <div class="absolute inset-0 bg-grid opacity-30" aria-hidden="true"></div>
-
-      <!-- Floating sparkles -->
-      <div class="absolute top-8 right-8 text-3xl float-slow" aria-hidden="true">✨</div>
-      <div class="absolute bottom-12 left-12 text-2xl float-slow-2" aria-hidden="true">🚀</div>
-      <div class="absolute top-1/3 left-8 text-2xl float-slow" style="animation-delay: -2s;" aria-hidden="true">⚡</div>
 
       <div class="relative z-10 px-6 md:px-12 py-16 md:py-24 text-center">
           <h2 class="!text-4xl sm:!text-5xl md:!text-6xl !mt-0 !leading-[1.05] !text-ink-900 !font-extrabold max-w-3xl mx-auto" style="font-family: 'Inter Tight', sans-serif;">
           Missing a calculator?
         </h2>
         <p class="text-ink-800 mt-5 text-base md:text-lg max-w-xl mx-auto leading-relaxed font-medium">
-          Tell us what you need and we may add it. Requests are reviewed regularly.
+          We add new calculators regularly based on what people ask for. Tell us what you need and we'll build it.
         </p>
         <div class="mt-9 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto sm:max-w-none">
           <a href="/contact/" class="btn-primary w-full sm:w-auto">

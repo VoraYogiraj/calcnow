@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://calctube.pages.dev',
+  site: process.env.SITE_URL || 'https://freecalculations.online',
   integrations: [
     react(),
     tailwind({ applyBaseStyles: false }),

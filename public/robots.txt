@@ -70,4 +70,4 @@ Disallow: /
 User-agent: DotBot
 Disallow: /
 
-Sitemap: https://calctube.pages.dev/sitemap-index.xml
+Sitemap: https://freecalculations.online/sitemap-index.xml
